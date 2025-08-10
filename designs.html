@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Shopper - Design Variations</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            font-size: 2.5rem;
+        }
+        
+        .designs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .design-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .design-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .design-header {
+            padding: 20px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .phone-mockup {
+            width: 300px;
+            height: 600px;
+            margin: 0 auto 20px;
+            border-radius: 25px;
+            overflow: hidden;
+            position: relative;
+            border: 8px solid #333;
+        }
+        
+        /* Design 1: Modern Minimalist */
+        .design1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .design1 .phone-mockup {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .design1-content {
+            padding: 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .design1 .app-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .design1 .app-title {
+            font-size: 1.8rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        
+        .design1 .stats {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .design1 .add-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .design1 .add-input {
+            width: 100%;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            color: white;
+            placeholder-color: rgba(255,255,255,0.7);
+        }
+        
+        .design1 .item {
+            background: rgba(255,255,255,0.15);
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        /* Design 2: Vibrant & Playful */
+        .design2 {
+            background: linear-gradient(45deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+            color: #2c3e50;
+        }
+        
+        .design2 .phone-mockup {
+            background: linear-gradient(45deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .design2-content {
+            padding: 20px;
+            height: 100%;
+        }
+        
+        .design2 .app-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .design2 .app-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 10px;
+        }
+        
+        .design2 .progress-ring {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: conic-gradient(#fff 70deg, rgba(255,255,255,0.3) 70deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .design2 .category-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+        }
+        
+        .design2 .tab {
+            background: rgba(255,255,255,0.9);
+            padding: 8px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .design2 .tab.active {
+            background: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .design2 .item {
+            background: white;
+            margin-bottom: 12px;
+            padding: 18px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .design2 .item-emoji {
+            font-size: 1.5rem;
+        }
+        
+        /* Design 3: Dark & Sophisticated */
+        .design3 {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+        
+        .design3 .phone-mockup {
+            background: #1a1a1a;
+            border-color: #555;
+        }
+        
+        .design3-content {
+            padding: 20px;
+            height: 100%;
+            color: white;
+        }
+        
+        .design3 .app-header {
+            border-bottom: 1px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .design3 .app-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #00d4aa;
+            margin-bottom: 8px;
+        }
+        
+        .design3 .subtitle {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .design3 .quick-stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .design3 .stat-card {
+            flex: 1;
+            background: #2a2a2a;
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+        
+        .design3 .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #00d4aa;
+        }
+        
+        .design3 .stat-label {
+            font-size: 0.8rem;
+            color: #999;
+        }
+        
+        .design3 .search-bar {
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 10px;
+            padding: 12px;
+            width: 100%;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .design3 .item {
+            background: #2a2a2a;
+            border: 1px solid #333;
+            margin-bottom: 10px;
+            padding: 16px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .design3 .item.completed {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+        
+        .design3 .priority-indicator {
+            width: 4px;
+            height: 100%;
+            background: #00d4aa;
+            border-radius: 2px;
+            margin-right: 12px;
+        }
+        
+        .design3 .priority-high {
+            background: #ff4757;
+        }
+        
+        .design3 .priority-medium {
+            background: #ffa502;
+        }
+        
+        .design3 .priority-low {
+            background: #7bed9f;
+        }
+        
+        .description {
+            padding: 20px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #666;
+        }
+        
+        .features {
+            padding: 0 20px 20px;
+        }
+        
+        .features h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .features ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .features li {
+            margin-bottom: 5px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Vibe Shopper - Design Variations</h1>
+        
+        <div class="designs-grid">
+            <!-- Design 1: Modern Minimalist -->
+            <div class="design-card">
+                <div class="design-header design1">
+                    <h2>Modern Minimalist</h2>
+                </div>
+                
+                <div class="phone-mockup">
+                    <div class="design1-content">
+                        <div class="app-header">
+                            <div class="app-title">VIBE</div>
+                        </div>
+                        
+                        <div class="stats">
+                            <div style="font-size: 0.9rem; margin-bottom: 5px;">Today's Progress</div>
+                            <div style="font-size: 1.5rem; font-weight: 600;">3 of 8 items</div>
+                        </div>
+                        
+                        <div class="add-section">
+                            <input class="add-input" placeholder="Add new item..." />
+                        </div>
+                        
+                        <div style="flex: 1; overflow-y: auto;">
+                            <!-- Produce Section -->
+                            <div class="category-section">
+                                <div style="font-size: 0.9rem; font-weight: 600; opacity: 0.8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Produce</div>
+                                
+                                <div class="item">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.5); border-radius: 50%;"></div>
+                                        <div>Organic Bananas</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="item">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.5); border-radius: 50%;"></div>
+                                        <div>Fresh Spinach</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Dairy Section -->
+                            <div class="category-section" style="margin-top: 25px;">
+                                <div style="font-size: 0.9rem; font-weight: 600; opacity: 0.8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Dairy</div>
+                                
+                                <div class="item">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="width: 20px; height: 20px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                            <div style="color: #f093fb; font-size: 12px;">✓</div>
+                                        </div>
+                                        <div style="opacity: 0.7; text-decoration: line-through;">Greek Yogurt</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="item">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.5); border-radius: 50%;"></div>
+                                        <div>Whole Milk</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Bakery Section -->
+                            <div class="category-section" style="margin-top: 25px;">
+                                <div style="font-size: 0.9rem; font-weight: 600; opacity: 0.8; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px;">Bakery</div>
+                                
+                                <div class="item">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        <div style="width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.5); border-radius: 50%;"></div>
+                                        <div>Sourdough Bread</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="description">
+                    Clean, gradient-based design focusing on simplicity and elegance. Uses glassmorphism effects with subtle transparency.
+                </div>
+                
+                <div class="features">
+                    <h4>Key Features:</h4>
+                    <ul>
+                        <li>Gradient backgrounds with blur effects</li>
+                        <li>Minimal typography with lots of white space</li>
+                        <li>Progress indicators</li>
+                        <li>Smooth animations and transitions</li>
+                        <li>Focus on essential functionality</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Design 2: Vibrant & Playful -->
+            <div class="design-card">
+                <div class="design-header design2">
+                    <h2>Vibrant & Playful</h2>
+                </div>
+                
+                <div class="phone-mockup">
+                    <div class="design2-content">
+                        <div class="app-header">
+                            <div class="app-title">🛒 Vibe Shopper</div>
+                            <div class="progress-ring">75%</div>
+                        </div>
+                        
+                        <div class="category-tabs">
+                            <div class="tab active">🥕 Produce</div>
+                            <div class="tab">🥛 Dairy</div>
+                            <div class="tab">🍞 Bakery</div>
+                            <div class="tab">🥫 Pantry</div>
+                        </div>
+                        
+                        <div style="overflow-y: auto;">
+                            <div class="item">
+                                <div class="item-emoji">🍌</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600;">Organic Bananas</div>
+                                    <div style="font-size: 0.8rem; color: #666;">Produce section</div>
+                                </div>
+                                <div style="width: 24px; height: 24px; border: 2px solid #ff6b9d; border-radius: 50%;"></div>
+                            </div>
+                            
+                            <div class="item">
+                                <div class="item-emoji">🥛</div>
+                                <div style="flex: 1; opacity: 0.6;">
+                                    <div style="font-weight: 600; text-decoration: line-through;">Greek Yogurt</div>
+                                    <div style="font-size: 0.8rem; color: #666;">Dairy section</div>
+                                </div>
+                                <div style="width: 24px; height: 24px; background: #ff6b9d; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 14px;">✓</div>
+                            </div>
+                            
+                            <div class="item">
+                                <div class="item-emoji">🍞</div>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: 600;">Sourdough Bread</div>
+                                    <div style="font-size: 0.8rem; color: #666;">Bakery section</div>
+                                </div>
+                                <div style="width: 24px; height: 24px; border: 2px solid #ff6b9d; border-radius: 50%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="description">
+                    Fun, emoji-rich design with bright colors and playful interactions. Categories help organize shopping by store sections.
+                </div>
+                
+                <div class="features">
+                    <h4>Key Features:</h4>
+                    <ul>
+                        <li>Emoji-based item categorization</li>
+                        <li>Bright, energetic color schemes</li>
+                        <li>Category-based organization</li>
+                        <li>Circular progress indicators</li>
+                        <li>Card-based layout with shadows</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Design 3: Dark & Sophisticated -->
+            <div class="design-card">
+                <div class="design-header design3">
+                    <h2>Dark & Sophisticated</h2>
+                </div>
+                
+                <div class="phone-mockup">
+                    <div class="design3-content">
+                        <div class="app-header">
+                            <div class="app-title">Vibe Shopper</div>
+                            <div class="subtitle">Smart shopping made simple</div>
+                        </div>
+                        
+                        <div class="quick-stats">
+                            <div class="stat-card">
+                                <div class="stat-number">8</div>
+                                <div class="stat-label">Total</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">3</div>
+                                <div class="stat-label">Done</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">5</div>
+                                <div class="stat-label">Left</div>
+                            </div>
+                        </div>
+                        
+                        <input class="search-bar" placeholder="🔍 Search items..." />
+                        
+                        <div style="overflow-y: auto;">
+                            <div class="item">
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div class="priority-indicator priority-high"></div>
+                                    <div>Organic Bananas</div>
+                                </div>
+                                <div style="opacity:0.8; font-size:0.85rem;">Produce</div>
+                            </div>
+                            <div class="item completed">
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div class="priority-indicator priority-low"></div>
+                                    <div>Greek Yogurt</div>
+                                </div>
+                                <div style="opacity:0.8; font-size:0.85rem;">Dairy</div>
+                            </div>
+                            <div class="item">
+                                <div style="display:flex; align-items:center; gap:12px;">
+                                    <div class="priority-indicator priority-medium"></div>
+                                    <div>Sourdough Bread</div>
+                                </div>
+                                <div style="opacity:0.8; font-size:0.85rem;">Bakery</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
