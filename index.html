@@ -1,55 +1,353 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Shopping Vibes</title>
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibe Shopper - Modern Minimalist</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #EDE7DC 0%, #DCD2CC 50%, #CCAFA5 100%);
+            height: 100vh;
+            padding: 20px;
+            color: #444;
+        }
+        
+        .app-container {
+            max-width: 400px;
+            margin: 0 auto;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .app-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .app-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: #444;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+        }
+        
+        .stats {
+            background: rgba(255,255,255,0.4);
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #444;
+        }
+        
+        .add-section {
+            background: rgba(255,255,255,0.3);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .add-input {
+            width: 100%;
+            background: rgba(255,255,255,0.5);
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            color: #444;
+            font-size: 16px;
+        }
+        
+        .add-input::placeholder {
+            color: rgba(68,68,68,0.6);
+        }
+        
+        .shopping-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .category-section {
+            margin-bottom: 25px;
+        }
+        
+        .category-header {
+            font-size: 0.9rem;
+            font-weight: 700;
+            opacity: 1;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+        }
+        
+        .item {
+            background: rgba(255,255,255,0.4);
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .item:hover {
+            background: rgba(255,255,255,0.6);
+        }
+        
+        .item-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #CCAFA5;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .checkbox.checked {
+            background: #CCAFA5;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .item-text {
+            font-size: 1rem;
+        }
+        
+        .item-text.completed {
+            opacity: 0.7;
+            text-decoration: line-through;
+        }
+        
+        .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    </style>
+</head>
+<body>
     <div class="app-container">
-      <header class="app-header">
-        <h1>Shopping Vibes</h1>
-      </header>
-
-      <form id="add-form" class="add-form" autocomplete="off">
-        <div class="row">
-          <input
-            id="item-input"
-            type="text"
-            placeholder="Add an item"
-            aria-label="Item"
-            required
-            autofocus
-          />
-          <button type="submit">Add</button>
+        <div class="app-header">
+            <div class="app-title">VIBE</div>
         </div>
-      </form>
-
-      <ul id="items" class="items"></ul>
+        
+        <div class="stats">
+            <div style="font-size: 0.9rem; margin-bottom: 5px;">Today's Progress</div>
+            <div id="progress" style="font-size: 1.5rem; font-weight: 600;">0 of 0 items</div>
+        </div>
+        
+        <div class="add-section">
+            <input id="add-input" class="add-input" placeholder="Add new item..." aria-label="Add new item" />
+        </div>
+        
+        <div class="shopping-list" id="shopping-list" aria-label="Shopping list">
+            <div class="category-section" id="main-category">
+                <div class="category-header">Items</div>
+                <div id="items"></div>
+            </div>
+        </div>
     </div>
 
-    <script>
-      (function initializeSimpleListApp() {
-        const formElement = document.getElementById('add-form');
-        const inputElement = document.getElementById('item-input');
-        const itemsListElement = document.getElementById('items');
+    <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
-        function appendItemToList(itemName) {
-          const listItemElement = document.createElement('li');
-          listItemElement.textContent = itemName;
-          itemsListElement.appendChild(listItemElement);
+    <script>
+      (function() {
+        const STORAGE_KEY = 'vibe.minimal.v1';
+        const inputEl = document.getElementById('add-input');
+        const itemsContainer = document.getElementById('items');
+        const progressEl = document.getElementById('progress');
+        const live = document.getElementById('live');
+
+        let state = loadState();
+        let longPressTimer = null;
+
+        // Global drag handlers (once)
+        itemsContainer.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          const draggingId = e.dataTransfer?.getData('text/plain');
+          const draggingEl = draggingId ? itemsContainer.querySelector(`[data-id="${draggingId}"]`) : null;
+          const target = (e.target.closest && e.target.closest('.item')) || null;
+          if (!draggingEl || !target || draggingEl === target) return;
+          const rect = target.getBoundingClientRect();
+          const isBefore = e.clientY < rect.top + rect.height / 2;
+          if (isBefore) itemsContainer.insertBefore(draggingEl, target);
+          else itemsContainer.insertBefore(draggingEl, target.nextSibling);
+        });
+        itemsContainer.addEventListener('drop', persistOrder);
+
+        function loadState() {
+          try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { items: [] }; }
+          catch { return { items: [] }; }
+        }
+        function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+        function announce(msg) { live.textContent = msg; }
+
+        function updateProgress() {
+          const total = state.items.length;
+          const done = state.items.filter(i => i.completed).length;
+          progressEl.textContent = `${done} of ${total} item${total === 1 ? '' : 's'}`;
         }
 
-        formElement.addEventListener('submit', function onFormSubmit(event) {
-          event.preventDefault();
-          const trimmedValue = (inputElement.value || '').trim();
-          if (!trimmedValue) return;
-          appendItemToList(trimmedValue);
-          inputElement.value = '';
-          inputElement.focus();
+        function createItemElement(item) {
+          const el = document.createElement('div');
+          el.className = 'item';
+          el.setAttribute('draggable', 'true');
+          el.dataset.id = item.id;
+          el.innerHTML = `
+            <div class="item-content">
+              <div class="checkbox${item.completed ? ' checked' : ''}" role="checkbox" aria-checked="${item.completed}" tabindex="0">${item.completed ? '✓' : ''}</div>
+              <div class="item-text${item.completed ? ' completed' : ''}" tabindex="0"></div>
+            </div>
+          `;
+          const checkbox = el.querySelector('.checkbox');
+          const textEl = el.querySelector('.item-text');
+          textEl.textContent = item.text;
+
+          // Toggle complete
+          function toggle(announceToggle = true) {
+            item.completed = !item.completed;
+            checkbox.classList.toggle('checked', item.completed);
+            checkbox.setAttribute('aria-checked', String(item.completed));
+            checkbox.textContent = item.completed ? '✓' : '';
+            textEl.classList.toggle('completed', item.completed);
+            saveState();
+            updateProgress();
+            if (announceToggle) announce(`${item.text} ${item.completed ? 'completed' : 'marked active'}`);
+          }
+          checkbox.addEventListener('click', () => toggle(true));
+          checkbox.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(true); }});
+
+          // Inline edit on double click
+          textEl.addEventListener('dblclick', () => startEdit());
+          textEl.addEventListener('keydown', (e) => { if (e.key.toLowerCase() === 'e') { e.preventDefault(); startEdit(); }});
+          function startEdit() {
+            const current = item.text;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = current;
+            input.style.fontSize = '1rem';
+            input.style.border = 'none';
+            input.style.background = 'transparent';
+            input.style.outline = 'none';
+            textEl.replaceWith(input);
+            input.focus();
+            input.select();
+            function commit(save) {
+              if (save) {
+                const v = (input.value || '').trim().replace(/\s+/g, ' ');
+                if (v) { item.text = v; saveState(); announce('Item edited'); }
+              }
+              const newText = document.createElement('div');
+              newText.className = 'item-text' + (item.completed ? ' completed' : '');
+              newText.textContent = item.text;
+              newText.setAttribute('tabindex', '0');
+              input.replaceWith(newText);
+              newText.addEventListener('dblclick', () => startEdit());
+              newText.addEventListener('keydown', (e) => { if (e.key.toLowerCase() === 'e') { e.preventDefault(); startEdit(); }});
+            }
+            input.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter') commit(true);
+              else if (e.key === 'Escape') commit(false);
+            });
+            input.addEventListener('blur', () => commit(true));
+          }
+
+          // Long-press to delete (700ms)
+          function scheduleDelete() { longPressTimer = setTimeout(() => removeItem(el), 700); }
+          function cancelDelete() { clearTimeout(longPressTimer); longPressTimer = null; }
+          el.addEventListener('pointerdown', scheduleDelete);
+          el.addEventListener('pointerup', cancelDelete);
+          el.addEventListener('pointerleave', cancelDelete);
+
+          // Keyboard delete when focused on row
+          el.addEventListener('keydown', (e) => {
+            if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); removeItem(el); }
+          });
+
+          // Drag and drop
+          el.addEventListener('dragstart', (e) => {
+            e.dataTransfer?.setData('text/plain', item.id);
+            el.style.opacity = '0.7';
+          });
+          el.addEventListener('dragend', () => { el.style.opacity = ''; });
+
+          return el;
+        }
+
+        function persistOrder() {
+          const ids = Array.from(itemsContainer.querySelectorAll('.item')).map(el => el.dataset.id);
+          state.items.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+          saveState();
+          announce('Items reordered');
+        }
+
+        function removeItem(el) {
+          const id = el.dataset.id;
+          const idx = state.items.findIndex(i => i.id === id);
+          if (idx === -1) return;
+          const text = state.items[idx].text;
+          state.items.splice(idx, 1);
+          saveState();
+          el.remove();
+          updateProgress();
+          announce(`${text} removed`);
+        }
+
+        function addItem(text) {
+          const trimmed = (text || '').trim().replace(/\s+/g, ' ');
+          if (!trimmed) return;
+          if (state.items.some(i => i.text.toLowerCase() === trimmed.toLowerCase())) {
+            announce('Already on your list');
+            return;
+          }
+          const item = { id: 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8), text: trimmed, completed: false };
+          state.items.push(item);
+          saveState();
+          const el = createItemElement(item);
+          itemsContainer.appendChild(el);
+          updateProgress();
+          announce(`${trimmed} added`);
+        }
+
+        function render() {
+          itemsContainer.innerHTML = '';
+          state.items.forEach(item => itemsContainer.appendChild(createItemElement(item)));
+          updateProgress();
+        }
+
+        // Input handlers
+        inputEl.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            addItem(inputEl.value);
+            inputEl.value = '';
+          }
         });
+
+        // Initial render
+        render();
       })();
     </script>
-  </body>
+</body>
 </html>
