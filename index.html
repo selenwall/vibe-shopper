@@ -42,6 +42,10 @@
         const clearAllButton = document.getElementById('clear-all');
 
         let draggedElement = null;
+        let revealedItem = null;
+
+        const SWIPE_MAX = 128; // px
+        const SWIPE_THRESHOLD = 48; // px
 
         function getItemElements() {
           return Array.from(itemsListElement.querySelectorAll('li.item'));
@@ -65,18 +69,108 @@
           }
         }
 
+        function closeRevealed(except) {
+          if (revealedItem && revealedItem !== except) {
+            setItemTranslateX(revealedItem, 0, true);
+            revealedItem.classList.remove('revealed');
+            revealedItem = null;
+          }
+        }
+
+        function setItemTranslateX(listItemElement, x, animate) {
+          const content = listItemElement.querySelector('.item-content');
+          if (!content) return;
+          if (animate) content.classList.remove('no-transition');
+          else content.classList.add('no-transition');
+          content.style.transform = `translateX(${x}px)`;
+        }
+
+        function getItemTranslateX(listItemElement) {
+          const content = listItemElement.querySelector('.item-content');
+          const match = (content.style.transform || '').match(/translateX\((-?\d+(?:\.\d+)?)px\)/);
+          return match ? parseFloat(match[1]) : 0;
+        }
+
+        function attachSwipeHandlers(listItemElement) {
+          const content = listItemElement.querySelector('.item-content');
+          if (!content) return;
+
+          let startX = 0;
+          let lastX = 0;
+          let isPointerDown = false;
+          let isSwiping = false;
+
+          function onPointerDown(e) {
+            if (listItemElement.classList.contains('editing')) return;
+            // Ignore right-click or secondary buttons
+            if (e.button !== undefined && e.button !== 0) return;
+            isPointerDown = true;
+            isSwiping = false;
+            startX = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || 0;
+            lastX = startX;
+            content.setPointerCapture?.(e.pointerId ?? 0);
+          }
+
+          function onPointerMove(e) {
+            if (!isPointerDown) return;
+            const clientX = e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || 0;
+            const deltaX = clientX - startX;
+            // Start swiping if moving left beyond a small threshold
+            if (!isSwiping && Math.abs(deltaX) > 6) {
+              isSwiping = true;
+              closeRevealed(listItemElement);
+            }
+            if (!isSwiping) return;
+            e.preventDefault();
+            lastX = clientX;
+            const current = Math.min(0, Math.max(-SWIPE_MAX, deltaX + getItemTranslateX(listItemElement)));
+            setItemTranslateX(listItemElement, current, false);
+          }
+
+          function onPointerUp(e) {
+            if (!isPointerDown) return;
+            isPointerDown = false;
+            const finalX = getItemTranslateX(listItemElement);
+            const shouldReveal = Math.abs(finalX) > SWIPE_THRESHOLD;
+            if (shouldReveal) {
+              setItemTranslateX(listItemElement, -SWIPE_MAX, true);
+              listItemElement.classList.add('revealed');
+              revealedItem = listItemElement;
+            } else {
+              setItemTranslateX(listItemElement, 0, true);
+              listItemElement.classList.remove('revealed');
+              if (revealedItem === listItemElement) revealedItem = null;
+            }
+          }
+
+          // Support both pointer and touch events
+          content.addEventListener('pointerdown', onPointerDown);
+          content.addEventListener('pointermove', onPointerMove);
+          content.addEventListener('pointerup', onPointerUp);
+          content.addEventListener('pointercancel', onPointerUp);
+
+          content.addEventListener('touchstart', onPointerDown, { passive: true });
+          content.addEventListener('touchmove', onPointerMove, { passive: false });
+          content.addEventListener('touchend', onPointerUp);
+          content.addEventListener('touchcancel', onPointerUp);
+        }
+
         function createItemElement(itemName) {
           const listItemElement = document.createElement('li');
           listItemElement.className = 'item enter';
           listItemElement.innerHTML = `
-            <button class="drag-handle" type="button" title="Drag to reorder" aria-label="Drag handle" data-handle>⠿</button>
-            <span class="text"></span>
-            <input class="edit-input" type="text" aria-label="Edit item" />
-            <div class="actions">
+            <div class="item-actions" aria-hidden="true">
               <button class="icon-btn edit" type="button" data-action="edit" title="Edit" aria-label="Edit">✏️</button>
-              <button class="icon-btn save" type="button" data-action="save" title="Save" aria-label="Save">✔</button>
-              <button class="icon-btn cancel" type="button" data-action="cancel" title="Cancel" aria-label="Cancel">✖</button>
               <button class="icon-btn delete" type="button" data-action="delete" title="Remove" aria-label="Remove">🗑️</button>
+            </div>
+            <div class="item-content">
+              <button class="drag-handle" type="button" title="Drag to reorder" aria-label="Drag handle" data-handle>⠿</button>
+              <span class="text"></span>
+              <input class="edit-input" type="text" aria-label="Edit item" />
+              <div class="actions-inline">
+                <button class="icon-btn save" type="button" data-action="save" title="Save" aria-label="Save">✔</button>
+                <button class="icon-btn cancel" type="button" data-action="cancel" title="Cancel" aria-label="Cancel">✖</button>
+              </div>
             </div>
           `;
 
@@ -88,6 +182,8 @@
           const handle = listItemElement.querySelector('[data-handle]');
           handle.addEventListener('pointerdown', function onHandlePointerDown() {
             listItemElement.setAttribute('draggable', 'true');
+            // Close any revealed state when starting drag
+            closeRevealed();
           });
           listItemElement.addEventListener('dragend', function onDragEnd() {
             listItemElement.removeAttribute('draggable');
@@ -105,6 +201,7 @@
             enterEdit(listItemElement);
           });
 
+          attachSwipeHandlers(listItemElement);
           return listItemElement;
         }
 
@@ -118,8 +215,10 @@
         function enterEdit(listItemElement) {
           const input = listItemElement.querySelector('.edit-input');
           const textEl = listItemElement.querySelector('.text');
+          closeRevealed();
           input.value = textEl.textContent;
           listItemElement.classList.add('editing');
+          setItemTranslateX(listItemElement, 0, true);
           input.focus();
           input.select();
         }
@@ -168,6 +267,14 @@
           } else if (action === 'delete') {
             listItemElement.remove();
             updateCountAndEmptyState();
+          }
+        });
+
+        // Close revealed items when clicking outside
+        document.addEventListener('click', function onDocClick(event) {
+          const li = event.target.closest && event.target.closest('li.item');
+          if (!li || li !== revealedItem) {
+            closeRevealed();
           }
         });
 
