@@ -67,6 +67,27 @@ button {
 }
 button:hover { border-color: var(--accent); }
 
+.button.small { padding: 6px 8px; font-size: 14px; }
+
+/* Header actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.item-count {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+button.ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
+}
+button.ghost:hover { color: var(--text); border-color: var(--border); }
+
 .items {
   list-style: none;
   padding: 0;
@@ -85,11 +106,21 @@ button:hover { border-color: var(--accent); }
   border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: 0 4px 10px var(--shadow);
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.items li.item.enter {
+  animation: fadeInUp 160ms ease-out;
+}
+
+.items li.item:hover {
+  border-color: rgba(110, 168, 254, 0.5);
 }
 
 .items li.item.dragging {
-  opacity: 0.7;
+  opacity: 0.85;
   border-color: var(--accent);
+  transform: scale(1.01);
 }
 
 .items li .drag-handle {
@@ -102,7 +133,9 @@ button:hover { border-color: var(--accent); }
   line-height: 1;
   border-radius: 8px;
   background: transparent;
+  cursor: grab;
 }
+.items li .drag-handle:active { cursor: grabbing; }
 
 .items li .text {
   white-space: nowrap;
@@ -121,7 +154,16 @@ button:hover { border-color: var(--accent); }
 .items li .actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
 .items li .actions .delete {
@@ -139,4 +181,18 @@ button:hover { border-color: var(--accent); }
 .items li.editing .actions .edit,
 .items li.editing .actions .delete {
   display: none;
+}
+
+/* Empty state */
+.items li.empty-state {
+  text-align: center;
+  color: var(--muted);
+  padding: 16px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }

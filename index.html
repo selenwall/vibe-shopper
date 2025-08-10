@@ -10,6 +10,10 @@
     <div class="app-container">
       <header class="app-header">
         <h1>Shopping Vibes</h1>
+        <div class="header-actions">
+          <span id="item-count" class="item-count" aria-live="polite">0 items</span>
+          <button id="clear-all" class="ghost" type="button" title="Clear all items">Clear all</button>
+        </div>
       </header>
 
       <form id="add-form" class="add-form" autocomplete="off">
@@ -34,26 +38,52 @@
         const formElement = document.getElementById('add-form');
         const inputElement = document.getElementById('item-input');
         const itemsListElement = document.getElementById('items');
+        const itemCountElement = document.getElementById('item-count');
+        const clearAllButton = document.getElementById('clear-all');
 
         let draggedElement = null;
 
+        function getItemElements() {
+          return Array.from(itemsListElement.querySelectorAll('li.item'));
+        }
+
+        function updateCountAndEmptyState() {
+          const items = getItemElements();
+          const count = items.length;
+          itemCountElement.textContent = count === 1 ? '1 item' : count + ' items';
+
+          let emptyState = itemsListElement.querySelector('li.empty-state');
+          if (count === 0) {
+            if (!emptyState) {
+              emptyState = document.createElement('li');
+              emptyState.className = 'empty-state';
+              emptyState.textContent = 'Your list is empty. Add your first item!';
+              itemsListElement.appendChild(emptyState);
+            }
+          } else if (emptyState) {
+            emptyState.remove();
+          }
+        }
+
         function createItemElement(itemName) {
           const listItemElement = document.createElement('li');
-          listItemElement.className = 'item';
+          listItemElement.className = 'item enter';
           listItemElement.innerHTML = `
             <button class="drag-handle" type="button" title="Drag to reorder" aria-label="Drag handle" data-handle>⠿</button>
             <span class="text"></span>
-            <input class="edit-input" type="text" />
+            <input class="edit-input" type="text" aria-label="Edit item" />
             <div class="actions">
-              <button class="edit" type="button" data-action="edit">Edit</button>
-              <button class="save" type="button" data-action="save">Save</button>
-              <button class="cancel" type="button" data-action="cancel">Cancel</button>
-              <button class="delete" type="button" data-action="delete">Remove</button>
+              <button class="icon-btn edit" type="button" data-action="edit" title="Edit" aria-label="Edit">✏️</button>
+              <button class="icon-btn save" type="button" data-action="save" title="Save" aria-label="Save">✔</button>
+              <button class="icon-btn cancel" type="button" data-action="cancel" title="Cancel" aria-label="Cancel">✖</button>
+              <button class="icon-btn delete" type="button" data-action="delete" title="Remove" aria-label="Remove">🗑️</button>
             </div>
           `;
 
-          listItemElement.querySelector('.text').textContent = itemName;
-          listItemElement.querySelector('.edit-input').value = itemName;
+          const textSpan = listItemElement.querySelector('.text');
+          const editInput = listItemElement.querySelector('.edit-input');
+          textSpan.textContent = itemName;
+          editInput.value = itemName;
 
           const handle = listItemElement.querySelector('[data-handle]');
           handle.addEventListener('pointerdown', function onHandlePointerDown() {
@@ -63,7 +93,6 @@
             listItemElement.removeAttribute('draggable');
           });
 
-          const editInput = listItemElement.querySelector('.edit-input');
           editInput.addEventListener('keydown', function onEditKeyDown(event) {
             if (event.key === 'Enter') {
               saveEdit(listItemElement);
@@ -72,12 +101,18 @@
             }
           });
 
+          textSpan.addEventListener('dblclick', function onDoubleClick() {
+            enterEdit(listItemElement);
+          });
+
           return listItemElement;
         }
 
         function appendItemToList(itemName) {
           const listItemElement = createItemElement(itemName);
           itemsListElement.appendChild(listItemElement);
+          requestAnimationFrame(() => listItemElement.classList.remove('enter'));
+          updateCountAndEmptyState();
         }
 
         function enterEdit(listItemElement) {
@@ -120,8 +155,10 @@
         itemsListElement.addEventListener('click', function onListClick(event) {
           const button = event.target.closest('button');
           if (!button) return;
-          const listItemElement = button.closest('li');
+          const listItemElement = button.closest('li.item');
           const action = button.dataset.action;
+          if (!listItemElement || !action) return;
+
           if (action === 'edit') {
             enterEdit(listItemElement);
           } else if (action === 'save') {
@@ -130,12 +167,13 @@
             cancelEdit(listItemElement);
           } else if (action === 'delete') {
             listItemElement.remove();
+            updateCountAndEmptyState();
           }
         });
 
         // Drag and drop
         itemsListElement.addEventListener('dragstart', function onDragStart(event) {
-          const listItemElement = event.target.closest('li');
+          const listItemElement = event.target.closest('li.item');
           if (!listItemElement) return;
           draggedElement = listItemElement;
           listItemElement.classList.add('dragging');
@@ -148,7 +186,7 @@
         itemsListElement.addEventListener('dragover', function onDragOver(event) {
           if (!draggedElement) return;
           event.preventDefault();
-          const targetLi = event.target.closest('li');
+          const targetLi = event.target.closest('li.item');
           if (!targetLi || targetLi === draggedElement) return;
           const rect = targetLi.getBoundingClientRect();
           const isBefore = event.clientY < rect.top + rect.height / 2;
@@ -172,6 +210,16 @@
             draggedElement = null;
           }
         });
+
+        // Clear all
+        clearAllButton.addEventListener('click', function onClearAll() {
+          getItemElements().forEach((el) => el.remove());
+          updateCountAndEmptyState();
+          inputElement.focus();
+        });
+
+        // Initialize
+        updateCountAndEmptyState();
       })();
     </script>
   </body>
