@@ -42,10 +42,7 @@ button.ghost:hover { color: var(--text); border-color: var(--border); }
 
 /* Header controls */
 .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.filter-row { min-width: 180px; flex: 1 1 220px; }
 .item-count { color: var(--muted); font-size: 14px; }
-.toggle.hide-completed { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
-.toggle.hide-completed input { width: 18px; height: 18px; }
 
 .items { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
 
@@ -80,9 +77,8 @@ button.ghost:hover { color: var(--text); border-color: var(--border); }
 .items li .delete { border-color: rgba(255, 107, 107, 0.3); }
 .items li .delete:hover { border-color: var(--danger); }
 
-/* Empty and filter states */
+/* Empty state */
 .items li.empty-state { text-align: center; color: var(--muted); padding: 16px; border: 1px dashed var(--border); border-radius: 12px; }
-.no-results { margin-top: 8px; color: var(--muted); text-align: center; }
 
 /* Swipe nudge */
 .swipe-nudge { margin: 6px 0 10px; color: var(--muted); font-size: 13px; opacity: 0.9; }

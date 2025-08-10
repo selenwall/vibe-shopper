@@ -13,16 +13,7 @@
       <header class="app-header">
         <h1>Shopping Vibes</h1>
         <div class="header-actions">
-          <div class="filter-row">
-            <input id="filter-input" type="text" placeholder="Filter items" aria-label="Filter items" />
-          </div>
-          <label class="toggle hide-completed">
-            <input id="hide-completed" type="checkbox" />
-            <span>Hide completed</span>
-          </label>
-          <button id="clear-completed" class="ghost" type="button" title="Clear completed">Clear completed</button>
           <span id="item-count" class="item-count" aria-live="polite">0 items</span>
-          <button id="clear-all" class="ghost" type="button" title="Clear all items">Clear all</button>
         </div>
       </header>
 
@@ -45,8 +36,6 @@
       </div>
 
       <ul id="items" class="items" aria-label="Shopping list"></ul>
-
-      <div id="no-results" class="no-results" hidden>No items match your filter</div>
     </div>
 
     <div id="snackbar" class="snackbar" role="status" aria-live="polite" aria-atomic="true" hidden>
@@ -61,18 +50,13 @@
         const STORAGE_KEY = 'shoppingListState.v1';
         const DEFAULT_STATE = {
           items: [], // { id, text, completed }
-          settings: { hideCompleted: false, hasSeenSwipeNudge: false, filterQuery: '' }
+          settings: { hasSeenSwipeNudge: false }
         };
 
         const formElement = document.getElementById('add-form');
         const inputElement = document.getElementById('item-input');
         const itemsListElement = document.getElementById('items');
         const itemCountElement = document.getElementById('item-count');
-        const clearAllButton = document.getElementById('clear-all');
-        const hideCompletedCheckbox = document.getElementById('hide-completed');
-        const clearCompletedButton = document.getElementById('clear-completed');
-        const filterInput = document.getElementById('filter-input');
-        const noResultsElement = document.getElementById('no-results');
         const swipeNudgeElement = document.getElementById('swipe-nudge');
 
         const snackbarElement = document.getElementById('snackbar');
@@ -84,7 +68,7 @@
         let revealedItem = null;
         let keyboardDrag = { active: false, item: null };
         let state = loadState();
-        let lastAction = null; // { type: 'delete'|'clear'|'clearCompleted', payload: any }
+        let lastAction = null; // { type: 'delete', payload: any }
 
         const SWIPE_MAX = 128; // px
         const SWIPE_THRESHOLD = 48; // px
@@ -109,19 +93,12 @@
           return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
         }
 
-        function setFilter(query) {
-          state.settings.filterQuery = query;
-          saveState();
-          applyFilter();
-        }
-
-        function getVisibleItemElements() {
-          return Array.from(itemsListElement.querySelectorAll('li.item:not([hidden])'));
+        function getItemElements() {
+          return Array.from(itemsListElement.querySelectorAll('li.item'));
         }
 
         function updateCountAndEmptyStates() {
           const total = state.items.length;
-          const visibleItems = getVisibleItemElements().length;
           itemCountElement.textContent = total === 1 ? '1 item' : total + ' items';
 
           // Empty-list state
@@ -136,11 +113,6 @@
           } else if (emptyState) {
             emptyState.remove();
           }
-
-          // No-results state
-          const anyItems = itemsListElement.querySelector('li.item');
-          const anyVisible = visibleItems > 0;
-          noResultsElement.hidden = !(anyItems && !anyVisible && total > 0);
         }
 
         function renderAll() {
@@ -149,7 +121,6 @@
             const el = createItemElement(item);
             itemsListElement.appendChild(el);
           });
-          applyFilter();
           updateCountAndEmptyStates();
           applySwipeNudge();
         }
@@ -207,7 +178,6 @@
             target.completed = checkbox.checked;
             if (target.completed) listItemElement.classList.add('completed'); else listItemElement.classList.remove('completed');
             saveState();
-            applyFilter();
             updateCountAndEmptyStates();
             announce(`${target.text} ${target.completed ? 'completed' : 'marked active'}`);
           });
@@ -233,7 +203,6 @@
           const el = createItemElement(item);
           itemsListElement.appendChild(el);
           requestAnimationFrame(() => el.classList.remove('enter'));
-          applyFilter();
           updateCountAndEmptyStates();
           announce(`${text} added`);
         }
@@ -260,7 +229,6 @@
             item.text = newValue;
             saveState();
             announce('Item edited');
-            applyFilter();
           }
         }
 
@@ -278,28 +246,8 @@
           saveState();
           listItemElement.remove();
           updateCountAndEmptyStates();
-          applyFilter();
           lastAction = { type: 'delete', payload: { item, index } };
           showSnackbar('Item removed');
-        }
-
-        function clearAll() {
-          if (state.items.length === 0) return;
-          const snapshot = state.items.slice();
-          state.items = [];
-          saveState();
-          renderAll();
-          lastAction = { type: 'clear', payload: { snapshot } };
-          showSnackbar('All items cleared');
-        }
-
-        function clearCompleted() {
-          const snapshot = state.items.slice();
-          state.items = state.items.filter((x) => !x.completed);
-          saveState();
-          renderAll();
-          lastAction = { type: 'clearCompleted', payload: { snapshot } };
-          showSnackbar('Completed items cleared');
         }
 
         function undoLastAction() {
@@ -307,31 +255,12 @@
           const { type, payload } = lastAction;
           if (type === 'delete') {
             state.items.splice(payload.index, 0, payload.item);
-          } else if (type === 'clear' || type === 'clearCompleted') {
-            state.items = payload.snapshot;
           }
           saveState();
           renderAll();
           hideSnackbar();
           lastAction = null;
           announce('Action undone');
-        }
-
-        // Filter
-        function applyFilter() {
-          const query = (state.settings.filterQuery || '').toLowerCase();
-          const hideCompleted = !!state.settings.hideCompleted;
-          const items = itemsListElement.querySelectorAll('li.item');
-          let anyVisible = false;
-          items.forEach((li) => {
-            const item = getItemByElement(li);
-            if (!item) return;
-            const matchesQuery = !query || item.text.toLowerCase().includes(query);
-            const show = matchesQuery && (!hideCompleted || !item.completed);
-            li.hidden = !show;
-            if (show) anyVisible = true;
-          });
-          noResultsElement.hidden = anyVisible || state.items.length === 0;
         }
 
         // Snackbar
@@ -478,9 +407,9 @@
           });
         }
         function focusSibling(current, delta) {
-          const visibles = getVisibleItemElements();
-          const idx = visibles.indexOf(current);
-          const next = visibles[idx + delta];
+          const items = getItemElements();
+          const idx = items.indexOf(current);
+          const next = items[idx + delta];
           if (next) next.querySelector('.item-content').focus();
         }
         function reorderByKeyboard(current, delta) {
@@ -579,22 +508,6 @@
           inputElement.focus();
         });
 
-        // Controls
-        clearAllButton.addEventListener('click', function () {
-          clearAll();
-        });
-        hideCompletedCheckbox.addEventListener('change', function () {
-          state.settings.hideCompleted = hideCompletedCheckbox.checked;
-          saveState();
-          applyFilter();
-        });
-        clearCompletedButton.addEventListener('click', function () {
-          clearCompleted();
-        });
-        filterInput.addEventListener('input', function () {
-          setFilter(filterInput.value);
-        });
-
         function applySwipeNudge() {
           if (state.settings.hasSeenSwipeNudge) {
             swipeNudgeElement.hidden = true;
@@ -604,8 +517,6 @@
         }
 
         // Initialize UI from state
-        hideCompletedCheckbox.checked = !!state.settings.hideCompleted;
-        filterInput.value = state.settings.filterQuery || '';
         renderAll();
 
         // PWA service worker
