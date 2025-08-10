@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shopping List</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <!-- React UMD + Babel (no build) -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script type="text/babel" data-presets="react">
+      const { useEffect, useMemo, useRef, useState } = React;
+
+      const STORAGE_KEY = 'shopping-list.v1';
+
+      function loadFromStorage() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveToStorage(items) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      function generateId() {
+        return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      }
+
+      function App() {
+        const [items, setItems] = useState(() => loadFromStorage());
+        const [query, setQuery] = useState('');
+        const [categoryFilter, setCategoryFilter] = useState('');
+        const [showPurchased, setShowPurchased] = useState(true);
+
+        useEffect(() => {
+          saveToStorage(items);
+        }, [items]);
+
+        const categories = useMemo(() => {
+          const set = new Set(items.map(i => (i.category || '').trim()).filter(Boolean));
+          return Array.from(set).sort((a, b) => a.localeCompare(b));
+        }, [items]);
+
+        const addItem = (name, quantity, category) => {
+          const trimmedName = (name || '').trim();
+          if (!trimmedName) return;
+          const qty = Number(quantity) || 1;
+          setItems(prev => [
+            {
+              id: generateId(),
+              name: trimmedName,
+              quantity: qty,
+              category: (category || '').trim(),
+              purchased: false,
+              createdAt: Date.now(),
+            },
+            ...prev,
+          ]);
+        };
+
+        const updateItem = (id, updates) => {
+          setItems(prev => prev.map(it => (it.id === id ? { ...it, ...updates } : it)));
+        };
+
+        const removeItem = (id) => {
+          setItems(prev => prev.filter(it => it.id !== id));
+        };
+
+        const clearPurchased = () => {
+          if (!confirm('Remove all purchased items?')) return;
+          setItems(prev => prev.filter(it => !it.purchased));
+        };
+
+        const moveItem = (id, direction) => {
+          setItems(prev => {
+            const idx = prev.findIndex(i => i.id === id);
+            if (idx === -1) return prev;
+            const newIndex = idx + direction;
+            if (newIndex < 0 || newIndex >= prev.length) return prev;
+            const copy = prev.slice();
+            const [moved] = copy.splice(idx, 1);
+            copy.splice(newIndex, 0, moved);
+            return copy;
+          });
+        };
+
+        const normalizedQuery = query.trim().toLowerCase();
+        const filteredItems = useMemo(() => {
+          return items.filter(it => {
+            if (!showPurchased && it.purchased) return false;
+            if (categoryFilter && (it.category || '') !== categoryFilter) return false;
+            if (!normalizedQuery) return true;
+            const hay = `${it.name} ${it.category} ${it.quantity}`.toLowerCase();
+            return hay.includes(normalizedQuery);
+          });
+        }, [items, showPurchased, categoryFilter, normalizedQuery]);
+
+        const toBuy = filteredItems.filter(i => !i.purchased);
+        const purchased = filteredItems.filter(i => i.purchased);
+
+        const exportData = () => {
+          const data = JSON.stringify(items, null, 2);
+          const blob = new Blob([data], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'shopping-list.json';
+          a.click();
+          URL.revokeObjectURL(url);
+        };
+
+        const importData = async () => {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = 'application/json';
+          input.onchange = () => {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+              try {
+                const parsed = JSON.parse(reader.result);
+                if (!Array.isArray(parsed)) throw new Error('Invalid');
+                const sanitized = parsed
+                  .filter(x => x && typeof x === 'object')
+                  .map(x => ({
+                    id: x.id || generateId(),
+                    name: String(x.name || '').trim(),
+                    quantity: Number(x.quantity) || 1,
+                    category: String(x.category || '').trim(),
+                    purchased: Boolean(x.purchased),
+                    createdAt: Number(x.createdAt) || Date.now(),
+                  }))
+                  .filter(x => x.name);
+                setItems(sanitized);
+                alert('Import successful');
+              } catch (e) {
+                alert('Import failed');
+              }
+            };
+            reader.readAsText(file);
+          };
+          input.click();
+        };
+
+        const resetAll = () => {
+          if (!confirm('Clear the entire list?')) return;
+          setItems([]);
+        };
+
+        return (
+          <div className="app-container">
+            <header className="app-header">
+              <h1>Shopping List</h1>
+              <div className="header-actions">
+                <button className="secondary" onClick={exportData}>Export</button>
+                <button className="secondary" onClick={importData}>Import</button>
+                <button className="danger" onClick={resetAll}>Reset</button>
+              </div>
+            </header>
+
+            <AddItemForm onAdd={addItem} categories={categories} />
+
+            <div className="toolbar">
+              <input
+                type="search"
+                placeholder="Search..."
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                aria-label="Search items"
+              />
+              <select
+                value={categoryFilter}
+                onChange={e => setCategoryFilter(e.target.value)}
+                aria-label="Filter by category"
+              >
+                <option value="">All categories</option>
+                {categories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+              <label className="checkbox">
+                <input
+                  type="checkbox"
+                  checked={showPurchased}
+                  onChange={e => setShowPurchased(e.target.checked)}
+                />
+                <span>Show purchased</span>
+              </label>
+            </div>
+
+            <section>
+              <SectionHeader title={`To Buy (${toBuy.length})`} />
+              {toBuy.length === 0 ? (
+                <EmptyState message="Nothing to buy" />
+              ) : (
+                <ItemList
+                  items={toBuy}
+                  onUpdate={updateItem}
+                  onRemove={removeItem}
+                  onMove={moveItem}
+                />
+              )}
+            </section>
+
+            {showPurchased && (
+              <section>
+                <div className="section-header with-action">
+                  <SectionHeader title={`Purchased (${purchased.length})`} />
+                  {purchased.length > 0 && (
+                    <button className="secondary" onClick={clearPurchased}>Clear purchased</button>
+                  )}
+                </div>
+                {purchased.length === 0 ? (
+                  <EmptyState message="No purchased items" />)
+                 : (
+                  <ItemList
+                    items={purchased}
+                    onUpdate={updateItem}
+                    onRemove={removeItem}
+                    onMove={moveItem}
+                  />
+                )}
+              </section>
+            )}
+
+            <footer className="app-footer">
+              <span>{items.length} total item{items.length === 1 ? '' : 's'}</span>
+            </footer>
+          </div>
+        );
+      }
+
+      function SectionHeader({ title }) {
+        return <h2 className="section-title">{title}</h2>;
+      }
+
+      function EmptyState({ message }) {
+        return <p className="empty">{message}</p>;
+      }
+
+      function AddItemForm({ onAdd, categories }) {
+        const [name, setName] = useState('');
+        const [quantity, setQuantity] = useState('1');
+        const [category, setCategory] = useState('');
+        const nameRef = useRef(null);
+
+        const submit = (e) => {
+          e.preventDefault();
+          onAdd(name, quantity, category);
+          setName('');
+          setQuantity('1');
+          setCategory('');
+          nameRef.current?.focus();
+        };
+
+        const onKeyDown = (e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            submit(e);
+          }
+        };
+
+        return (
+          <form className="add-form" onSubmit={submit} onKeyDown={onKeyDown}>
+            <div className="row">
+              <input
+                ref={nameRef}
+                autoFocus
+                type="text"
+                placeholder="Add an item (e.g., Milk)"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                aria-label="Item name"
+                required
+              />
+              <input
+                type="number"
+                min="1"
+                step="1"
+                placeholder="Qty"
+                value={quantity}
+                onChange={e => setQuantity(e.target.value)}
+                aria-label="Quantity"
+              />
+              <input
+                list="categoryOptions"
+                type="text"
+                placeholder="Category"
+                value={category}
+                onChange={e => setCategory(e.target.value)}
+                aria-label="Category"
+              />
+              <datalist id="categoryOptions">
+                {categories.map(cat => (
+                  <option key={cat} value={cat} />
+                ))}
+              </datalist>
+              <button type="submit">Add</button>
+            </div>
+          </form>
+        );
+      }
+
+      function ItemList({ items, onUpdate, onRemove, onMove }) {
+        return (
+          <ul className="items">
+            {items.map((item, idx) => (
+              <ItemRow
+                key={item.id}
+                item={item}
+                index={idx}
+                total={items.length}
+                onUpdate={onUpdate}
+                onRemove={onRemove}
+                onMove={onMove}
+              />
+            ))}
+          </ul>
+        );
+      }
+
+      function ItemRow({ item, index, total, onUpdate, onRemove, onMove }) {
+        const [isEditing, setIsEditing] = useState(false);
+        const [draftName, setDraftName] = useState(item.name);
+        const [draftQty, setDraftQty] = useState(String(item.quantity));
+        const [draftCategory, setDraftCategory] = useState(item.category || '');
+        const nameInputRef = useRef(null);
+
+        useEffect(() => {
+          if (isEditing) nameInputRef.current?.focus();
+        }, [isEditing]);
+
+        useEffect(() => {
+          setDraftName(item.name);
+          setDraftQty(String(item.quantity));
+          setDraftCategory(item.category || '');
+        }, [item.id]);
+
+        const save = () => {
+          const trimmed = draftName.trim();
+          if (!trimmed) return;
+          onUpdate(item.id, {
+            name: trimmed,
+            quantity: Number(draftQty) || 1,
+            category: (draftCategory || '').trim(),
+          });
+          setIsEditing(false);
+        };
+
+        const onKeyDown = (e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            save();
+          } else if (e.key === 'Escape') {
+            setIsEditing(false);
+            setDraftName(item.name);
+            setDraftQty(String(item.quantity));
+            setDraftCategory(item.category || '');
+          }
+        };
+
+        return (
+          <li className={`item ${item.purchased ? 'purchased' : ''}`}>
+            <label className="checkbox">
+              <input
+                type="checkbox"
+                checked={item.purchased}
+                onChange={e => onUpdate(item.id, { purchased: e.target.checked })}
+                aria-label={`Mark ${item.name} as purchased`}
+              />
+            </label>
+
+            {isEditing ? (
+              <div className="item-edit" onKeyDown={onKeyDown}>
+                <input
+                  ref={nameInputRef}
+                  type="text"
+                  value={draftName}
+                  onChange={e => setDraftName(e.target.value)}
+                  aria-label="Edit name"
+                />
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={draftQty}
+                  onChange={e => setDraftQty(e.target.value)}
+                  aria-label="Edit quantity"
+                />
+                <input
+                  type="text"
+                  value={draftCategory}
+                  onChange={e => setDraftCategory(e.target.value)}
+                  aria-label="Edit category"
+                />
+                <button className="secondary" onClick={save}>Save</button>
+                <button className="secondary" onClick={() => setIsEditing(false)}>Cancel</button>
+              </div>
+            ) : (
+              <div className="item-info" onDoubleClick={() => setIsEditing(true)}>
+                <div className="primary">
+                  <span className="name">{item.name}</span>
+                  <span className="meta">× {item.quantity}</span>
+                </div>
+                {item.category && <div className="category">{item.category}</div>}
+              </div>
+            )}
+
+            <div className="item-actions">
+              <button
+                className="secondary"
+                title="Edit"
+                onClick={() => setIsEditing(v => !v)}
+              >Edit</button>
+              <button
+                className="secondary"
+                title="Move up"
+                disabled={index === 0}
+                onClick={() => onMove(item.id, -1)}
+              >↑</button>
+              <button
+                className="secondary"
+                title="Move down"
+                disabled={index === total - 1}
+                onClick={() => onMove(item.id, 1)}
+              >↓</button>
+              <button
+                className="danger"
+                title="Delete"
+                onClick={() => onRemove(item.id)}
+              >Delete</button>
+            </div>
+          </li>
+        );
+      }
+
+      ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+  </body>
+</html>
