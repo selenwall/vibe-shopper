@@ -35,12 +35,78 @@
         const inputElement = document.getElementById('item-input');
         const itemsListElement = document.getElementById('items');
 
-        function appendItemToList(itemName) {
+        let draggedElement = null;
+
+        function createItemElement(itemName) {
           const listItemElement = document.createElement('li');
-          listItemElement.textContent = itemName;
+          listItemElement.className = 'item';
+          listItemElement.innerHTML = `
+            <button class="drag-handle" type="button" title="Drag to reorder" aria-label="Drag handle" data-handle>⠿</button>
+            <span class="text"></span>
+            <input class="edit-input" type="text" />
+            <div class="actions">
+              <button class="edit" type="button" data-action="edit">Edit</button>
+              <button class="save" type="button" data-action="save">Save</button>
+              <button class="cancel" type="button" data-action="cancel">Cancel</button>
+              <button class="delete" type="button" data-action="delete">Remove</button>
+            </div>
+          `;
+
+          listItemElement.querySelector('.text').textContent = itemName;
+          listItemElement.querySelector('.edit-input').value = itemName;
+
+          const handle = listItemElement.querySelector('[data-handle]');
+          handle.addEventListener('pointerdown', function onHandlePointerDown() {
+            listItemElement.setAttribute('draggable', 'true');
+          });
+          listItemElement.addEventListener('dragend', function onDragEnd() {
+            listItemElement.removeAttribute('draggable');
+          });
+
+          const editInput = listItemElement.querySelector('.edit-input');
+          editInput.addEventListener('keydown', function onEditKeyDown(event) {
+            if (event.key === 'Enter') {
+              saveEdit(listItemElement);
+            } else if (event.key === 'Escape') {
+              cancelEdit(listItemElement);
+            }
+          });
+
+          return listItemElement;
+        }
+
+        function appendItemToList(itemName) {
+          const listItemElement = createItemElement(itemName);
           itemsListElement.appendChild(listItemElement);
         }
 
+        function enterEdit(listItemElement) {
+          const input = listItemElement.querySelector('.edit-input');
+          const textEl = listItemElement.querySelector('.text');
+          input.value = textEl.textContent;
+          listItemElement.classList.add('editing');
+          input.focus();
+          input.select();
+        }
+
+        function saveEdit(listItemElement) {
+          const input = listItemElement.querySelector('.edit-input');
+          const newValue = (input.value || '').trim();
+          if (!newValue) {
+            cancelEdit(listItemElement);
+            return;
+          }
+          listItemElement.querySelector('.text').textContent = newValue;
+          listItemElement.classList.remove('editing');
+        }
+
+        function cancelEdit(listItemElement) {
+          const text = listItemElement.querySelector('.text').textContent;
+          listItemElement.querySelector('.edit-input').value = text;
+          listItemElement.classList.remove('editing');
+        }
+
+        // Form submit
         formElement.addEventListener('submit', function onFormSubmit(event) {
           event.preventDefault();
           const trimmedValue = (inputElement.value || '').trim();
@@ -48,6 +114,63 @@
           appendItemToList(trimmedValue);
           inputElement.value = '';
           inputElement.focus();
+        });
+
+        // Delegated clicks for actions
+        itemsListElement.addEventListener('click', function onListClick(event) {
+          const button = event.target.closest('button');
+          if (!button) return;
+          const listItemElement = button.closest('li');
+          const action = button.dataset.action;
+          if (action === 'edit') {
+            enterEdit(listItemElement);
+          } else if (action === 'save') {
+            saveEdit(listItemElement);
+          } else if (action === 'cancel') {
+            cancelEdit(listItemElement);
+          } else if (action === 'delete') {
+            listItemElement.remove();
+          }
+        });
+
+        // Drag and drop
+        itemsListElement.addEventListener('dragstart', function onDragStart(event) {
+          const listItemElement = event.target.closest('li');
+          if (!listItemElement) return;
+          draggedElement = listItemElement;
+          listItemElement.classList.add('dragging');
+          if (event.dataTransfer) {
+            event.dataTransfer.effectAllowed = 'move';
+            event.dataTransfer.setData('text/plain', '');
+          }
+        });
+
+        itemsListElement.addEventListener('dragover', function onDragOver(event) {
+          if (!draggedElement) return;
+          event.preventDefault();
+          const targetLi = event.target.closest('li');
+          if (!targetLi || targetLi === draggedElement) return;
+          const rect = targetLi.getBoundingClientRect();
+          const isBefore = event.clientY < rect.top + rect.height / 2;
+          if (isBefore) {
+            itemsListElement.insertBefore(draggedElement, targetLi);
+          } else {
+            itemsListElement.insertBefore(draggedElement, targetLi.nextSibling);
+          }
+        });
+
+        itemsListElement.addEventListener('drop', function onDrop(event) {
+          if (!draggedElement) return;
+          event.preventDefault();
+          draggedElement.classList.remove('dragging');
+          draggedElement = null;
+        });
+
+        itemsListElement.addEventListener('dragend', function onDragEndList() {
+          if (draggedElement) {
+            draggedElement.classList.remove('dragging');
+            draggedElement = null;
+          }
         });
       })();
     </script>
