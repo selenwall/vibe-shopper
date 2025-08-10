@@ -1,4 +1,4 @@
-# Simple List
+# Shopping Vibes
 
 A minimal single-page tool to create a list and add items. No extras.
 
