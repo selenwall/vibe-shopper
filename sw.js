@@ -1,4 +1,4 @@
-const CACHE_NAME = 'shopping-vibes-cache-v1';
+const CACHE_NAME = 'shopping-vibes-cache-v' + Date.now();
 const CORE_ASSETS = [
   './',
   './index.html',
