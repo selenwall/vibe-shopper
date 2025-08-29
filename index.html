@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <title>Vibe Shopper - Modern Minimalist v1.0.2</title>
+
+    <title>Vibe Shopper - Modern Minimalist</title>
     <style>
         * {
             margin: 0;
@@ -175,7 +173,6 @@
 
     <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
-    <script src="version.js"></script>
     <script>
       (function() {
         const STORAGE_KEY = 'vibe.minimal.v1';
@@ -352,9 +349,9 @@
         // Initial render
         render();
         
-        // Register service worker with cache busting
+        // Register service worker
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('./sw.js?v=' + Date.now())
+          navigator.serviceWorker.register('./sw.js')
             .then(registration => {
               console.log('ServiceWorker registration successful');
             })
@@ -362,45 +359,6 @@
               console.log('ServiceWorker registration failed: ', err);
             });
         }
-        
-        // Force refresh function for cache busting
-        function forceRefresh() {
-          if (confirm('Force refresh to clear cache?')) {
-            window.location.reload(true);
-          }
-        }
-        
-        // Add refresh button to header for easy cache clearing
-        const refreshBtn = document.createElement('button');
-        refreshBtn.textContent = '🔄';
-        refreshBtn.style.cssText = 'background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; border-radius: 5px;';
-        refreshBtn.title = 'Force refresh (clear cache)';
-        refreshBtn.onclick = forceRefresh;
-        document.querySelector('.app-header').appendChild(refreshBtn);
-        
-        // Add cache clear button
-        const cacheBtn = document.createElement('button');
-        cacheBtn.textContent = '🗑️';
-        cacheBtn.style.cssText = 'background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; border-radius: 5px; margin-left: 10px;';
-        cacheBtn.title = 'Clear all caches';
-        cacheBtn.onclick = function() {
-            if (confirm('Clear all caches and force refresh?')) {
-                window.clearAllCaches();
-            }
-        };
-        document.querySelector('.app-header').appendChild(cacheBtn);
-        
-        // Add mobile-specific cache clear button
-        const mobileCacheBtn = document.createElement('button');
-        mobileCacheBtn.textContent = '📱';
-        mobileCacheBtn.style.cssText = 'background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; border-radius: 5px; margin-left: 10px;';
-        mobileCacheBtn.title = 'Clear mobile caches (fixes 404 issues)';
-        mobileCacheBtn.onclick = function() {
-            if (confirm('Clear all mobile caches? This will fix 404 issues on mobile Chrome.')) {
-                window.clearMobileCaches();
-            }
-        };
-        document.querySelector('.app-header').appendChild(mobileCacheBtn);
       })();
     </script>
 </body>
