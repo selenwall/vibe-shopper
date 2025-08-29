@@ -183,27 +183,14 @@
       (function() {
         const STORAGE_KEY = 'vibe.minimal.v1';
         const inputEl = document.getElementById('add-input');
-        const itemsContainer = document.getElementById('items');
         const progressEl = document.getElementById('progress');
         const live = document.getElementById('live');
 
         let state = loadState();
-        let longPressTimer = null;
+
         let selectedCategory = null;
 
-        // Global drag handlers (once)
-        itemsContainer.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          const draggingId = e.dataTransfer?.getData('text/plain');
-          const draggingEl = draggingId ? itemsContainer.querySelector(`[data-id="${draggingId}"]`) : null;
-          const target = (e.target.closest && e.target.closest('.item')) || null;
-          if (!draggingEl || !target || draggingEl === target) return;
-          const rect = target.getBoundingClientRect();
-          const isBefore = e.clientY < rect.top + rect.height / 2;
-          if (isBefore) itemsContainer.insertBefore(draggingEl, target);
-          else itemsContainer.insertBefore(draggingEl, target.nextSibling);
-        });
-        itemsContainer.addEventListener('drop', persistOrder);
+
 
         function loadState() {
           try { 
@@ -279,7 +266,7 @@
         function createItemElement(item) {
           const el = document.createElement('div');
           el.className = 'item';
-          el.setAttribute('draggable', 'true');
+
           el.dataset.id = item.id;
           el.innerHTML = `
             <div class="item-content">
@@ -340,34 +327,19 @@
             input.addEventListener('blur', () => commit(true));
           }
 
-          // Long-press to delete (700ms)
-          function scheduleDelete() { longPressTimer = setTimeout(() => removeItem(el), 700); }
-          function cancelDelete() { clearTimeout(longPressTimer); longPressTimer = null; }
-          el.addEventListener('pointerdown', scheduleDelete);
-          el.addEventListener('pointerup', cancelDelete);
-          el.addEventListener('pointerleave', cancelDelete);
+
 
           // Keyboard delete when focused on row
           el.addEventListener('keydown', (e) => {
             if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); removeItem(el); }
           });
 
-          // Drag and drop
-          el.addEventListener('dragstart', (e) => {
-            e.dataTransfer?.setData('text/plain', item.id);
-            el.style.opacity = '0.7';
-          });
-          el.addEventListener('dragend', () => { el.style.opacity = ''; });
+
 
           return el;
         }
 
-        function persistOrder() {
-          const ids = Array.from(itemsContainer.querySelectorAll('.item')).map(el => el.dataset.id);
-          state.items.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
-          saveState();
-          announce('Items reordered');
-        }
+
 
         function removeItem(el) {
           const id = el.dataset.id;
@@ -376,8 +348,7 @@
           const text = state.items[idx].text;
           state.items.splice(idx, 1);
           saveState();
-          el.remove();
-          updateProgress();
+          render();
           announce(`${text} removed`);
         }
 
