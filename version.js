@@ -29,3 +29,27 @@ window.clearAllCaches = function() {
     // Force reload
     window.location.reload(true);
 };
+
+// Mobile-specific cache clearing
+window.clearMobileCaches = function() {
+    // Clear all storage types that mobile browsers use
+    if ('localStorage' in window) localStorage.clear();
+    if ('sessionStorage' in window) sessionStorage.clear();
+    
+    // Clear all caches
+    if ('caches' in window) {
+        caches.keys().then(names => {
+            names.forEach(name => caches.delete(name));
+        });
+    }
+    
+    // Unregister all service workers
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+            registrations.forEach(registration => registration.unregister());
+        });
+    }
+    
+    // Force a hard reload
+    window.location.reload(true);
+};

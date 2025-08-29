@@ -389,6 +389,18 @@
             }
         };
         document.querySelector('.app-header').appendChild(cacheBtn);
+        
+        // Add mobile-specific cache clear button
+        const mobileCacheBtn = document.createElement('button');
+        mobileCacheBtn.textContent = '📱';
+        mobileCacheBtn.style.cssText = 'background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; border-radius: 5px; margin-left: 10px;';
+        mobileCacheBtn.title = 'Clear mobile caches (fixes 404 issues)';
+        mobileCacheBtn.onclick = function() {
+            if (confirm('Clear all mobile caches? This will fix 404 issues on mobile Chrome.')) {
+                window.clearMobileCaches();
+            }
+        };
+        document.querySelector('.app-header').appendChild(mobileCacheBtn);
       })();
     </script>
 </body>
