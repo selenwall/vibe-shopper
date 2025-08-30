@@ -967,8 +967,9 @@
         // 2. APP_BUILD: Date-based build number (YYYYMMDD.XXX)
         //    - Format: YYYYMMDD.XXX where XXX is a 3-digit sequence
         //    - Example: 20241201.001, 20241201.002, etc.
-        //    - AUTOMATICALLY INCREMENTS on each deployment
+        //    - MANUAL INCREMENT required for each deployment
         //    - Date resets to current date when day changes
+        //    - Build number only changes on actual deployments, not page reloads
         // 3. Smart version comparison detects both version and build changes
         // 4. Auto-check every 15 seconds for updates
         // 5. Users can choose "Update Now" or "Later"
@@ -976,31 +977,44 @@
         //
         const APP_VERSION = '1.0.0';
         
-        // AUTOMATIC BUILD NUMBER GENERATION
-        function generateBuildNumber() {
-          const now = new Date();
-          const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+        // BUILD NUMBER SYSTEM
+        // The build number should only change on actual deployments, not page reloads
+        // For now, we'll use a static build number that developers manually increment
+        // In a production environment, this would be set by the build/deployment process
+        
+        const APP_BUILD = '20241201.004'; // MANUAL: Increment this for each deployment
+        
+        // Function to help developers increment build numbers
+        function getNextBuildNumber() {
+          const currentBuildParts = APP_BUILD.split('.');
+          const currentDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
           
-          // Get the last build number from localStorage or start fresh
-          const lastBuild = localStorage.getItem('last_build_number') || '0';
-          let sequence = parseInt(lastBuild) + 1;
-          
-          // If date changed, reset sequence to 1
-          const lastBuildDate = localStorage.getItem('last_build_date');
-          if (lastBuildDate !== dateStr) {
-            sequence = 1;
-            localStorage.setItem('last_build_date', dateStr);
+          // If date changed, reset sequence to 001
+          if (currentDate !== currentBuildParts[0]) {
+            return `${currentDate}.001`;
           }
           
-          // Store the new sequence number
-          localStorage.setItem('last_build_number', sequence.toString());
-          
-          const buildNumber = `${dateStr}.${sequence.toString().padStart(3, '0')}`;
-          console.log(`🚀 Auto-generated build number: ${buildNumber}`);
-          return buildNumber;
+          // Otherwise increment sequence
+          const newBuildNumber = parseInt(currentBuildParts[1]) + 1;
+          return `${currentBuildParts[0]}.${newBuildNumber.toString().padStart(3, '0')}`;
         }
         
-        const APP_BUILD = generateBuildNumber(); // Automatically generated on each deployment
+        // Helper function to show next build number in console
+        function showNextBuildNumber() {
+          const next = getNextBuildNumber();
+          console.log(`📋 Next build number should be: ${next}`);
+          console.log(`📝 Update this line: const APP_BUILD = '${next}';`);
+          return next;
+        }
+        
+        // Log current build info for developers
+        console.log('🚀 VIBEshopper Build Info:', {
+          version: APP_VERSION,
+          build: APP_BUILD,
+          nextBuild: getNextBuildNumber(),
+          buildDate: new Date().toISOString().slice(0, 10),
+          note: 'Manual increment required - change APP_BUILD constant for each deployment'
+        });
         let currentVersion = localStorage.getItem('app_version') || APP_VERSION;
         let currentBuild = localStorage.getItem('app_build') || APP_BUILD;
         
