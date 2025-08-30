@@ -170,6 +170,9 @@
                 </select>
             </div>
             <input id="add-input" class="add-input" placeholder="Add new item..." aria-label="Add new item" />
+            <div style="font-size: 0.8rem; color: #666; margin-top: 8px; text-align: center;">
+                💡 Tip: Press and hold items to drag them between categories
+            </div>
         </div>
         
         <div class="shopping-list" id="shopping-list" aria-label="Shopping list">
@@ -269,10 +272,10 @@
           announce(`Category "${category.name}" removed`);
         }
 
-        function createItemElement(item) {
+                function createItemElement(item) {
           const el = document.createElement('div');
           el.className = 'item';
-
+          el.setAttribute('draggable', 'true');
           el.dataset.id = item.id;
           el.innerHTML = `
             <div class="item-content">
@@ -340,7 +343,17 @@
             if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); removeItem(el); }
           });
 
-
+          // Drag and drop events
+          el.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', item.id);
+            el.style.opacity = '0.5';
+            el.style.transform = 'scale(0.95)';
+          });
+          
+          el.addEventListener('dragend', () => {
+            el.style.opacity = '';
+            el.style.transform = '';
+          });
 
           return el;
         }
@@ -426,6 +439,45 @@
           }
         }
 
+        // Drag and drop handlers
+        function handleDragOver(e) {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          
+          // Add visual feedback for drop zone
+          const container = e.currentTarget;
+          container.style.backgroundColor = 'rgba(255,255,255,0.1)';
+          container.style.border = '2px dashed rgba(255,255,255,0.3)';
+        }
+
+        function handleDrop(e, targetCategoryId) {
+          e.preventDefault();
+          const itemId = e.dataTransfer.getData('text/plain');
+          if (!itemId) return;
+          
+          // Reset drop zone styling
+          const container = e.currentTarget;
+          container.style.backgroundColor = '';
+          container.style.border = '';
+          
+          // Find the item and update its category
+          const item = state.items.find(i => i.id === itemId);
+          if (!item) return;
+          
+          const oldCategoryId = item.categoryId;
+          const oldCategory = oldCategoryId ? state.categories.find(c => c.id === oldCategoryId)?.name : 'Uncategorized';
+          const newCategory = targetCategoryId ? state.categories.find(c => c.id === targetCategoryId)?.name : 'Uncategorized';
+          
+          // Update the item's category
+          item.categoryId = targetCategoryId;
+          saveState();
+          
+          // Re-render to show the item in its new category
+          render();
+          
+          announce(`${item.text} moved from ${oldCategory} to ${newCategory}`);
+        }
+
         function createCategorySection(categoryId, categoryName, items) {
           const section = document.createElement('div');
           section.className = 'category-section';
@@ -453,6 +505,19 @@
           
           const itemsContainer = document.createElement('div');
           itemsContainer.className = 'items-container';
+          itemsContainer.dataset.categoryId = categoryId || 'uncategorized';
+          
+          // Add drag and drop event listeners to the container
+          itemsContainer.addEventListener('dragover', handleDragOver);
+          itemsContainer.addEventListener('drop', (e) => handleDrop(e, categoryId));
+          itemsContainer.addEventListener('dragleave', (e) => {
+            // Only reset if we're leaving the container entirely
+            if (!e.currentTarget.contains(e.relatedTarget)) {
+              e.currentTarget.style.backgroundColor = '';
+              e.currentTarget.style.border = '';
+            }
+          });
+          
           items.forEach(item => {
             const itemEl = createItemElement(item);
             itemsContainer.appendChild(itemEl);
