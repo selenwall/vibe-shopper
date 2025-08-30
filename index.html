@@ -198,6 +198,8 @@
             border-radius: 12px;
             cursor: grab;
             transition: all 0.2s ease;
+            user-select: none; /* Prevent text selection during drag */
+            -webkit-user-select: none;
         }
         
         .item:active {
@@ -207,6 +209,16 @@
         .item.dragging {
             opacity: 0.5;
             transform: scale(0.95);
+            z-index: 1000;
+        }
+        
+        /* Ensure items can be dragged */
+        .item[draggable="true"] {
+            cursor: grab;
+        }
+        
+        .item[draggable="true"]:active {
+            cursor: grabbing;
         }
             display: flex;
             align-items: center;
@@ -283,6 +295,8 @@
                 💡 Tip: Drag items to reorder within categories or move between categories
                 <br>
                 📱 <span id="mobile-tip">Long press items on mobile to start dragging</span>
+                <br>
+                <button id="test-drag" style="background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2); color: #444; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; margin-top: 8px;">Test Drag & Drop</button>
             </div>
         </div>
         
@@ -457,6 +471,7 @@
 
                       // Drag and drop events
             el.addEventListener('dragstart', (e) => {
+              console.log('Drag start for item:', item.text);
               e.dataTransfer.setData('text/plain', item.id);
               el.classList.add('dragging');
             });
@@ -559,6 +574,8 @@
           e.preventDefault();
           e.dataTransfer.dropEffect = 'move';
           
+          console.log('Drag over:', e.currentTarget.className);
+          
           // Add visual feedback for drop zone
           const container = e.currentTarget;
           container.style.backgroundColor = 'rgba(255,255,255,0.1)';
@@ -580,6 +597,32 @@
           const mobileTip = document.getElementById('mobile-tip');
           if (mobileTip) {
             mobileTip.style.display = 'inline';
+          }
+        }
+        
+        // Test drag and drop functionality
+        function testDragAndDrop() {
+          console.log('Testing drag and drop...');
+          
+          // Check if items exist
+          const items = document.querySelectorAll('.item');
+          console.log('Found items:', items.length);
+          
+          // Check if items are draggable
+          items.forEach((item, index) => {
+            const draggable = item.getAttribute('draggable');
+            const hasDragStart = item.ondragstart !== null;
+            console.log(`Item ${index}: draggable="${draggable}", has dragstart: ${hasDragStart}`);
+          });
+          
+          // Check if drop zones exist
+          const dropZones = document.querySelectorAll('.items-container');
+          console.log('Found drop zones:', dropZones.length);
+          
+          // Test creating a test item
+          if (items.length === 0) {
+            console.log('No items found, creating test item...');
+            addItem('Test Item for Drag & Drop');
           }
         }
         
@@ -630,7 +673,10 @@
 
         function handleDrop(e, targetCategoryId) {
           e.preventDefault();
+          console.log('Drop event triggered on:', e.currentTarget.className);
+          
           const itemId = e.dataTransfer.getData('text/plain');
+          console.log('Dropped item ID:', itemId);
           if (!itemId) return;
           
           // Reset drop zone styling
@@ -742,11 +788,15 @@
             }
           });
           
-          // Add drag and drop event listeners to individual items for sorting
+          // Create and add items first
           items.forEach(item => {
             const itemEl = createItemElement(item);
             itemsContainer.appendChild(itemEl);
-            
+          });
+          
+          // Then add drop zone event listeners to items for sorting
+          const itemElements = itemsContainer.querySelectorAll('.item');
+          itemElements.forEach(itemEl => {
             // Add drop zone styling for items
             itemEl.addEventListener('dragover', (e) => {
               e.preventDefault();
@@ -786,6 +836,7 @@
           const categoryInput = document.getElementById('category-input');
           const addCategoryBtn = document.getElementById('add-category-btn');
           const categorySelect = document.getElementById('category-select');
+          const testDragBtn = document.getElementById('test-drag');
           
           console.log('Elements found:', { categoryInput, addCategoryBtn, categorySelect, inputEl });
           
@@ -834,6 +885,12 @@
         // Initial render
         render();
         setupEventListeners();
+        
+        // Add test button event listener after setup
+        const testDragBtn = document.getElementById('test-drag');
+        if (testDragBtn) {
+          testDragBtn.addEventListener('click', testDragAndDrop);
+        }
         
         // Register service worker
         if ('serviceWorker' in navigator) {
