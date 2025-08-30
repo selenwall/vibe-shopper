@@ -230,14 +230,20 @@
         }
 
         function addCategory(name) {
+          console.log('addCategory called with:', name);
           const trimmed = (name || '').trim();
-          if (!trimmed) return;
+          if (!trimmed) {
+            console.log('Empty category name, returning');
+            return;
+          }
           if (state.categories.some(c => c.name.toLowerCase() === trimmed.toLowerCase())) {
+            console.log('Category already exists');
             announce('Category already exists');
             return;
           }
           const category = { id: 'cat-' + Date.now().toString(36), name: trimmed };
           state.categories.push(category);
+          console.log('Category added:', category);
           saveState();
           render();
           announce(`Category "${trimmed}" added`);
@@ -353,9 +359,14 @@
         }
 
         function addItem(text) {
+          console.log('addItem called with:', text);
           const trimmed = (text || '').trim().replace(/\s+/g, ' ');
-          if (!trimmed) return;
+          if (!trimmed) {
+            console.log('Empty item text, returning');
+            return;
+          }
           if (state.items.some(i => i.text.toLowerCase() === trimmed.toLowerCase())) {
+            console.log('Item already exists');
             announce('Already on your list');
             return;
           }
@@ -365,6 +376,7 @@
             completed: false,
             categoryId: selectedCategory
           };
+          console.log('Item added:', item);
           state.items.push(item);
           saveState();
           render();
@@ -451,35 +463,59 @@
         }
 
         // Input handlers
-        const categoryInput = document.getElementById('category-input');
-        const addCategoryBtn = document.getElementById('add-category-btn');
-        
-        categoryInput.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            addCategory(categoryInput.value);
-            categoryInput.value = '';
+        function setupEventListeners() {
+          console.log('Setting up event listeners...');
+          const categoryInput = document.getElementById('category-input');
+          const addCategoryBtn = document.getElementById('add-category-btn');
+          const categorySelect = document.getElementById('category-select');
+          
+          console.log('Elements found:', { categoryInput, addCategoryBtn, categorySelect, inputEl });
+          
+          if (categoryInput) {
+            console.log('Adding keydown listener to categoryInput');
+            categoryInput.addEventListener('keydown', (e) => {
+              console.log('Category input keydown:', e.key);
+              if (e.key === 'Enter') {
+                console.log('Enter pressed in category input');
+                addCategory(categoryInput.value);
+                categoryInput.value = '';
+              }
+            });
           }
-        });
-        
-        addCategoryBtn.addEventListener('click', () => {
-          addCategory(categoryInput.value);
-          categoryInput.value = '';
-        });
-        
-        const categorySelect = document.getElementById('category-select');
-        categorySelect.addEventListener('change', (e) => {
-          selectedCategory = e.target.value || null;
-        });
-        
-        inputEl.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            addItem(inputEl.value);
-            inputEl.value = '';
+          
+          if (addCategoryBtn) {
+            console.log('Adding click listener to addCategoryBtn');
+            addCategoryBtn.addEventListener('click', () => {
+              console.log('Add category button clicked');
+              addCategory(categoryInput.value);
+              categoryInput.value = '';
+            });
           }
-        });
+          
+          if (categorySelect) {
+            console.log('Adding change listener to categorySelect');
+            categorySelect.addEventListener('change', (e) => {
+              console.log('Category select changed:', e.target.value);
+              selectedCategory = e.target.value || null;
+            });
+          }
+          
+          if (inputEl) {
+            console.log('Adding keydown listener to inputEl');
+            inputEl.addEventListener('keydown', (e) => {
+              console.log('Item input keydown:', e.key);
+              if (e.key === 'Enter') {
+                console.log('Enter pressed in item input');
+                addItem(inputEl.value);
+                inputEl.value = '';
+              }
+            });
+          }
+        }
 
         // Initial render
         render();
+        setupEventListeners();
         
         // Register service worker
         if ('serviceWorker' in navigator) {
