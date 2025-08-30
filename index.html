@@ -646,7 +646,7 @@
                 <br>
                 📱 <span id="mobile-tip">Long press (300ms) items on mobile to drag between categories</span>
                 <br>
-                <button id="check-update" class="enhanced-btn secondary" style="margin-top: 8px;">Check for Updates</button>
+
             </div>
         </div>
         
@@ -1091,14 +1091,7 @@
           return false;
         }
         
-        // Manual update check
-        function forceUpdateCheck() {
-          // Simulate version change for testing
-          localStorage.setItem('app_version', '0.9.0');
-          localStorage.setItem('app_build', '20241201.000');
-          updateStatusDisplay('🧪 Testing update...');
-          checkForUpdates();
-        }
+
         
         // Function to increment build number (for developers)
         function incrementBuild() {
@@ -1730,11 +1723,7 @@
         
 
         
-        // Add update check button event listener
-        const checkUpdateBtn = document.getElementById('check-update');
-        if (checkUpdateBtn) {
-          checkUpdateBtn.addEventListener('click', forceUpdateCheck);
-        }
+
         
         // Add theme toggle event listener
         const themeToggle = document.getElementById('theme-toggle');
