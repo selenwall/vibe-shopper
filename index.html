@@ -16,8 +16,105 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #EDE7DC 0%, #DCD2CC 50%, #CCAFA5 100%);
             height: 100vh;
-            padding: 20px;
+            padding: 16px;
             color: #444;
+        }
+        
+        /* Mobile-first responsive design */
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+            
+            .app-container {
+                max-width: 100%;
+                margin: 0 auto;
+            }
+            
+            .app-title {
+                font-size: 1.5rem;
+                letter-spacing: 1px;
+            }
+            
+            .stats {
+                padding: 12px;
+                margin-bottom: 16px;
+            }
+            
+            .add-section {
+                padding: 12px;
+                margin-bottom: 16px;
+            }
+            
+            .add-input {
+                padding: 14px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            
+            .item {
+                padding: 12px;
+                margin-bottom: 8px;
+            }
+        }
+        
+        /* Touch-friendly improvements */
+        @media (hover: none) and (pointer: coarse) {
+            .item {
+                min-height: 48px; /* Minimum touch target size */
+                touch-action: pan-y; /* Allow vertical scrolling */
+            }
+            
+            button {
+                min-height: 44px; /* iOS recommended touch target */
+                min-width: 44px;
+            }
+            
+            .checkbox {
+                min-width: 24px;
+                min-height: 24px;
+            }
+            
+            /* Mobile-specific drag feedback */
+            .item.dragging {
+                transform: scale(0.95) rotate(2deg);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+                z-index: 1000;
+            }
+            
+            /* Prevent text selection during drag */
+            .item.dragging * {
+                user-select: none;
+                -webkit-user-select: none;
+            }
+        }
+        
+        /* Mobile landscape optimization */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .app-container {
+                max-width: 100%;
+                padding: 8px;
+            }
+            
+            .stats {
+                padding: 8px;
+                margin-bottom: 12px;
+            }
+            
+            .add-section {
+                padding: 8px;
+                margin-bottom: 12px;
+            }
+        }
+        
+        /* Mobile tip visibility */
+        #mobile-tip {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            #mobile-tip {
+                display: inline;
+            }
         }
         
         .app-container {
@@ -184,6 +281,8 @@
             <input id="add-input" class="add-input" placeholder="Add new item..." aria-label="Add new item" />
             <div style="font-size: 0.8rem; color: #666; margin-top: 8px; text-align: center;">
                 💡 Tip: Drag items to reorder within categories or move between categories
+                <br>
+                📱 <span id="mobile-tip">Long press items on mobile to start dragging</span>
             </div>
         </div>
         
@@ -365,6 +464,11 @@
             el.addEventListener('dragend', () => {
               el.classList.remove('dragging');
             });
+            
+            // Mobile touch gesture events
+            el.addEventListener('touchstart', (e) => handleTouchStart(e, el));
+            el.addEventListener('touchmove', (e) => handleTouchMove(e, el));
+            el.addEventListener('touchend', (e) => handleTouchEnd(e, el));
 
           return el;
         }
@@ -464,6 +568,64 @@
           if (container.classList.contains('items-container')) {
             container.style.cursor = 'copy';
           }
+        }
+        
+        // Mobile detection and optimization
+        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
+                         ('ontouchstart' in window) || 
+                         (navigator.maxTouchPoints > 0);
+        
+        // Update mobile tip visibility
+        if (isMobile) {
+          const mobileTip = document.getElementById('mobile-tip');
+          if (mobileTip) {
+            mobileTip.style.display = 'inline';
+          }
+        }
+        
+        // Mobile touch gesture support
+        let touchStartY = 0;
+        let touchStartTime = 0;
+        let longPressTimer = null;
+        
+        function handleTouchStart(e, item) {
+          touchStartY = e.touches[0].clientY;
+          touchStartTime = Date.now();
+          
+          // Start long press timer for mobile drag
+          longPressTimer = setTimeout(() => {
+            item.classList.add('dragging');
+            // Trigger drag start for mobile
+            const dragEvent = new Event('dragstart');
+            item.dispatchEvent(dragEvent);
+          }, 500); // 500ms long press to start drag
+        }
+        
+        function handleTouchMove(e, item) {
+          if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+          }
+          
+          const touchY = e.touches[0].clientY;
+          const deltaY = Math.abs(touchY - touchStartY);
+          
+          // If moved significantly, cancel long press
+          if (deltaY > 10) {
+            if (longPressTimer) {
+              clearTimeout(longPressTimer);
+              longPressTimer = null;
+            }
+          }
+        }
+        
+        function handleTouchEnd(e, item) {
+          if (longPressTimer) {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+          }
+          
+          item.classList.remove('dragging');
         }
 
         function handleDrop(e, targetCategoryId) {
