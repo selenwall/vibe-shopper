@@ -6,6 +6,40 @@
 
     <title>VIBEshopper - Modern Minimalist</title>
     <style>
+        :root {
+            /* Light theme variables */
+            --bg-primary: linear-gradient(135deg, #EDE7DC 0%, #DCD2CC 50%, #CCAFA5 100%);
+            --bg-secondary: rgba(255,255,255,0.4);
+            --bg-tertiary: rgba(255,255,255,0.3);
+            --bg-input: rgba(255,255,255,0.5);
+            --text-primary: #444;
+            --text-secondary: #666;
+            --text-muted: rgba(68,68,68,0.6);
+            --border-color: rgba(255,255,255,0.2);
+            --shadow-color: rgba(0,0,0,0.1);
+            --accent-color: #667eea;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+        }
+        
+        [data-theme="dark"] {
+            /* Dark theme variables */
+            --bg-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            --bg-secondary: rgba(255,255,255,0.1);
+            --bg-tertiary: rgba(255,255,255,0.05);
+            --bg-input: rgba(255,255,255,0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #e5e7eb;
+            --text-muted: rgba(229,231,235,0.6);
+            --border-color: rgba(255,255,255,0.1);
+            --shadow-color: rgba(0,0,0,0.3);
+            --accent-color: #8b5cf6;
+            --success-color: #22c55e;
+            --warning-color: #fbbf24;
+            --error-color: #f87171;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -14,10 +48,11 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #EDE7DC 0%, #DCD2CC 50%, #CCAFA5 100%);
+            background: var(--bg-primary);
             height: 100vh;
             padding: 16px;
-            color: #444;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
         }
         
         /* Mobile-first responsive design */
@@ -89,9 +124,43 @@
             
             /* Mobile drag element styling */
             #mobile-drag-element {
+                position: fixed;
+                width: 200px;
+                background: var(--bg-secondary);
+                border-radius: 10px;
+                padding: 15px;
+                box-shadow: 0 15px 40px var(--shadow-color);
+                z-index: 10000;
+                pointer-events: none;
+                transform: translate(-50%, -50%);
+                backdrop-filter: blur(10px);
+                border: 1px solid var(--border-color);
+                color: var(--text-primary);
+                font-weight: 500;
+                animation: float 2s ease-in-out infinite;
                 transition: none !important;
                 will-change: transform;
             }
+            
+                    @keyframes float {
+            0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
+            50% { transform: translate(-50%, -50%) translateY(-5px); }
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .category-section {
+            animation: slideIn 0.5s ease-out;
+        }
             
             /* Touch-friendly improvements for mobile */
             .item {
@@ -103,12 +172,36 @@
             
             .items-container {
                 min-height: 60px;
-                transition: all 0.2s ease;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                background: var(--bg-tertiary);
+                border-radius: 10px;
+                padding: 10px;
+                border: 2px dashed var(--border-color);
+                position: relative;
+            }
+            
+            .items-container::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(45deg, transparent 30%, var(--accent-color) 50%, transparent 70%);
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                border-radius: 10px;
             }
             
             .items-container.highlighted {
-                background-color: rgba(255,255,255,0.2);
-                border: 2px dashed rgba(102, 126, 234, 0.8);
+                background: var(--bg-secondary);
+                border-color: var(--accent-color);
+                transform: scale(1.02);
+                box-shadow: 0 8px 25px var(--shadow-color);
+            }
+            
+            .items-container.highlighted::before {
+                opacity: 0.1;
             }
         }
         
@@ -160,40 +253,144 @@
             font-size: 1.8rem;
             font-weight: 600;
             letter-spacing: 2px;
-            color: #444;
-            text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+            color: var(--text-primary);
+            text-shadow: 1px 1px 2px var(--shadow-color);
         }
         
         .stats {
-            background: rgba(255,255,255,0.4);
+            background: var(--bg-secondary);
             padding: 15px;
             border-radius: 15px;
             margin-bottom: 20px;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #444;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
         }
         
         .add-section {
-            background: rgba(255,255,255,0.3);
+            background: var(--bg-tertiary);
             border-radius: 15px;
             padding: 15px;
             margin-bottom: 20px;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid var(--border-color);
         }
         
         .add-input {
             width: 100%;
-            background: rgba(255,255,255,0.5);
+            background: var(--bg-input);
             border: none;
             padding: 12px;
             border-radius: 10px;
-            color: #444;
+            color: var(--text-primary);
             font-size: 16px;
         }
         
         .add-input::placeholder {
-            color: rgba(68,68,68,0.6);
+            color: var(--text-muted);
+        }
+        
+        .add-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--accent-color);
+            transform: translateY(-1px);
+        }
+        
+        .add-input:focus::placeholder {
+            color: var(--text-muted);
+            opacity: 0.7;
+        }
+        
+        /* Progress bar styling */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), var(--accent-color));
+            border-radius: 4px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        /* Enhanced button styling */
+        .enhanced-btn {
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .enhanced-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s ease, height 0.6s ease;
+        }
+        
+        .enhanced-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .enhanced-btn.primary {
+            background: linear-gradient(135deg, var(--accent-color), var(--success-color));
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .enhanced-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .enhanced-btn.secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .enhanced-btn.secondary:hover {
+            background: var(--bg-tertiary);
+            transform: translateY(-1px);
         }
         
         .shopping-list {
@@ -203,37 +400,78 @@
         
         .category-section {
             margin-bottom: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .category-section:hover {
+            transform: translateX(5px);
         }
         
         .category-header {
             font-size: 0.9rem;
             font-weight: 700;
-            opacity: 1;
             margin-bottom: 12px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #666;
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .category-header:hover {
+            color: var(--accent-color);
+            transform: translateX(5px);
         }
         
         .item {
-            background: rgba(255,255,255,0.4);
+            background: var(--bg-secondary);
             margin-bottom: 10px;
             padding: 15px;
             border-radius: 12px;
             cursor: grab;
-            transition: all 0.2s ease;
-            user-select: none; /* Prevent text selection during drag */
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
             -webkit-user-select: none;
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .item:hover::before {
+            left: 100%;
         }
         
         .item:active {
             cursor: grabbing;
+            transform: scale(0.98);
         }
         
         .item.dragging {
-            opacity: 0.5;
-            transform: scale(0.95);
+            opacity: 0.7;
+            transform: scale(0.95) rotate(2deg);
             z-index: 1000;
+            box-shadow: 0 10px 30px var(--shadow-color);
+        }
+        
+        .item.completed {
+            background: var(--bg-tertiary);
+            opacity: 0.8;
+        }
+        
+        .item.completed .item-text {
+            text-decoration: line-through;
+            color: var(--text-muted);
         }
         
         /* Ensure items can be dragged */
@@ -244,15 +482,11 @@
         .item[draggable="true"]:active {
             cursor: grabbing;
         }
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
         
         .item:hover {
-            background: rgba(255,255,255,0.6);
+            background: var(--bg-secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--shadow-color);
         }
         
         .item-content {
@@ -264,30 +498,114 @@
         .checkbox {
             width: 20px;
             height: 20px;
-            border: 2px solid #CCAFA5;
+            border: 2px solid var(--accent-color);
             border-radius: 50%;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             user-select: none;
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .checkbox::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--accent-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
         }
         
         .checkbox.checked {
-            background: #CCAFA5;
+            background: var(--accent-color);
             color: white;
             font-size: 12px;
             font-weight: bold;
+            transform: scale(1.1);
+        }
+        
+        .checkbox.checked::before {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .checkbox:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px var(--shadow-color);
         }
         
         .item-text {
             font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
         }
         
         .item-text.completed {
             opacity: 0.7;
             text-decoration: line-through;
+            color: var(--text-muted);
+        }
+        
+        .item-text.completed::after {
+            content: '✓';
+            position: absolute;
+            right: -25px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--success-color);
+            font-weight: bold;
+            font-size: 1.2rem;
+            animation: checkmark 0.5s ease-in-out;
+        }
+        
+        @keyframes checkmark {
+            0% { transform: translateY(-50%) scale(0); opacity: 0; }
+            50% { transform: translateY(-50%) scale(1.2); opacity: 1; }
+            100% { transform: translateY(-50%) scale(1); opacity: 1; }
+        }
+        
+        .delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px;
+            border-radius: 5px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .delete-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--error-color);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.3s ease;
+            opacity: 0.1;
+        }
+        
+        .delete-btn:hover {
+            color: var(--error-color);
+            transform: scale(1.1);
+        }
+        
+        .delete-btn:hover::before {
+            width: 100%;
+            height: 100%;
         }
         
         .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
@@ -297,21 +615,27 @@
     <div class="app-container">
         <div class="app-header">
             <div class="app-title">VIBEshopper</div>
-            <div id="version-display" style="font-size: 0.8rem; color: #666; opacity: 0.7;">v1.0.0</div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button id="theme-toggle" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; border-radius: 5px;" title="Toggle dark mode">🌙</button>
+                <div id="version-display" style="font-size: 0.8rem; color: #666; opacity: 0.7;">v1.0.0</div>
+            </div>
         </div>
         
         <div class="stats">
-            <div style="font-size: 0.9rem; margin-bottom: 5px;">Today's Progress</div>
-            <div id="progress" style="font-size: 1.5rem; font-weight: 600;">0 of 0 items</div>
+            <div style="font-size: 0.9rem; margin-bottom: 5px; color: var(--text-secondary);">Today's Progress</div>
+            <div id="progress" style="font-size: 1.5rem; font-weight: 600; margin-bottom: 15px;">0 of 0 items</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
         </div>
         
         <div class="add-section">
             <div style="display: flex; gap: 10px; margin-bottom: 10px;">
                 <input id="category-input" class="add-input" placeholder="Category (e.g., Mejeri, Bröd)..." aria-label="Category" style="flex: 1;" />
-                <button id="add-category-btn" style="background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2); color: #444; padding: 12px 16px; border-radius: 10px; cursor: pointer; font-size: 14px;">Add Category</button>
+                <button id="add-category-btn" class="enhanced-btn primary">Add Category</button>
             </div>
             <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <select id="category-select" style="background: rgba(255,255,255,0.5); border: none; padding: 12px; border-radius: 10px; color: #444; font-size: 16px; flex: 1;">
+                <select id="category-select" class="add-input" style="flex: 1;">
                     <option value="">Select category (optional)</option>
                 </select>
             </div>
@@ -321,8 +645,8 @@
                 <br>
                 📱 <span id="mobile-tip">Long press (300ms) items on mobile to drag between categories</span>
                 <br>
-                <button id="test-drag" style="background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2); color: #444; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; margin-top: 8px;">Test Drag & Drop</button>
-                <button id="check-update" style="background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2); color: #444; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; margin-top: 8px; margin-left: 8px;">Check for Updates</button>
+                <button id="test-drag" class="enhanced-btn secondary" style="margin-top: 8px;">Test Drag & Drop</button>
+                <button id="check-update" class="enhanced-btn secondary" style="margin-top: 8px; margin-left: 8px;">Check for Updates</button>
             </div>
         </div>
         
@@ -381,6 +705,21 @@
           const total = state.items.length;
           const done = state.items.filter(i => i.completed).length;
           progressEl.textContent = `${done} of ${total} item${total === 1 ? '' : 's'}`;
+          
+          // Update progress bar
+          const progressFill = document.getElementById('progress-fill');
+          if (progressFill && total > 0) {
+            const percentage = (done / total) * 100;
+            progressFill.style.width = `${percentage}%`;
+            
+            // Add completion animation
+            if (percentage === 100) {
+              progressFill.style.animation = 'pulse 1s ease-in-out';
+              setTimeout(() => {
+                progressFill.style.animation = '';
+              }, 1000);
+            }
+          }
         }
 
         function addCategory(name) {
@@ -611,6 +950,28 @@
           if (container.classList.contains('items-container')) {
             container.style.cursor = 'copy';
           }
+        }
+        
+        // Theme management
+        let currentTheme = localStorage.getItem('app_theme') || 'light';
+        
+        // Apply theme on load
+        function applyTheme(theme) {
+          document.documentElement.setAttribute('data-theme', theme);
+          localStorage.setItem('app_theme', theme);
+          
+          // Update theme toggle button
+          const themeToggle = document.getElementById('theme-toggle');
+          if (themeToggle) {
+            themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+            themeToggle.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+          }
+        }
+        
+        // Toggle theme
+        function toggleTheme() {
+          currentTheme = currentTheme === 'light' ? 'dark' : 'light';
+          applyTheme(currentTheme);
         }
         
         // Version management and update detection
@@ -1059,7 +1420,22 @@
           
           const header = document.createElement('div');
           header.className = 'category-header';
-          header.style.cssText = 'font-size: 0.9rem; font-weight: 700; opacity: 1; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 1px; color: #666; display: flex; justify-content: space-between; align-items: center;';
+          header.style.cssText = `
+            font-size: 0.9rem; 
+            font-weight: 700; 
+            margin-bottom: 12px; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            color: var(--text-secondary); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+          `;
           
           const title = document.createElement('span');
           title.textContent = categoryName;
@@ -1190,6 +1566,9 @@
         render();
         setupEventListeners();
         
+        // Apply theme on startup
+        applyTheme(currentTheme);
+        
         // Check for updates on startup
         checkForUpdates();
         
@@ -1212,6 +1591,12 @@
         const checkUpdateBtn = document.getElementById('check-update');
         if (checkUpdateBtn) {
           checkUpdateBtn.addEventListener('click', forceUpdateCheck);
+        }
+        
+        // Add theme toggle event listener
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+          themeToggle.addEventListener('click', toggleTheme);
         }
         
         // Register service worker
