@@ -99,6 +99,18 @@
             margin-bottom: 10px;
             padding: 15px;
             border-radius: 12px;
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+        
+        .item:active {
+            cursor: grabbing;
+        }
+        
+        .item.dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+        }
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -171,7 +183,7 @@
             </div>
             <input id="add-input" class="add-input" placeholder="Add new item..." aria-label="Add new item" />
             <div style="font-size: 0.8rem; color: #666; margin-top: 8px; text-align: center;">
-                💡 Tip: Press and hold items to drag them between categories
+                💡 Tip: Drag items to reorder within categories or move between categories
             </div>
         </div>
         
@@ -277,6 +289,7 @@
           el.className = 'item';
           el.setAttribute('draggable', 'true');
           el.dataset.id = item.id;
+          el.title = 'Drag to reorder or move between categories';
           el.innerHTML = `
             <div class="item-content">
               <div class="checkbox${item.completed ? ' checked' : ''}" role="checkbox" aria-checked="${item.completed}" tabindex="0">${item.completed ? '✓' : ''}</div>
@@ -343,17 +356,15 @@
             if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); removeItem(el); }
           });
 
-          // Drag and drop events
-          el.addEventListener('dragstart', (e) => {
-            e.dataTransfer.setData('text/plain', item.id);
-            el.style.opacity = '0.5';
-            el.style.transform = 'scale(0.95)';
-          });
-          
-          el.addEventListener('dragend', () => {
-            el.style.opacity = '';
-            el.style.transform = '';
-          });
+                      // Drag and drop events
+            el.addEventListener('dragstart', (e) => {
+              e.dataTransfer.setData('text/plain', item.id);
+              el.classList.add('dragging');
+            });
+            
+            el.addEventListener('dragend', () => {
+              el.classList.remove('dragging');
+            });
 
           return el;
         }
@@ -448,6 +459,11 @@
           const container = e.currentTarget;
           container.style.backgroundColor = 'rgba(255,255,255,0.1)';
           container.style.border = '2px dashed rgba(255,255,255,0.3)';
+          
+          // Show different cursor for category containers
+          if (container.classList.contains('items-container')) {
+            container.style.cursor = 'copy';
+          }
         }
 
         function handleDrop(e, targetCategoryId) {
@@ -460,6 +476,52 @@
           container.style.backgroundColor = '';
           container.style.border = '';
           
+          // Check if we're dropping on an item (for sorting) or the container (for category change)
+          const targetItem = e.target.closest('.item');
+          
+          if (targetItem && targetItem.dataset.id !== itemId) {
+            // Dropping on another item - sort within the same category
+            handleItemSort(e, targetCategoryId, itemId, targetItem);
+          } else {
+            // Dropping on container - change category
+            handleCategoryChange(itemId, targetCategoryId);
+          }
+        }
+
+        function handleItemSort(e, categoryId, draggedItemId, targetItem) {
+          const draggedItem = state.items.find(i => i.id === draggedItemId);
+          if (!draggedItem) return;
+          
+          // Get all items in this category
+          const categoryItems = state.items.filter(item => item.categoryId === categoryId);
+          
+          // Find the target item's position
+          const targetIndex = categoryItems.findIndex(item => item.id === targetItem.dataset.id);
+          
+          // Remove dragged item from its current position
+          const draggedIndex = categoryItems.findIndex(item => item.id === draggedItemId);
+          categoryItems.splice(draggedIndex, 1);
+          
+          // Insert at new position
+          categoryItems.splice(targetIndex, 0, draggedItem);
+          
+          // Update the order in the main items array
+          const allItems = [...state.items];
+          categoryItems.forEach((item, index) => {
+            const itemIndex = allItems.findIndex(i => i.id === item.id);
+            if (itemIndex !== -1) {
+              allItems[itemIndex] = item;
+            }
+          });
+          
+          state.items = allItems;
+          saveState();
+          render();
+          
+          announce(`${draggedItem.text} reordered in ${categoryId ? state.categories.find(c => c.id === categoryId)?.name : 'Uncategorized'}`);
+        }
+
+        function handleCategoryChange(itemId, targetCategoryId) {
           // Find the item and update its category
           const item = state.items.find(i => i.id === itemId);
           if (!item) return;
@@ -518,9 +580,38 @@
             }
           });
           
+          // Add drag and drop event listeners to individual items for sorting
           items.forEach(item => {
             const itemEl = createItemElement(item);
             itemsContainer.appendChild(itemEl);
+            
+            // Add drop zone styling for items
+            itemEl.addEventListener('dragover', (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              e.dataTransfer.dropEffect = 'move';
+              
+              // Visual feedback for dropping on item
+              itemEl.style.borderLeft = '3px solid rgba(255,255,255,0.5)';
+              itemEl.style.backgroundColor = 'rgba(255,255,255,0.1)';
+            });
+            
+            itemEl.addEventListener('dragleave', () => {
+              itemEl.style.borderLeft = '';
+              itemEl.style.backgroundColor = '';
+            });
+            
+            itemEl.addEventListener('drop', (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              
+              // Reset styling
+              itemEl.style.borderLeft = '';
+              itemEl.style.backgroundColor = '';
+              
+              // Handle the drop
+              handleDrop(e, categoryId);
+            });
           });
           
           section.appendChild(itemsContainer);
