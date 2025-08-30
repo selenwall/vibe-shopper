@@ -646,8 +646,7 @@
                 <br>
                 📱 <span id="mobile-tip">Long press (300ms) items on mobile to drag between categories</span>
                 <br>
-                <button id="test-drag" class="enhanced-btn secondary" style="margin-top: 8px;">Test Drag & Drop</button>
-                <button id="check-update" class="enhanced-btn secondary" style="margin-top: 8px; margin-left: 8px;">Check for Updates</button>
+                <button id="check-update" class="enhanced-btn secondary" style="margin-top: 8px;">Check for Updates</button>
             </div>
         </div>
         
@@ -1167,31 +1166,7 @@
           }
         }
         
-        // Test drag and drop functionality
-        function testDragAndDrop() {
-          console.log('Testing drag and drop...');
-          
-          // Check if items exist
-          const items = document.querySelectorAll('.item');
-          console.log('Found items:', items.length);
-          
-          // Check if items are draggable
-          items.forEach((item, index) => {
-            const draggable = item.getAttribute('draggable');
-            const hasDragStart = item.ondragstart !== null;
-            console.log(`Item ${index}: draggable="${draggable}", has dragstart: ${hasDragStart}`);
-          });
-          
-          // Check if drop zones exist
-          const dropZones = document.querySelectorAll('.items-container');
-          console.log('Found drop zones:', dropZones.length);
-          
-          // Test creating a test item
-          if (items.length === 0) {
-            console.log('No items found, creating test item...');
-            addItem('Test Item for Drag & Drop');
-          }
-        }
+
         
         // Mobile touch gesture support
         let touchStartY = 0;
@@ -1569,7 +1544,6 @@
           const categoryInput = document.getElementById('category-input');
           const addCategoryBtn = document.getElementById('add-category-btn');
           const categorySelect = document.getElementById('category-select');
-          const testDragBtn = document.getElementById('test-drag');
           
           console.log('Elements found:', { categoryInput, addCategoryBtn, categorySelect, inputEl });
           
@@ -1642,11 +1616,7 @@
           }
         }
         
-        // Add test button event listener after setup
-        const testDragBtn = document.getElementById('test-drag');
-        if (testDragBtn) {
-          testDragBtn.addEventListener('click', testDragAndDrop);
-        }
+
         
         // Add update check button event listener
         const checkUpdateBtn = document.getElementById('check-update');
