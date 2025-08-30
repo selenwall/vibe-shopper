@@ -86,6 +86,30 @@
                 user-select: none;
                 -webkit-user-select: none;
             }
+            
+            /* Mobile drag element styling */
+            #mobile-drag-element {
+                transition: none !important;
+                will-change: transform;
+            }
+            
+            /* Touch-friendly improvements for mobile */
+            .item {
+                touch-action: pan-y;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                user-select: none;
+            }
+            
+            .items-container {
+                min-height: 60px;
+                transition: all 0.2s ease;
+            }
+            
+            .items-container.highlighted {
+                background-color: rgba(255,255,255,0.2);
+                border: 2px dashed rgba(102, 126, 234, 0.8);
+            }
         }
         
         /* Mobile landscape optimization */
@@ -295,7 +319,7 @@
             <div style="font-size: 0.8rem; color: #666; margin-top: 8px; text-align: center;">
                 💡 Tip: Drag items to reorder within categories or move between categories
                 <br>
-                📱 <span id="mobile-tip">Long press items on mobile to start dragging</span>
+                📱 <span id="mobile-tip">Long press (300ms) items on mobile to drag between categories</span>
                 <br>
                 <button id="test-drag" style="background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2); color: #444; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; margin-top: 8px;">Test Drag & Drop</button>
                 <button id="check-update" style="background: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2); color: #444; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; margin-top: 8px; margin-left: 8px;">Check for Updates</button>
@@ -759,35 +783,36 @@
         let touchStartY = 0;
         let touchStartTime = 0;
         let longPressTimer = null;
+        let isDragging = false;
+        let draggedItem = null;
+        let draggedItemRect = null;
         
         function handleTouchStart(e, item) {
+          e.preventDefault();
           touchStartY = e.touches[0].clientY;
           touchStartTime = Date.now();
           
           // Start long press timer for mobile drag
           longPressTimer = setTimeout(() => {
-            item.classList.add('dragging');
-            // Trigger drag start for mobile
-            const dragEvent = new Event('dragstart');
-            item.dispatchEvent(dragEvent);
-          }, 500); // 500ms long press to start drag
+            startMobileDrag(item, e);
+          }, 300); // Reduced to 300ms for better responsiveness
         }
         
         function handleTouchMove(e, item) {
           if (longPressTimer) {
-            clearTimeout(longPressTimer);
-            longPressTimer = null;
-          }
-          
-          const touchY = e.touches[0].clientY;
-          const deltaY = Math.abs(touchY - touchStartY);
-          
-          // If moved significantly, cancel long press
-          if (deltaY > 10) {
-            if (longPressTimer) {
+            const touchY = e.touches[0].clientY;
+            const deltaY = Math.abs(touchY - touchStartY);
+            
+            // If moved significantly, cancel long press
+            if (deltaY > 5) {
               clearTimeout(longPressTimer);
               longPressTimer = null;
             }
+          }
+          
+          if (isDragging && draggedItem) {
+            e.preventDefault();
+            updateMobileDragPosition(e);
           }
         }
         
@@ -797,7 +822,157 @@
             longPressTimer = null;
           }
           
-          item.classList.remove('dragging');
+          if (isDragging && draggedItem) {
+            endMobileDrag(e);
+          }
+        }
+        
+        function startMobileDrag(item, e) {
+          isDragging = true;
+          draggedItem = item;
+          draggedItemRect = item.getBoundingClientRect();
+          
+          // Create floating drag element
+          const dragElement = document.createElement('div');
+          dragElement.id = 'mobile-drag-element';
+          dragElement.style.cssText = `
+            position: fixed;
+            top: ${draggedItemRect.top}px;
+            left: ${draggedItemRect.left}px;
+            width: ${draggedItemRect.width}px;
+            height: ${draggedItemRect.height}px;
+            background: rgba(255,255,255,0.9);
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            z-index: 10000;
+            pointer-events: none;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            transform: scale(1.05);
+          `;
+          dragElement.innerHTML = item.innerHTML;
+          document.body.appendChild(dragElement);
+          
+          // Hide original item
+          item.style.opacity = '0.3';
+          
+          // Add dragging class
+          item.classList.add('dragging');
+          
+          console.log('Mobile drag started for:', item.textContent);
+        }
+        
+        function updateMobileDragPosition(e) {
+          if (!isDragging || !draggedItem) return;
+          
+          const touch = e.touches[0];
+          const dragElement = document.getElementById('mobile-drag-element');
+          
+          if (dragElement) {
+            dragElement.style.top = (touch.clientY - draggedItemRect.height / 2) + 'px';
+            dragElement.style.left = (touch.clientX - draggedItemRect.width / 2) + 'px';
+          }
+          
+          // Find drop target
+          const dropTarget = findDropTarget(touch.clientX, touch.clientY);
+          highlightDropTarget(dropTarget);
+        }
+        
+        function endMobileDrag(e) {
+          if (!isDragging || !draggedItem) return;
+          
+          const touch = e.changedTouches[0];
+          const dropTarget = findDropTarget(touch.clientX, touch.clientY);
+          
+          if (dropTarget) {
+            handleMobileDrop(draggedItem, dropTarget);
+          }
+          
+          // Clean up
+          cleanupMobileDrag();
+        }
+        
+        function findDropTarget(x, y) {
+          const dropZones = document.querySelectorAll('.items-container');
+          let bestTarget = null;
+          let bestDistance = Infinity;
+          
+          dropZones.forEach(zone => {
+            const rect = zone.getBoundingClientRect();
+            if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+              const centerX = rect.left + rect.width / 2;
+              const centerY = rect.top + rect.height / 2;
+              const distance = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+              
+              if (distance < bestDistance) {
+                bestDistance = distance;
+                bestTarget = zone;
+              }
+            }
+          });
+          
+          return bestTarget;
+        }
+        
+        function highlightDropTarget(target) {
+          // Remove previous highlights
+          document.querySelectorAll('.items-container').forEach(zone => {
+            zone.style.backgroundColor = '';
+            zone.style.border = '';
+          });
+          
+          // Highlight current target
+          if (target) {
+            target.style.backgroundColor = 'rgba(255,255,255,0.2)';
+            target.style.border = '2px dashed rgba(102, 126, 234, 0.8)';
+          }
+        }
+        
+        function handleMobileDrop(item, dropTarget) {
+          const targetCategoryId = dropTarget.dataset.categoryId;
+          const itemId = item.dataset.id;
+          
+          console.log('Mobile drop: item', itemId, 'to category', targetCategoryId);
+          
+          // Handle the drop using existing logic
+          const dropEvent = {
+            preventDefault: () => {},
+            target: dropTarget,
+            currentTarget: dropTarget
+          };
+          
+          // Create a fake dataTransfer object
+          const fakeDataTransfer = {
+            getData: () => itemId
+          };
+          
+          // Store the item ID temporarily
+          dropEvent.dataTransfer = fakeDataTransfer;
+          
+          handleDrop(dropEvent, targetCategoryId === 'uncategorized' ? null : targetCategoryId);
+        }
+        
+        function cleanupMobileDrag() {
+          isDragging = false;
+          draggedItem = null;
+          draggedItemRect = null;
+          
+          // Remove floating element
+          const dragElement = document.getElementById('mobile-drag-element');
+          if (dragElement) {
+            document.body.removeChild(dragElement);
+          }
+          
+          // Remove dragging class from all items
+          document.querySelectorAll('.item').forEach(item => {
+            item.classList.remove('dragging');
+            item.style.opacity = '';
+          });
+          
+          // Remove highlights
+          document.querySelectorAll('.items-container').forEach(zone => {
+            zone.style.backgroundColor = '';
+            zone.style.border = '';
+          });
         }
 
         function handleDrop(e, targetCategoryId) {
