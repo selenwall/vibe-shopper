@@ -223,16 +223,7 @@
             }
         }
         
-        /* Mobile tip visibility */
-        #mobile-tip {
-            display: none;
-        }
-        
-        @media (max-width: 768px) {
-            #mobile-tip {
-                display: inline;
-            }
-        }
+
         
         .app-container {
             max-width: 400px;
@@ -641,13 +632,6 @@
                 </select>
             </div>
             <input id="add-input" class="add-input" placeholder="Add new item..." aria-label="Add new item" />
-            <div style="font-size: 0.8rem; color: #666; margin-top: 8px; text-align: center;">
-                💡 Tip: Drag items to reorder within categories or move between categories
-                <br>
-                📱 <span id="mobile-tip">Long press (300ms) items on mobile to drag between categories</span>
-                <br>
-
-            </div>
         </div>
         
         <div class="shopping-list" id="shopping-list" aria-label="Shopping list">
@@ -1263,13 +1247,7 @@
                          ('ontouchstart' in window) || 
                          (navigator.maxTouchPoints > 0);
         
-        // Update mobile tip visibility
-        if (isMobile) {
-          const mobileTip = document.getElementById('mobile-tip');
-          if (mobileTip) {
-            mobileTip.style.display = 'inline';
-          }
-        }
+
         
 
         
