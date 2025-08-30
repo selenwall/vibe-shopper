@@ -599,6 +599,15 @@
             height: 100%;
         }
         
+        /* Context menu styling */
+        .context-menu {
+            animation: slideIn 0.2s ease-out;
+        }
+        
+        .context-menu div:hover {
+            background: var(--bg-tertiary);
+        }
+        
         .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
     </style>
 </head>
@@ -610,6 +619,7 @@
                 <button id="theme-toggle" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; border-radius: 5px;" title="Toggle dark mode">🌙</button>
                 <div id="version-display" style="font-size: 0.8rem; color: var(--text-secondary); opacity: 0.7;">v1.0.0</div>
                 <div id="update-status" style="font-size: 0.7rem; color: var(--text-muted); opacity: 0.6;">🔄 Auto-checking...</div>
+                <div id="llm-status" style="font-size: 0.7rem; color: var(--text-muted); opacity: 0.6;">🤖 Checking...</div>
             </div>
         </div>
         
@@ -833,8 +843,91 @@
             el.addEventListener('touchstart', (e) => handleTouchStart(e, el));
             el.addEventListener('touchmove', (e) => handleTouchMove(e, el));
             el.addEventListener('touchend', (e) => handleTouchEnd(e, el));
+            
+          // Add right-click context menu for category correction
+          el.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showCategoryCorrectionMenu(e, item);
+          });
 
           return el;
+        }
+        
+        // Show category correction context menu
+        function showCategoryCorrectionMenu(e, item) {
+          const menu = document.createElement('div');
+          menu.className = 'context-menu';
+          menu.style.cssText = `
+            position: fixed;
+            top: ${e.clientY}px;
+            left: ${e.clientX}px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px 0;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            z-index: 1000;
+            min-width: 150px;
+          `;
+          
+          const title = document.createElement('div');
+          title.textContent = `Move "${item.text}" to:`;
+          title.style.cssText = 'padding: 8px 12px; font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid var(--border-color);';
+          menu.appendChild(title);
+          
+          // Add category options
+          state.categories.forEach(category => {
+            const option = document.createElement('div');
+            option.textContent = category.name;
+            option.style.cssText = 'padding: 8px 12px; cursor: pointer; transition: background 0.2s;';
+            
+            option.addEventListener('mouseenter', () => {
+              option.style.background = 'var(--bg-tertiary)';
+            });
+            
+            option.addEventListener('mouseleave', () => {
+              option.style.background = 'transparent';
+            });
+            
+            option.addEventListener('click', () => {
+              correctLLMCategorization(item.id, category.name);
+              document.body.removeChild(menu);
+            });
+            
+            menu.appendChild(option);
+          });
+          
+          // Add "Uncategorized" option
+          const uncategorizedOption = document.createElement('div');
+          uncategorizedOption.textContent = 'Uncategorized';
+          uncategorizedOption.style.cssText = 'padding: 8px 12px; cursor: pointer; transition: background 0.2s; border-top: 1px solid var(--border-color);';
+          
+          uncategorizedOption.addEventListener('mouseenter', () => {
+            uncategorizedOption.style.background = 'var(--bg-tertiary)';
+          });
+          
+          uncategorizedOption.addEventListener('mouseleave', () => {
+            uncategorizedOption.style.background = 'transparent';
+          });
+          
+          uncategorizedOption.addEventListener('click', () => {
+            item.categoryId = null;
+            saveState();
+            render();
+            announce(`Moved ${item.text} to Uncategorized`);
+            document.body.removeChild(menu);
+          });
+          
+          menu.appendChild(uncategorizedOption);
+          
+          // Close menu when clicking outside
+          document.addEventListener('click', () => {
+            if (document.body.contains(menu)) {
+              document.body.removeChild(menu);
+            }
+          }, { once: true });
+          
+          document.body.appendChild(menu);
         }
 
 
@@ -850,7 +943,7 @@
           announce(`${text} removed`);
         }
 
-        function addItem(text) {
+        async function addItem(text) {
           console.log('addItem called with:', text);
           const trimmed = (text || '').trim().replace(/\s+/g, ' ');
           if (!trimmed) {
@@ -862,6 +955,31 @@
             announce('Already on your list');
             return;
           }
+          
+          // Try to auto-categorize the item using local LLM
+          let suggestedCategory = null;
+          if (localLLM.isAvailable) {
+            try {
+              suggestedCategory = await localLLM.categorizeItem(trimmed);
+              if (suggestedCategory) {
+                console.log(`🤖 Auto-categorized "${trimmed}" as "${suggestedCategory}"`);
+                
+                // Find the category ID for the suggested category
+                const category = state.categories.find(c => c.name === suggestedCategory);
+                if (category) {
+                  selectedCategory = category.id;
+                  // Update the category selector to show the suggestion
+                  const categorySelect = document.getElementById('category-select');
+                  if (categorySelect) {
+                    categorySelect.value = category.id;
+                  }
+                }
+              }
+            } catch (error) {
+              console.error('Auto-categorization failed:', error);
+            }
+          }
+          
           const item = { 
             id: 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8), 
             text: trimmed, 
@@ -872,7 +990,13 @@
           state.items.push(item);
           saveState();
           render();
-          announce(`${trimmed} added to ${selectedCategory ? state.categories.find(c => c.id === selectedCategory)?.name : 'Uncategorized'}`);
+          
+          // Show categorization feedback
+          if (suggestedCategory) {
+            announce(`${trimmed} added to ${suggestedCategory} (AI suggested)`);
+          } else {
+            announce(`${trimmed} added to ${selectedCategory ? state.categories.find(c => c.id === selectedCategory)?.name : 'Uncategorized'}`);
+          }
         }
 
         function render() {
@@ -1005,6 +1129,202 @@
           console.log(`📋 Next build number should be: ${next}`);
           console.log(`📝 Update this line: const APP_BUILD = '${next}';`);
           return next;
+        }
+        
+        // LOCAL LLM INTEGRATION FOR SMART CATEGORIZATION
+        class LocalLLM {
+          constructor() {
+            this.baseUrl = 'http://localhost:11434'; // Ollama default port
+            this.model = 'llama2:7b'; // Lightweight model
+            this.isAvailable = false;
+            this.cache = new Map(); // Local categorization cache
+            this.userCorrections = new Map(); // Learn from user corrections
+            
+            // Test connection on startup
+            this.testConnection();
+          }
+          
+          // Test if Ollama is running
+          async testConnection() {
+            try {
+              const response = await fetch(`${this.baseUrl}/api/tags`);
+              if (response.ok) {
+                this.isAvailable = true;
+                console.log('🤖 Local LLM (Ollama) connected successfully');
+                this.updateLLMStatus('🟢 Connected');
+              } else {
+                throw new Error('Ollama not responding');
+              }
+            } catch (error) {
+              console.log('🤖 Local LLM not available:', error.message);
+              this.isAvailable = false;
+              this.updateLLMStatus('🔴 Not Connected');
+            }
+          }
+          
+          // Update LLM status in UI
+          updateLLMStatus(status) {
+            const statusEl = document.getElementById('llm-status');
+            if (statusEl) {
+              statusEl.textContent = status;
+            }
+          }
+          
+          // Categorize shopping item using local LLM
+          async categorizeItem(itemName) {
+            // Check cache first
+            if (this.cache.has(itemName.toLowerCase())) {
+              return this.cache.get(itemName.toLowerCase());
+            }
+            
+            // Check user corrections
+            if (this.userCorrections.has(itemName.toLowerCase())) {
+              return this.userCorrections.get(itemName.toLowerCase());
+            }
+            
+            if (!this.isAvailable) {
+              return null; // Fallback to manual selection
+            }
+            
+            try {
+              const prompt = this.buildCategorizationPrompt(itemName);
+              const response = await this.callOllama(prompt);
+              const category = this.parseCategoryResponse(response);
+              
+              // Cache the result
+              this.cache.set(itemName.toLowerCase(), category);
+              
+              return category;
+            } catch (error) {
+              console.error('LLM categorization failed:', error);
+              return null;
+            }
+          }
+          
+          // Build prompt for categorization
+          buildCategorizationPrompt(itemName) {
+            return `You are a shopping list assistant. Categorize the following item into one of these categories:
+
+Categories: Mejeri (Dairy), Bröd (Bread), Frukt & Grönt (Fruits & Vegetables), Kött & Fisk (Meat & Fish), Drycker (Drinks), Övrigt (Other)
+
+Item: "${itemName}"
+
+Respond with ONLY the category name, nothing else.`;
+          }
+          
+          // Call Ollama API
+          async callOllama(prompt) {
+            const response = await fetch(`${this.baseUrl}/api/generate`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                model: this.model,
+                prompt: prompt,
+                stream: false,
+                options: {
+                  temperature: 0.1, // Low temperature for consistent categorization
+                  top_p: 0.9
+                }
+              })
+            });
+            
+            if (!response.ok) {
+              throw new Error(`Ollama API error: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return data.response;
+          }
+          
+          // Parse LLM response to extract category
+          parseCategoryResponse(response) {
+            const cleanResponse = response.trim().toLowerCase();
+            
+            // Map common variations to our categories
+            const categoryMap = {
+              'mejeri': 'Mejeri',
+              'dairy': 'Mejeri',
+              'mjölk': 'Mejeri',
+              'ost': 'Mejeri',
+              'yoghurt': 'Mejeri',
+              'bröd': 'Bröd',
+              'bread': 'Bröd',
+              'limpa': 'Bröd',
+              'frukt': 'Frukt & Grönt',
+              'grönt': 'Frukt & Grönt',
+              'vegetables': 'Frukt & Grönt',
+              'kött': 'Kött & Fisk',
+              'fisk': 'Kött & Fisk',
+              'meat': 'Kött & Fisk',
+              'fish': 'Kött & Fisk',
+              'drycker': 'Drycker',
+              'drinks': 'Drycker',
+              'öl': 'Drycker',
+              'vatten': 'Drycker'
+            };
+            
+            // Check for exact matches first
+            for (const [key, category] of Object.entries(categoryMap)) {
+              if (cleanResponse.includes(key)) {
+                return category;
+              }
+            }
+            
+            // Check if response contains any category name
+            for (const category of Object.values(categoryMap)) {
+              if (cleanResponse.includes(category.toLowerCase())) {
+                return category;
+              }
+            }
+            
+            return 'Övrigt'; // Default fallback
+          }
+          
+          // Learn from user corrections
+          learnFromCorrection(itemName, correctCategory) {
+            this.userCorrections.set(itemName.toLowerCase(), correctCategory);
+            console.log(`🤖 Learned: "${itemName}" → "${correctCategory}"`);
+            
+            // Save to localStorage for persistence
+            localStorage.setItem('llm_user_corrections', JSON.stringify(Array.from(this.userCorrections.entries())));
+          }
+          
+          // Load user corrections from localStorage
+          loadUserCorrections() {
+            try {
+              const saved = localStorage.getItem('llm_user_corrections');
+              if (saved) {
+                this.userCorrections = new Map(JSON.parse(saved));
+                console.log(`🤖 Loaded ${this.userCorrections.size} user corrections`);
+              }
+            } catch (error) {
+              console.error('Failed to load user corrections:', error);
+            }
+          }
+        }
+        
+        // Initialize local LLM
+        const localLLM = new LocalLLM();
+        
+        // Function to correct LLM categorization and learn from it
+        function correctLLMCategorization(itemId, correctCategoryName) {
+          const item = state.items.find(i => i.id === itemId);
+          if (!item) return;
+          
+          // Find the correct category
+          const correctCategory = state.categories.find(c => c.name === correctCategoryName);
+          if (!correctCategory) return;
+          
+          // Update the item's category
+          item.categoryId = correctCategory.id;
+          saveState();
+          render();
+          
+          // Teach the LLM from this correction
+          localLLM.learnFromCorrection(item.text, correctCategoryName);
+          
+          // Announce the correction
+          announce(`Moved ${item.text} to ${correctCategoryName} and learned from correction`);
         }
         
         // Log current build info for developers
@@ -1704,6 +2024,9 @@
         
         // Apply theme on startup
         applyTheme(currentTheme);
+        
+        // Load LLM user corrections
+        localLLM.loadUserCorrections();
         
         // Check for updates on startup
         checkForUpdates();
