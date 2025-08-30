@@ -2,11 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Vibe Shopper - Modern Minimalist v1.0.1</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#CCAFA5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Vibe">
+    <link rel="manifest" href="manifest.webmanifest">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%23CCAFA5' rx='40'/%3E%3Ctext x='90' y='110' font-family='-apple-system,system-ui' font-size='80' font-weight='600' text-anchor='middle' fill='white'%3EV%3C/text%3E%3C/svg%3E">
     <style>
         * {
             margin: 0;
@@ -17,15 +27,18 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #EDE7DC 0%, #DCD2CC 50%, #CCAFA5 100%);
-            height: 100vh;
+            min-height: 100vh;
             padding: 20px;
+            padding-bottom: env(safe-area-inset-bottom, 20px);
             color: #444;
+            -webkit-text-size-adjust: 100%;
+            overscroll-behavior: contain;
         }
         
         .app-container {
             max-width: 400px;
             margin: 0 auto;
-            height: 100%;
+            min-height: calc(100vh - 40px - env(safe-area-inset-bottom, 0px));
             display: flex;
             flex-direction: column;
         }
@@ -67,7 +80,7 @@
             width: 100%;
             background: rgba(255,255,255,0.5);
             border: none;
-            padding: 12px;
+            padding: 16px;
             border-radius: 10px;
             color: #444;
             font-size: 16px;
@@ -106,10 +119,18 @@
             justify-content: space-between;
             transition: all 0.3s ease;
             border: 1px solid rgba(255,255,255,0.2);
+            touch-action: pan-y;
+            position: relative;
+            overflow: hidden;
         }
         
         .item:hover {
             background: rgba(255,255,255,0.6);
+        }
+        
+        .item:active {
+            background: rgba(255,255,255,0.5);
+            transform: scale(0.99);
         }
         
         .item-content {
@@ -119,8 +140,8 @@
         }
         
         .checkbox {
-            width: 20px;
-            height: 20px;
+            width: 44px;
+            height: 44px;
             border: 2px solid #CCAFA5;
             border-radius: 50%;
             cursor: pointer;
@@ -129,17 +150,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .checkbox.checked {
             background: #CCAFA5;
             color: white;
-            font-size: 12px;
+            font-size: 20px;
             font-weight: bold;
         }
         
+        .checkbox:active {
+            transform: scale(0.95);
+            background: rgba(204,175,165,0.2);
+        }
+        
         .item-text {
-            font-size: 1rem;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            flex: 1;
         }
         
         .item-text.completed {
@@ -148,6 +177,121 @@
         }
         
         .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        
+        /* Mobile-specific improvements */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+                padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px));
+            }
+            
+            .app-title {
+                font-size: 1.6rem;
+            }
+            
+            .stats {
+                padding: 12px;
+            }
+            
+            .item {
+                transition: transform 0.2s ease;
+            }
+            
+            .item.swiping {
+                transition: none;
+            }
+            
+            .item-content {
+                transition: transform 0.2s ease;
+                will-change: transform;
+            }
+            
+            .delete-hint {
+                position: absolute;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                width: 80px;
+                background: #e74c3c;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                opacity: 0;
+                transition: opacity 0.2s ease;
+            }
+            
+            .item.show-delete .delete-hint {
+                opacity: 1;
+            }
+        }
+        
+        /* Reduce motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+        
+        /* Performance optimizations for mobile */
+        @media (max-width: 768px) and (hover: none) {
+            .item {
+                will-change: auto;
+            }
+            
+            body {
+                /* Simpler gradient for better performance */
+                background: #EDE7DC;
+            }
+        }
+        
+        /* Offline indicator */
+        .offline-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #e74c3c;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+        
+        .offline-banner.show {
+            transform: translateY(0);
+        }
+        
+        /* PWA install prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+        }
+        
+        .install-prompt button {
+            background: #CCAFA5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -174,6 +318,18 @@
     </div>
 
     <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    
+    <div class="offline-banner" id="offline-banner">
+        <span>📵 You're offline - changes will be saved locally</span>
+    </div>
+    
+    <div class="install-prompt" id="install-prompt">
+        <div>
+            <strong>Install Vibe Shopper</strong>
+            <div style="font-size: 0.9rem; opacity: 0.8; margin-top: 4px;">Add to your home screen for easy access</div>
+        </div>
+        <button id="install-btn">Install</button>
+    </div>
 
     <script src="version.js"></script>
     <script>
@@ -186,6 +342,10 @@
 
         let state = loadState();
         let longPressTimer = null;
+        let deferredPrompt = null;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let currentSwipeEl = null;
 
         // Global drag handlers (once)
         itemsContainer.addEventListener('dragover', (e) => {
@@ -224,6 +384,7 @@
               <div class="checkbox${item.completed ? ' checked' : ''}" role="checkbox" aria-checked="${item.completed}" tabindex="0">${item.completed ? '✓' : ''}</div>
               <div class="item-text${item.completed ? ' completed' : ''}" tabindex="0"></div>
             </div>
+            <div class="delete-hint">Delete</div>
           `;
           const checkbox = el.querySelector('.checkbox');
           const textEl = el.querySelector('.item-text');
@@ -239,6 +400,11 @@
             saveState();
             updateProgress();
             if (announceToggle) announce(`${item.text} ${item.completed ? 'completed' : 'marked active'}`);
+            
+            // Haptic feedback on mobile
+            if ('vibrate' in navigator && item.completed) {
+              navigator.vibrate(50);
+            }
           }
           checkbox.addEventListener('click', () => toggle(true));
           checkbox.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(true); }});
@@ -284,6 +450,62 @@
           el.addEventListener('pointerdown', scheduleDelete);
           el.addEventListener('pointerup', cancelDelete);
           el.addEventListener('pointerleave', cancelDelete);
+          
+          // Swipe gestures for mobile
+          const itemContent = el.querySelector('.item-content');
+          let startX = 0;
+          let currentX = 0;
+          let startTime = 0;
+          
+          el.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            startX = e.touches[0].clientX;
+            currentX = startX;
+            startTime = Date.now();
+            touchStartX = startX;
+            touchStartY = e.touches[0].clientY;
+            currentSwipeEl = el;
+            el.classList.add('swiping');
+          }, { passive: true });
+          
+          el.addEventListener('touchmove', (e) => {
+            if (e.touches.length !== 1 || !currentSwipeEl) return;
+            currentX = e.touches[0].clientX;
+            const deltaX = currentX - startX;
+            const deltaY = e.touches[0].clientY - touchStartY;
+            
+            // Only swipe horizontally if the gesture is more horizontal than vertical
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+              e.preventDefault();
+              const maxSwipe = 100;
+              const swipeAmount = Math.max(-maxSwipe, Math.min(0, deltaX));
+              itemContent.style.transform = `translateX(${swipeAmount}px)`;
+              
+              if (swipeAmount < -50) {
+                el.classList.add('show-delete');
+              } else {
+                el.classList.remove('show-delete');
+              }
+            }
+          }, { passive: false });
+          
+          el.addEventListener('touchend', (e) => {
+            if (!currentSwipeEl) return;
+            const deltaX = currentX - startX;
+            const velocity = deltaX / (Date.now() - startTime);
+            
+            // If swiped far enough or fast enough, delete the item
+            if (deltaX < -80 || velocity < -0.5) {
+              itemContent.style.transform = 'translateX(-100%)';
+              setTimeout(() => removeItem(el), 200);
+            } else {
+              itemContent.style.transform = '';
+              el.classList.remove('show-delete');
+            }
+            
+            el.classList.remove('swiping');
+            currentSwipeEl = null;
+          }, { passive: true });
 
           // Keyboard delete when focused on row
           el.addEventListener('keydown', (e) => {
@@ -352,6 +574,89 @@
         // Initial render
         render();
         
+        // Offline/Online detection
+        const offlineBanner = document.getElementById('offline-banner');
+        
+        function updateOnlineStatus() {
+          if (!navigator.onLine) {
+            offlineBanner.classList.add('show');
+            announce('You are offline. Changes will be saved locally.');
+          } else {
+            offlineBanner.classList.remove('show');
+            announce('You are back online.');
+          }
+        }
+        
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        
+        // Check initial status
+        updateOnlineStatus();
+        
+        // PWA Install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          const installPrompt = document.getElementById('install-prompt');
+          installPrompt.style.display = 'flex';
+          
+          document.getElementById('install-btn').addEventListener('click', async () => {
+            installPrompt.style.display = 'none';
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+              announce('App installed successfully');
+            }
+            deferredPrompt = null;
+          });
+        });
+        
+        // Pull to refresh
+        let pullStartY = 0;
+        let isPulling = false;
+        
+        document.addEventListener('touchstart', (e) => {
+          if (window.scrollY === 0 && e.touches.length === 1) {
+            pullStartY = e.touches[0].clientY;
+            isPulling = true;
+          }
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', (e) => {
+          if (!isPulling || e.touches.length !== 1) return;
+          const pullDistance = e.touches[0].clientY - pullStartY;
+          
+          if (pullDistance > 0 && window.scrollY === 0) {
+            e.preventDefault();
+            document.body.style.transform = `translateY(${Math.min(pullDistance * 0.5, 80)}px)`;
+            
+            if (pullDistance > 100) {
+              document.body.style.background = 'linear-gradient(135deg, #F5EFEA 0%, #E5D9D3 50%, #D9C4BD 100%)';
+            }
+          }
+        }, { passive: false });
+        
+        document.addEventListener('touchend', () => {
+          if (!isPulling) return;
+          isPulling = false;
+          
+          const currentTransform = document.body.style.transform;
+          const pullDistance = currentTransform ? parseFloat(currentTransform.match(/\d+/)?.[0] || 0) : 0;
+          
+          document.body.style.transform = '';
+          document.body.style.transition = 'transform 0.3s ease';
+          
+          if (pullDistance > 40) {
+            // Refresh the page
+            window.location.reload();
+          }
+          
+          setTimeout(() => {
+            document.body.style.transition = '';
+            document.body.style.background = '';
+          }, 300);
+        });
+        
         // Register service worker with cache busting
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register('./sw.js?v=' + Date.now())
@@ -373,7 +678,7 @@
         // Add refresh button to header for easy cache clearing
         const refreshBtn = document.createElement('button');
         refreshBtn.textContent = '🔄';
-        refreshBtn.style.cssText = 'background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; border-radius: 5px;';
+        refreshBtn.style.cssText = 'background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center;';
         refreshBtn.title = 'Force refresh (clear cache)';
         refreshBtn.onclick = forceRefresh;
         document.querySelector('.app-header').appendChild(refreshBtn);
@@ -381,7 +686,7 @@
         // Add cache clear button
         const cacheBtn = document.createElement('button');
         cacheBtn.textContent = '🗑️';
-        cacheBtn.style.cssText = 'background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; border-radius: 5px; margin-left: 10px;';
+        cacheBtn.style.cssText = 'background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 10px; border-radius: 8px; margin-left: 10px; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center;';
         cacheBtn.title = 'Clear all caches';
         cacheBtn.onclick = function() {
             if (confirm('Clear all caches and force refresh?')) {
