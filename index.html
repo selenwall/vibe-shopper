@@ -107,6 +107,28 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .category-emoji {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+        
+        .category-count {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            font-weight: normal;
+            margin-left: auto;
+        }
+        
+        .empty-category {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            font-size: 0.9rem;
         }
         
         .item {
@@ -310,10 +332,11 @@
         </div>
         
         <div class="shopping-list" id="shopping-list" aria-label="Shopping list">
-            <div class="category-section" id="main-category">
-                <div class="category-header">Items</div>
-                <div id="items"></div>
+            <div id="loading-indicator" style="display: none; text-align: center; padding: 20px; color: #666;">
+                <div style="font-size: 1.2rem;">🤖 Laddar AI-modell...</div>
+                <div id="loading-progress" style="font-size: 0.9rem; margin-top: 10px;"></div>
             </div>
+            <div id="categories-container"></div>
         </div>
     </div>
 
@@ -332,6 +355,7 @@
     </div>
 
     <script src="version.js"></script>
+    <script type="module" src="categorizer.js"></script>
     <script>
       (function() {
         const STORAGE_KEY = 'vibe.minimal.v1';
@@ -346,23 +370,38 @@
         let touchStartX = 0;
         let touchStartY = 0;
         let currentSwipeEl = null;
+        let categorizer = null;
+        let categorizerReady = false;
 
-        // Global drag handlers (once)
-        itemsContainer.addEventListener('dragover', (e) => {
+        // Global drag handlers for categories
+        document.addEventListener('dragover', (e) => {
+          if (!e.dataTransfer?.types.includes('text/plain')) return;
           e.preventDefault();
           const draggingId = e.dataTransfer?.getData('text/plain');
-          const draggingEl = draggingId ? itemsContainer.querySelector(`[data-id="${draggingId}"]`) : null;
-          const target = (e.target.closest && e.target.closest('.item')) || null;
+          const draggingEl = draggingId ? document.querySelector(`[data-id="${draggingId}"]`) : null;
+          const target = e.target.closest('.item');
           if (!draggingEl || !target || draggingEl === target) return;
           const rect = target.getBoundingClientRect();
           const isBefore = e.clientY < rect.top + rect.height / 2;
-          if (isBefore) itemsContainer.insertBefore(draggingEl, target);
-          else itemsContainer.insertBefore(draggingEl, target.nextSibling);
+          target.parentNode.insertBefore(draggingEl, isBefore ? target : target.nextSibling);
         });
-        itemsContainer.addEventListener('drop', persistOrder);
+        document.addEventListener('drop', (e) => {
+          e.preventDefault();
+          persistOrder();
+        });
 
         function loadState() {
-          try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { items: [] }; }
+          try { 
+            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { items: [] };
+            // Migrate old items without categories
+            if (saved.items && saved.items.length > 0 && !saved.items[0].category) {
+              saved.items = saved.items.map(item => ({
+                ...item,
+                category: 'pantry' // Default category
+              }));
+            }
+            return saved;
+          }
           catch { return { items: [] }; }
         }
         function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
@@ -523,7 +562,7 @@
         }
 
         function persistOrder() {
-          const ids = Array.from(itemsContainer.querySelectorAll('.item')).map(el => el.dataset.id);
+          const ids = Array.from(document.querySelectorAll('.item')).map(el => el.dataset.id);
           state.items.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
           saveState();
           announce('Items reordered');
@@ -541,25 +580,107 @@
           announce(`${text} removed`);
         }
 
-        function addItem(text) {
+        async function addItem(text) {
           const trimmed = (text || '').trim().replace(/\s+/g, ' ');
           if (!trimmed) return;
           if (state.items.some(i => i.text.toLowerCase() === trimmed.toLowerCase())) {
             announce('Already on your list');
             return;
           }
-          const item = { id: 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8), text: trimmed, completed: false };
+          
+          // Categorize the item
+          let category = 'pantry'; // default
+          if (categorizer && categorizerReady) {
+            try {
+              const result = await categorizer.categorize(trimmed);
+              category = result.category;
+              console.log(`Categorized "${trimmed}" as ${category} (${result.method}, confidence: ${result.confidence})`);
+            } catch (error) {
+              console.error('Categorization failed:', error);
+            }
+          }
+          
+          const item = { 
+            id: 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8), 
+            text: trimmed, 
+            category: category,
+            completed: false 
+          };
           state.items.push(item);
           saveState();
-          const el = createItemElement(item);
-          itemsContainer.appendChild(el);
+          render(); // Re-render to show in correct category
           updateProgress();
-          announce(`${trimmed} added`);
+          announce(`${trimmed} added to ${categorizer?.getCategoryInfo(category)?.name || 'list'}`);
         }
 
         function render() {
-          itemsContainer.innerHTML = '';
-          state.items.forEach(item => itemsContainer.appendChild(createItemElement(item)));
+          const container = document.getElementById('categories-container');
+          container.innerHTML = '';
+          
+          // Group items by category
+          const itemsByCategory = {};
+          state.items.forEach(item => {
+            const cat = item.category || 'pantry';
+            if (!itemsByCategory[cat]) itemsByCategory[cat] = [];
+            itemsByCategory[cat].push(item);
+          });
+          
+          // If no items, show empty state
+          if (state.items.length === 0) {
+            container.innerHTML = '<div class="empty-category">Din shoppinglista är tom. Lägg till varor ovan!</div>';
+            updateProgress();
+            return;
+          }
+          
+          // Render each category
+          const categoryOrder = ['dairy', 'meat_fish', 'fruits_vegetables', 'bread_bakery', 'frozen', 'pantry', 'beverages', 'snacks_candy', 'household', 'baby_kids', 'health_pharmacy'];
+          
+          categoryOrder.forEach(categoryKey => {
+            if (!itemsByCategory[categoryKey]) return;
+            
+            const categoryInfo = categorizer?.getCategoryInfo(categoryKey) || { name: categoryKey, emoji: '📦' };
+            const items = itemsByCategory[categoryKey];
+            
+            // Create category section
+            const section = document.createElement('div');
+            section.className = 'category-section';
+            section.innerHTML = `
+              <div class="category-header">
+                <span class="category-emoji">${categoryInfo.emoji}</span>
+                <span>${categoryInfo.name}</span>
+                <span class="category-count">${items.length} ${items.length === 1 ? 'vara' : 'varor'}</span>
+              </div>
+              <div class="category-items"></div>
+            `;
+            
+            const itemsContainer = section.querySelector('.category-items');
+            items.forEach(item => itemsContainer.appendChild(createItemElement(item)));
+            
+            container.appendChild(section);
+          });
+          
+          // Handle any items with unknown categories
+          Object.keys(itemsByCategory).forEach(cat => {
+            if (!categoryOrder.includes(cat)) {
+              const items = itemsByCategory[cat];
+              const section = document.createElement('div');
+              section.className = 'category-section';
+              section.innerHTML = `
+                <div class="category-header">
+                  <span class="category-emoji">📦</span>
+                  <span>Övrigt</span>
+                  <span class="category-count">${items.length} ${items.length === 1 ? 'vara' : 'varor'}</span>
+                </div>
+                <div class="category-items"></div>
+              `;
+              
+              const itemsContainer = section.querySelector('.category-items');
+              items.forEach(item => itemsContainer.appendChild(createItemElement(item)));
+              
+              container.appendChild(section);
+            }
+          });
+          
           updateProgress();
         }
 
@@ -571,8 +692,50 @@
           }
         });
 
+        // Initialize categorizer
+        async function initializeCategorizer() {
+          const loadingIndicator = document.getElementById('loading-indicator');
+          const loadingProgress = document.getElementById('loading-progress');
+          
+          try {
+            // Show loading indicator
+            loadingIndicator.style.display = 'block';
+            
+            // Initialize categorizer
+            categorizer = new window.GroceryCategorizer();
+            
+            // Listen for progress updates
+            window.addEventListener('llm-progress', (event) => {
+              loadingProgress.textContent = event.detail.text;
+            });
+            
+            // Initialize the model
+            const initialized = await categorizer.initialize();
+            
+            if (initialized) {
+              categorizerReady = true;
+              console.log('Categorizer ready!');
+              announce('AI-kategorisering klar');
+            } else {
+              console.warn('Categorizer initialization failed, using fallback');
+              announce('Använder enkel kategorisering');
+            }
+          } catch (error) {
+            console.error('Failed to initialize categorizer:', error);
+            announce('Kategorisering inte tillgänglig');
+          } finally {
+            // Hide loading indicator
+            loadingIndicator.style.display = 'none';
+          }
+        }
+        
         // Initial render
         render();
+        
+        // Initialize categorizer in background
+        setTimeout(() => {
+          initializeCategorizer().catch(console.error);
+        }, 100);
         
         // Offline/Online detection
         const offlineBanner = document.getElementById('offline-banner');
