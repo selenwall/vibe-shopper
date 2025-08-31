@@ -2,44 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>VIBEshopper - Modern Minimalist</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>Vibe Shopper - AI Edition v2.0.0</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#CCAFA5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Vibe">
+    <link rel="manifest" href="manifest.webmanifest">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%23CCAFA5' rx='40'/%3E%3Ctext x='90' y='110' font-family='-apple-system,system-ui' font-size='80' font-weight='600' text-anchor='middle' fill='white'%3EV%3C/text%3E%3C/svg%3E">
     <style>
-        :root {
-            /* Light theme variables */
-            --bg-primary: linear-gradient(135deg, #EDE7DC 0%, #DCD2CC 50%, #CCAFA5 100%);
-            --bg-secondary: rgba(255,255,255,0.4);
-            --bg-tertiary: rgba(255,255,255,0.3);
-            --bg-input: rgba(255,255,255,0.5);
-            --text-primary: #444;
-            --text-secondary: #666;
-            --text-muted: rgba(68,68,68,0.6);
-            --border-color: rgba(255,255,255,0.2);
-            --shadow-color: rgba(0,0,0,0.1);
-            --accent-color: #667eea;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --error-color: #ef4444;
-        }
-        
-        [data-theme="dark"] {
-            /* Dark theme variables */
-            --bg-primary: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            --bg-secondary: rgba(255,255,255,0.1);
-            --bg-tertiary: rgba(255,255,255,0.05);
-            --bg-input: rgba(255,255,255,0.1);
-            --text-primary: #ffffff;
-            --text-secondary: #e5e7eb;
-            --text-muted: rgba(229,231,235,0.6);
-            --border-color: rgba(255,255,255,0.1);
-            --shadow-color: rgba(0,0,0,0.3);
-            --accent-color: #8b5cf6;
-            --success-color: #22c55e;
-            --warning-color: #fbbf24;
-            --error-color: #f87171;
-        }
-        
         * {
             margin: 0;
             padding: 0;
@@ -48,194 +26,26 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-primary);
-            height: 100vh;
-            padding: 16px;
-            color: var(--text-primary);
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #EDE7DC 0%, #DCD2CC 50%, #CCAFA5 100%);
+            min-height: 100vh;
+            padding: 20px;
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+            color: #444;
+            -webkit-text-size-adjust: 100%;
+            overscroll-behavior: contain;
         }
-        
-        /* Mobile-first responsive design */
-        @media (max-width: 480px) {
-            body {
-                padding: 12px;
-            }
-            
-            .app-container {
-                max-width: 100%;
-                margin: 0 auto;
-            }
-            
-            .app-title {
-                font-size: 1.5rem;
-                letter-spacing: 1px;
-            }
-            
-            .stats {
-                padding: 12px;
-                margin-bottom: 16px;
-            }
-            
-            .add-section {
-                padding: 12px;
-                margin-bottom: 16px;
-            }
-            
-            .add-input {
-                padding: 14px;
-                font-size: 16px; /* Prevents zoom on iOS */
-            }
-            
-            .item {
-                padding: 12px;
-                margin-bottom: 8px;
-            }
-        }
-        
-        /* Touch-friendly improvements */
-        @media (hover: none) and (pointer: coarse) {
-            .item {
-                min-height: 48px; /* Minimum touch target size */
-                touch-action: pan-y; /* Allow vertical scrolling */
-            }
-            
-            button {
-                min-height: 44px; /* iOS recommended touch target */
-                min-width: 44px;
-            }
-            
-            .checkbox {
-                min-width: 24px;
-                min-height: 24px;
-            }
-            
-            /* Mobile-specific drag feedback */
-            .item.dragging {
-                transform: scale(0.95) rotate(2deg);
-                box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-                z-index: 1000;
-            }
-            
-            /* Prevent text selection during drag */
-            .item.dragging * {
-                user-select: none;
-                -webkit-user-select: none;
-            }
-            
-            /* Mobile drag element styling */
-            #mobile-drag-element {
-                position: fixed;
-                width: 200px;
-                background: var(--bg-secondary);
-                border-radius: 10px;
-                padding: 15px;
-                box-shadow: 0 15px 40px var(--shadow-color);
-                z-index: 10000;
-                pointer-events: none;
-                transform: translate(-50%, -50%);
-                backdrop-filter: blur(10px);
-                border: 1px solid var(--border-color);
-                color: var(--text-primary);
-                font-weight: 500;
-                animation: float 2s ease-in-out infinite;
-                transition: none !important;
-                will-change: transform;
-            }
-            
-                    @keyframes float {
-            0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
-            50% { transform: translate(-50%, -50%) translateY(-5px); }
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .category-section {
-            animation: slideIn 0.5s ease-out;
-        }
-            
-            /* Touch-friendly improvements for mobile */
-            .item {
-                touch-action: pan-y;
-                -webkit-touch-callout: none;
-                -webkit-user-select: none;
-                user-select: none;
-            }
-            
-            .items-container {
-                min-height: 60px;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                background: var(--bg-tertiary);
-                border-radius: 10px;
-                padding: 10px;
-                border: 2px dashed var(--border-color);
-                position: relative;
-            }
-            
-            .items-container::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: linear-gradient(45deg, transparent 30%, var(--accent-color) 50%, transparent 70%);
-                opacity: 0;
-                transition: opacity 0.3s ease;
-                border-radius: 10px;
-            }
-            
-            .items-container.highlighted {
-                background: var(--bg-secondary);
-                border-color: var(--accent-color);
-                transform: scale(1.02);
-                box-shadow: 0 8px 25px var(--shadow-color);
-            }
-            
-            .items-container.highlighted::before {
-                opacity: 0.1;
-            }
-        }
-        
-        /* Mobile landscape optimization */
-        @media (max-width: 768px) and (orientation: landscape) {
-            .app-container {
-                max-width: 100%;
-                padding: 8px;
-            }
-            
-            .stats {
-                padding: 8px;
-                margin-bottom: 12px;
-            }
-            
-            .add-section {
-                padding: 8px;
-                margin-bottom: 12px;
-            }
-        }
-        
-
         
         .app-container {
             max-width: 400px;
             margin: 0 auto;
-            height: 100%;
+            min-height: calc(100vh - 40px - env(safe-area-inset-bottom, 0px));
             display: flex;
             flex-direction: column;
         }
         
         .app-header {
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             margin-bottom: 20px;
         }
@@ -244,144 +54,40 @@
             font-size: 1.8rem;
             font-weight: 600;
             letter-spacing: 2px;
-            color: var(--text-primary);
-            text-shadow: 1px 1px 2px var(--shadow-color);
+            color: #444;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
         }
         
         .stats {
-            background: var(--bg-secondary);
+            background: rgba(255,255,255,0.4);
             padding: 15px;
             border-radius: 15px;
             margin-bottom: 20px;
             backdrop-filter: blur(10px);
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #444;
         }
         
         .add-section {
-            background: var(--bg-tertiary);
+            background: rgba(255,255,255,0.3);
             border-radius: 15px;
             padding: 15px;
             margin-bottom: 20px;
-            border: 1px solid var(--border-color);
+            border: 1px solid rgba(255,255,255,0.2);
         }
         
         .add-input {
             width: 100%;
-            background: var(--bg-input);
+            background: rgba(255,255,255,0.5);
             border: none;
-            padding: 12px;
+            padding: 16px;
             border-radius: 10px;
-            color: var(--text-primary);
+            color: #444;
             font-size: 16px;
         }
         
         .add-input::placeholder {
-            color: var(--text-muted);
-        }
-        
-        .add-input:focus {
-            outline: none;
-            box-shadow: 0 0 0 3px var(--accent-color);
-            transform: translateY(-1px);
-        }
-        
-        .add-input:focus::placeholder {
-            color: var(--text-muted);
-            opacity: 0.7;
-        }
-        
-        /* Progress bar styling */
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: var(--bg-tertiary);
-            border-radius: 4px;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--success-color), var(--accent-color));
-            border-radius: 4px;
-            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 2s infinite;
-        }
-        
-        @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        
-        /* Enhanced button styling */
-        .enhanced-btn {
-            padding: 12px 16px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            border: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .enhanced-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s ease, height 0.6s ease;
-        }
-        
-        .enhanced-btn:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-        
-        .enhanced-btn.primary {
-            background: linear-gradient(135deg, var(--accent-color), var(--success-color));
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        }
-        
-        .enhanced-btn.primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-        
-        .enhanced-btn.secondary {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-        
-        .enhanced-btn.secondary:hover {
-            background: var(--bg-tertiary);
-            transform: translateY(-1px);
+            color: rgba(68,68,68,0.6);
         }
         
         .shopping-list {
@@ -391,93 +97,170 @@
         
         .category-section {
             margin-bottom: 25px;
-            transition: all 0.3s ease;
-        }
-        
-        .category-section:hover {
-            transform: translateX(5px);
         }
         
         .category-header {
             font-size: 0.9rem;
             font-weight: 700;
+            opacity: 1;
             margin-bottom: 12px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: var(--text-secondary);
-            transition: all 0.3s ease;
-            cursor: pointer;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .category-header:hover {
-            color: var(--accent-color);
-            transform: translateX(5px);
+        .category-emoji {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+        
+        .category-count {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            font-weight: normal;
+            margin-left: auto;
+        }
+        
+        .empty-category {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        /* Category filter buttons */
+        .category-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            padding: 10px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 12px;
+        }
+        
+        .filter-btn {
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.4);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .filter-btn:hover {
+            background: rgba(255,255,255,0.6);
+        }
+        
+        .filter-btn.active {
+            background: #CCAFA5;
+            color: white;
+            border-color: #CCAFA5;
+        }
+        
+        .filter-btn .count {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        
+        /* Recategorize menu */
+        .recategorize-menu {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.95);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 4px;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .recategorize-btn {
+            width: 30px;
+            height: 30px;
+            background: rgba(204,175,165,0.2);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .recategorize-btn:hover {
+            background: rgba(204,175,165,0.4);
+        }
+        
+        .category-menu {
+            position: absolute;
+            right: 40px;
+            top: -10px;
+            background: white;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 8px;
+            display: none;
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .category-menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .category-menu-item:hover {
+            background: rgba(204,175,165,0.2);
+        }
+        
+        .category-menu-item.current {
+            background: rgba(204,175,165,0.3);
+            font-weight: 600;
         }
         
         .item {
-            background: var(--bg-secondary);
+            background: rgba(255,255,255,0.4);
             margin-bottom: 10px;
             padding: 15px;
             border-radius: 12px;
-            cursor: grab;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            user-select: none;
-            -webkit-user-select: none;
-            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+            touch-action: pan-y;
             position: relative;
             overflow: hidden;
         }
         
-        .item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: left 0.5s ease;
-        }
-        
-        .item:hover::before {
-            left: 100%;
+        .item:hover {
+            background: rgba(255,255,255,0.6);
         }
         
         .item:active {
-            cursor: grabbing;
-            transform: scale(0.98);
-        }
-        
-        .item.dragging {
-            opacity: 0.7;
-            transform: scale(0.95) rotate(2deg);
-            z-index: 1000;
-            box-shadow: 0 10px 30px var(--shadow-color);
-        }
-        
-        .item.completed {
-            background: var(--bg-tertiary);
-            opacity: 0.8;
-        }
-        
-        .item.completed .item-text {
-            text-decoration: line-through;
-            color: var(--text-muted);
-        }
-        
-        /* Ensure items can be dragged */
-        .item[draggable="true"] {
-            cursor: grab;
-        }
-        
-        .item[draggable="true"]:active {
-            cursor: grabbing;
-        }
-        
-        .item:hover {
-            background: var(--bg-secondary);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px var(--shadow-color);
+            background: rgba(255,255,255,0.5);
+            transform: scale(0.99);
         }
         
         .item-content {
@@ -487,213 +270,254 @@
         }
         
         .checkbox {
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--accent-color);
+            width: 44px;
+            height: 44px;
+            border: 2px solid #CCAFA5;
             border-radius: 50%;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             user-select: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .checkbox::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: var(--accent-color);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.3s ease;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .checkbox.checked {
-            background: var(--accent-color);
+            background: #CCAFA5;
             color: white;
-            font-size: 12px;
+            font-size: 20px;
             font-weight: bold;
-            transform: scale(1.1);
         }
         
-        .checkbox.checked::before {
-            width: 100%;
-            height: 100%;
-        }
-        
-        .checkbox:hover {
-            transform: scale(1.05);
-            box-shadow: 0 2px 8px var(--shadow-color);
+        .checkbox:active {
+            transform: scale(0.95);
+            background: rgba(204,175,165,0.2);
         }
         
         .item-text {
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            position: relative;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            flex: 1;
         }
         
         .item-text.completed {
             opacity: 0.7;
             text-decoration: line-through;
-            color: var(--text-muted);
-        }
-        
-        .item-text.completed::after {
-            content: '✓';
-            position: absolute;
-            right: -25px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--success-color);
-            font-weight: bold;
-            font-size: 1.2rem;
-            animation: checkmark 0.5s ease-in-out;
-        }
-        
-        @keyframes checkmark {
-            0% { transform: translateY(-50%) scale(0); opacity: 0; }
-            50% { transform: translateY(-50%) scale(1.2); opacity: 1; }
-            100% { transform: translateY(-50%) scale(1); opacity: 1; }
-        }
-        
-        .delete-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 18px;
-            padding: 5px;
-            border-radius: 5px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .delete-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: var(--error-color);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: all 0.3s ease;
-            opacity: 0.1;
-        }
-        
-        .delete-btn:hover {
-            color: var(--error-color);
-            transform: scale(1.1);
-        }
-        
-        .delete-btn:hover::before {
-            width: 100%;
-            height: 100%;
-        }
-        
-        /* Context menu styling */
-        .context-menu {
-            animation: slideIn 0.2s ease-out;
-        }
-        
-        .context-menu div:hover {
-            background: var(--bg-tertiary);
         }
         
         .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        
+        /* Mobile-specific improvements */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+                padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px));
+            }
+            
+            .app-title {
+                font-size: 1.6rem;
+            }
+            
+            .stats {
+                padding: 12px;
+            }
+            
+            .item {
+                transition: transform 0.2s ease;
+            }
+            
+            .item.swiping {
+                transition: none;
+            }
+            
+            .item-content {
+                transition: transform 0.2s ease;
+                will-change: transform;
+            }
+            
+            .delete-hint {
+                position: absolute;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                width: 80px;
+                background: #e74c3c;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                opacity: 0;
+                transition: opacity 0.2s ease;
+            }
+            
+            .item.show-delete .delete-hint {
+                opacity: 1;
+            }
+        }
+        
+        /* Reduce motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+        
+        /* Performance optimizations for mobile */
+        @media (max-width: 768px) and (hover: none) {
+            .item {
+                will-change: auto;
+            }
+            
+            body {
+                /* Simpler gradient for better performance */
+                background: #EDE7DC;
+            }
+        }
+        
+        /* Offline indicator */
+        .offline-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #e74c3c;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+        
+        .offline-banner.show {
+            transform: translateY(0);
+        }
+        
+        /* PWA install prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+        }
+        
+        .install-prompt button {
+            background: #CCAFA5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
         <div class="app-header">
-            <div class="app-title">VIBEshopper</div>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <button id="theme-toggle" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; border-radius: 5px;" title="Toggle dark mode">🌙</button>
-                <div id="version-display" style="font-size: 0.8rem; color: var(--text-secondary); opacity: 0.7;">v1.0.0</div>
-                <div id="update-status" style="font-size: 0.7rem; color: var(--text-muted); opacity: 0.6;">🔄 Auto-checking...</div>
-                <div id="llm-status" style="font-size: 0.7rem; color: var(--text-muted); opacity: 0.6;">🤖 Checking...</div>
+            <div class="app-title">VIBE</div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button id="stats-btn" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 8px;" title="Visa statistik">📊</button>
+                <button id="export-btn" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 8px;" title="Exportera lista">📤</button>
             </div>
         </div>
         
         <div class="stats">
-            <div style="font-size: 0.9rem; margin-bottom: 5px; color: var(--text-secondary);">Today's Progress</div>
-            <div id="progress" style="font-size: 1.5rem; font-weight: 600; margin-bottom: 15px;">0 of 0 items</div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progress-fill"></div>
-            </div>
+            <div style="font-size: 0.9rem; margin-bottom: 5px;">Today's Progress</div>
+            <div id="progress" style="font-size: 1.5rem; font-weight: 600;">0 of 0 items</div>
         </div>
         
         <div class="add-section">
-            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <input id="category-input" class="add-input" placeholder="Category (e.g., Mejeri, Bröd)..." aria-label="Category" style="flex: 1;" />
-                <button id="add-category-btn" class="enhanced-btn primary">Add Category</button>
-            </div>
-            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                <select id="category-select" class="add-input" style="flex: 1;">
-                    <option value="">Select category (optional)</option>
-                </select>
-            </div>
-                            <input id="add-input" class="add-input" placeholder="Add new item..." aria-label="Add new item" />
-                <div style="margin-top: 8px; text-align: center;">
-                    <button onclick="showTensorFlowInfo()" class="enhanced-btn secondary" style="font-size: 0.8rem; padding: 6px 12px;">🤖 Show TF.js Info</button>
-                </div>
+            <input id="add-input" class="add-input" placeholder="Add new item..." aria-label="Add new item" />
         </div>
         
         <div class="shopping-list" id="shopping-list" aria-label="Shopping list">
-            <div id="categories"></div>
+            <div id="loading-indicator" style="display: none; text-align: center; padding: 20px; color: #666;">
+                <div style="font-size: 1.2rem;">🤖 Laddar AI-modell...</div>
+                <div id="loading-progress" style="font-size: 0.9rem; margin-top: 10px;"></div>
+            </div>
+            <div id="category-filters" class="category-filters" style="display: none;"></div>
+            <div id="categories-container"></div>
         </div>
     </div>
 
     <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    
+    <div class="offline-banner" id="offline-banner">
+        <span>📵 You're offline - changes will be saved locally</span>
+    </div>
+    
+    <div class="install-prompt" id="install-prompt">
+        <div>
+            <strong>Install Vibe Shopper</strong>
+            <div style="font-size: 0.9rem; opacity: 0.8; margin-top: 4px;">Add to your home screen for easy access</div>
+        </div>
+        <button id="install-btn">Install</button>
+    </div>
 
+    <script src="version.js"></script>
+    <script type="module" src="categorizer.js"></script>
     <script>
       (function() {
         const STORAGE_KEY = 'vibe.minimal.v1';
         const inputEl = document.getElementById('add-input');
+        const itemsContainer = document.getElementById('items');
         const progressEl = document.getElementById('progress');
         const live = document.getElementById('live');
 
         let state = loadState();
+        let longPressTimer = null;
+        let deferredPrompt = null;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let currentSwipeEl = null;
+        let categorizer = null;
+        let categorizerReady = false;
+        let activeFilters = new Set();
+        let showFilters = false;
 
-        let selectedCategory = null;
-
-
+        // Global drag handlers for categories
+        document.addEventListener('dragover', (e) => {
+          if (!e.dataTransfer?.types.includes('text/plain')) return;
+          e.preventDefault();
+          const draggingId = e.dataTransfer?.getData('text/plain');
+          const draggingEl = draggingId ? document.querySelector(`[data-id="${draggingId}"]`) : null;
+          const target = e.target.closest('.item');
+          if (!draggingEl || !target || draggingEl === target) return;
+          const rect = target.getBoundingClientRect();
+          const isBefore = e.clientY < rect.top + rect.height / 2;
+          target.parentNode.insertBefore(draggingEl, isBefore ? target : target.nextSibling);
+        });
+        document.addEventListener('drop', (e) => {
+          e.preventDefault();
+          persistOrder();
+        });
 
         function loadState() {
           try { 
-            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { categories: [], items: [] };
-            // Add default categories if none exist
-            if (saved.categories.length === 0) {
-              saved.categories = [
-                { id: 'cat-mejeri', name: 'Mejeri' },
-                { id: 'cat-brod', name: 'Bröd' },
-                { id: 'cat-frukt', name: 'Frukt & Grönt' },
-                { id: 'cat-kott', name: 'Kött & Fisk' },
-                { id: 'cat-drycker', name: 'Drycker' }
-              ];
+            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { items: [] };
+            // Migrate old items without categories
+            if (saved.items && saved.items.length > 0 && !saved.items[0].category) {
+              saved.items = saved.items.map(item => ({
+                ...item,
+                category: 'pantry' // Default category
+              }));
             }
             return saved;
           }
-          catch { 
-            return { 
-              categories: [
-                { id: 'cat-mejeri', name: 'Mejeri' },
-                { id: 'cat-brod', name: 'Bröd' },
-                { id: 'cat-frukt', name: 'Frukt & Grönt' },
-                { id: 'cat-kott', name: 'Kött & Fisk' },
-                { id: 'cat-drycker', name: 'Drycker' }
-              ], 
-              items: [] 
-            }; 
-          }
+          catch { return { items: [] }; }
         }
         function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
         function announce(msg) { live.textContent = msg; }
@@ -702,73 +526,66 @@
           const total = state.items.length;
           const done = state.items.filter(i => i.completed).length;
           progressEl.textContent = `${done} of ${total} item${total === 1 ? '' : 's'}`;
-          
-          // Update progress bar
-          const progressFill = document.getElementById('progress-fill');
-          if (progressFill && total > 0) {
-            const percentage = (done / total) * 100;
-            progressFill.style.width = `${percentage}%`;
-            
-            // Add completion animation
-            if (percentage === 100) {
-              progressFill.style.animation = 'pulse 1s ease-in-out';
-              setTimeout(() => {
-                progressFill.style.animation = '';
-              }, 1000);
-            }
-          }
         }
-
-        function addCategory(name) {
-          console.log('addCategory called with:', name);
-          const trimmed = (name || '').trim();
-          if (!trimmed) {
-            console.log('Empty category name, returning');
-            return;
-          }
-          if (state.categories.some(c => c.name.toLowerCase() === trimmed.toLowerCase())) {
-            console.log('Category already exists');
-            announce('Category already exists');
-            return;
-          }
-          const category = { id: 'cat-' + Date.now().toString(36), name: trimmed };
-          state.categories.push(category);
-          console.log('Category added:', category);
-          saveState();
-          render();
-          announce(`Category "${trimmed}" added`);
-        }
-
-        function removeCategory(categoryId) {
-          const category = state.categories.find(c => c.id === categoryId);
-          if (!category) return;
+        
+        function renderFilters(itemsByCategory) {
+          const filtersContainer = document.getElementById('category-filters');
+          filtersContainer.innerHTML = '';
           
-          // Move items from this category to uncategorized
-          state.items.forEach(item => {
-            if (item.categoryId === categoryId) {
-              item.categoryId = null;
-            }
+          // Add "Show All" button
+          const allBtn = document.createElement('button');
+          allBtn.className = 'filter-btn';
+          if (activeFilters.size === 0) allBtn.classList.add('active');
+          allBtn.innerHTML = `<span>Alla</span><span class="count">${state.items.length}</span>`;
+          allBtn.addEventListener('click', () => {
+            activeFilters.clear();
+            render();
           });
+          filtersContainer.appendChild(allBtn);
           
-          // Remove category
-          const index = state.categories.findIndex(c => c.id === categoryId);
-          state.categories.splice(index, 1);
-          
-          saveState();
-          render();
-          announce(`Category "${category.name}" removed`);
+          // Add category filter buttons
+          Object.entries(itemsByCategory).forEach(([categoryKey, items]) => {
+            const categoryInfo = categorizer?.getCategoryInfo(categoryKey) || { name: categoryKey, emoji: '📦' };
+            
+            const filterBtn = document.createElement('button');
+            filterBtn.className = 'filter-btn';
+            if (activeFilters.has(categoryKey)) filterBtn.classList.add('active');
+            filterBtn.innerHTML = `<span>${categoryInfo.emoji}</span><span class="count">${items.length}</span>`;
+            filterBtn.title = categoryInfo.name;
+            
+            filterBtn.addEventListener('click', () => {
+              if (activeFilters.has(categoryKey)) {
+                activeFilters.delete(categoryKey);
+              } else {
+                if (activeFilters.size === 0) {
+                  // First filter, add only this one
+                  activeFilters.add(categoryKey);
+                } else {
+                  // Toggle filter
+                  activeFilters.add(categoryKey);
+                }
+              }
+              render();
+            });
+            
+            filtersContainer.appendChild(filterBtn);
+          });
         }
 
-                function createItemElement(item) {
+        function createItemElement(item) {
           const el = document.createElement('div');
           el.className = 'item';
           el.setAttribute('draggable', 'true');
           el.dataset.id = item.id;
-          el.title = 'Drag to reorder or move between categories';
           el.innerHTML = `
             <div class="item-content">
               <div class="checkbox${item.completed ? ' checked' : ''}" role="checkbox" aria-checked="${item.completed}" tabindex="0">${item.completed ? '✓' : ''}</div>
               <div class="item-text${item.completed ? ' completed' : ''}" tabindex="0"></div>
+            </div>
+            <div class="delete-hint">Delete</div>
+            <div class="recategorize-menu">
+              <button class="recategorize-btn" title="Ändra kategori">📂</button>
+              <div class="category-menu"></div>
             </div>
           `;
           const checkbox = el.querySelector('.checkbox');
@@ -785,6 +602,11 @@
             saveState();
             updateProgress();
             if (announceToggle) announce(`${item.text} ${item.completed ? 'completed' : 'marked active'}`);
+            
+            // Haptic feedback on mobile
+            if ('vibrate' in navigator && item.completed) {
+              navigator.vibrate(50);
+            }
           }
           checkbox.addEventListener('click', () => toggle(true));
           checkbox.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(true); }});
@@ -824,116 +646,143 @@
             input.addEventListener('blur', () => commit(true));
           }
 
-
+          // Long-press to delete (700ms)
+          function scheduleDelete() { longPressTimer = setTimeout(() => removeItem(el), 700); }
+          function cancelDelete() { clearTimeout(longPressTimer); longPressTimer = null; }
+          el.addEventListener('pointerdown', scheduleDelete);
+          el.addEventListener('pointerup', cancelDelete);
+          el.addEventListener('pointerleave', cancelDelete);
+          
+          // Swipe gestures for mobile
+          const itemContent = el.querySelector('.item-content');
+          let startX = 0;
+          let currentX = 0;
+          let startTime = 0;
+          
+          el.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            startX = e.touches[0].clientX;
+            currentX = startX;
+            startTime = Date.now();
+            touchStartX = startX;
+            touchStartY = e.touches[0].clientY;
+            currentSwipeEl = el;
+            el.classList.add('swiping');
+          }, { passive: true });
+          
+          el.addEventListener('touchmove', (e) => {
+            if (e.touches.length !== 1 || !currentSwipeEl) return;
+            currentX = e.touches[0].clientX;
+            const deltaX = currentX - startX;
+            const deltaY = e.touches[0].clientY - touchStartY;
+            
+            // Only swipe horizontally if the gesture is more horizontal than vertical
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+              e.preventDefault();
+              const maxSwipe = 100;
+              const swipeAmount = Math.max(-maxSwipe, Math.min(0, deltaX));
+              itemContent.style.transform = `translateX(${swipeAmount}px)`;
+              
+              if (swipeAmount < -50) {
+                el.classList.add('show-delete');
+              } else {
+                el.classList.remove('show-delete');
+              }
+            }
+          }, { passive: false });
+          
+          el.addEventListener('touchend', (e) => {
+            if (!currentSwipeEl) return;
+            const deltaX = currentX - startX;
+            const velocity = deltaX / (Date.now() - startTime);
+            
+            // If swiped far enough or fast enough, delete the item
+            if (deltaX < -80 || velocity < -0.5) {
+              itemContent.style.transform = 'translateX(-100%)';
+              setTimeout(() => removeItem(el), 200);
+            } else {
+              itemContent.style.transform = '';
+              el.classList.remove('show-delete');
+            }
+            
+            el.classList.remove('swiping');
+            currentSwipeEl = null;
+          }, { passive: true });
 
           // Keyboard delete when focused on row
           el.addEventListener('keydown', (e) => {
             if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); removeItem(el); }
           });
 
-                      // Drag and drop events
-            el.addEventListener('dragstart', (e) => {
-              console.log('Drag start for item:', item.text);
-              e.dataTransfer.setData('text/plain', item.id);
-              el.classList.add('dragging');
+          // Drag and drop
+          el.addEventListener('dragstart', (e) => {
+            e.dataTransfer?.setData('text/plain', item.id);
+            el.style.opacity = '0.7';
+          });
+          el.addEventListener('dragend', () => { el.style.opacity = ''; });
+
+          // Recategorize functionality
+          const recatBtn = el.querySelector('.recategorize-btn');
+          const recatMenu = el.querySelector('.recategorize-menu');
+          const categoryMenu = el.querySelector('.category-menu');
+          
+          recatBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isVisible = categoryMenu.style.display === 'block';
+            
+            // Hide all other menus
+            document.querySelectorAll('.category-menu').forEach(menu => {
+              menu.style.display = 'none';
             });
             
-            el.addEventListener('dragend', () => {
-              el.classList.remove('dragging');
-            });
-            
-            // Mobile touch gesture events
-            el.addEventListener('touchstart', (e) => handleTouchStart(e, el));
-            el.addEventListener('touchmove', (e) => handleTouchMove(e, el));
-            el.addEventListener('touchend', (e) => handleTouchEnd(e, el));
-            
-          // Add right-click context menu for category correction
-          el.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            showCategoryCorrectionMenu(e, item);
+            if (!isVisible && categorizer) {
+              // Build category menu
+              categoryMenu.innerHTML = '';
+              const categories = categorizer.getAllCategories();
+              
+              categories.forEach(cat => {
+                const menuItem = document.createElement('div');
+                menuItem.className = 'category-menu-item';
+                if (cat.key === item.category) {
+                  menuItem.classList.add('current');
+                }
+                menuItem.innerHTML = `<span>${cat.emoji}</span><span>${cat.name}</span>`;
+                menuItem.addEventListener('click', () => {
+                  item.category = cat.key;
+                  saveState();
+                  render();
+                  announce(`${item.text} flyttad till ${cat.name}`);
+                });
+                categoryMenu.appendChild(menuItem);
+              });
+              
+              categoryMenu.style.display = 'block';
+              recatMenu.style.display = 'block';
+            } else {
+              categoryMenu.style.display = 'none';
+              recatMenu.style.display = 'none';
+            }
+          });
+          
+          // Show/hide recategorize button on hover
+          el.addEventListener('mouseenter', () => {
+            if (!currentSwipeEl) recatMenu.style.display = 'block';
+          });
+          el.addEventListener('mouseleave', () => {
+            if (categoryMenu.style.display !== 'block') {
+              recatMenu.style.display = 'none';
+            }
           });
 
           return el;
         }
-        
-        // Show category correction context menu
-        function showCategoryCorrectionMenu(e, item) {
-          const menu = document.createElement('div');
-          menu.className = 'context-menu';
-          menu.style.cssText = `
-            position: fixed;
-            top: ${e.clientY}px;
-            left: ${e.clientX}px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 8px 0;
-            box-shadow: 0 4px 15px var(--shadow-color);
-            z-index: 1000;
-            min-width: 150px;
-          `;
-          
-          const title = document.createElement('div');
-          title.textContent = `Move "${item.text}" to:`;
-          title.style.cssText = 'padding: 8px 12px; font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid var(--border-color);';
-          menu.appendChild(title);
-          
-          // Add category options
-          state.categories.forEach(category => {
-            const option = document.createElement('div');
-            option.textContent = category.name;
-            option.style.cssText = 'padding: 8px 12px; cursor: pointer; transition: background 0.2s;';
-            
-            option.addEventListener('mouseenter', () => {
-              option.style.background = 'var(--bg-tertiary)';
-            });
-            
-            option.addEventListener('mouseleave', () => {
-              option.style.background = 'transparent';
-            });
-            
-            option.addEventListener('click', () => {
-              correctLLMCategorization(item.id, category.name);
-              document.body.removeChild(menu);
-            });
-            
-            menu.appendChild(option);
-          });
-          
-          // Add "Uncategorized" option
-          const uncategorizedOption = document.createElement('div');
-          uncategorizedOption.textContent = 'Uncategorized';
-          uncategorizedOption.style.cssText = 'padding: 8px 12px; cursor: pointer; transition: background 0.2s; border-top: 1px solid var(--border-color);';
-          
-          uncategorizedOption.addEventListener('mouseenter', () => {
-            uncategorizedOption.style.background = 'var(--bg-tertiary)';
-          });
-          
-          uncategorizedOption.addEventListener('mouseleave', () => {
-            uncategorizedOption.style.background = 'transparent';
-          });
-          
-          uncategorizedOption.addEventListener('click', () => {
-            item.categoryId = null;
-            saveState();
-            render();
-            announce(`Moved ${item.text} to Uncategorized`);
-            document.body.removeChild(menu);
-          });
-          
-          menu.appendChild(uncategorizedOption);
-          
-          // Close menu when clicking outside
-          document.addEventListener('click', () => {
-            if (document.body.contains(menu)) {
-              document.body.removeChild(menu);
-            }
-          }, { once: true });
-          
-          document.body.appendChild(menu);
+
+        function persistOrder() {
+          const ids = Array.from(document.querySelectorAll('.item')).map(el => el.dataset.id);
+          state.items.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+          saveState();
+          announce('Items reordered');
         }
-
-
 
         function removeItem(el) {
           const id = el.dataset.id;
@@ -942,1245 +791,266 @@
           const text = state.items[idx].text;
           state.items.splice(idx, 1);
           saveState();
-          render();
+          el.remove();
+          updateProgress();
           announce(`${text} removed`);
         }
 
         async function addItem(text) {
-          console.log('addItem called with:', text);
           const trimmed = (text || '').trim().replace(/\s+/g, ' ');
-          if (!trimmed) {
-            console.log('Empty item text, returning');
-            return;
-          }
+          if (!trimmed) return;
           if (state.items.some(i => i.text.toLowerCase() === trimmed.toLowerCase())) {
-            console.log('Item already exists');
             announce('Already on your list');
             return;
           }
           
-          // Try to auto-categorize the item using local LLM
-          let suggestedCategory = null;
-          if (localLLM.isAvailable) {
+          // Categorize the item
+          let category = 'pantry'; // default
+          if (categorizer && categorizerReady) {
             try {
-              suggestedCategory = await localLLM.categorizeItem(trimmed);
-              if (suggestedCategory) {
-                console.log(`🤖 Auto-categorized "${trimmed}" as "${suggestedCategory}"`);
-                
-                // Find the category ID for the suggested category
-                const category = state.categories.find(c => c.name === suggestedCategory);
-                if (category) {
-                  selectedCategory = category.id;
-                  // Update the category selector to show the suggestion
-                  const categorySelect = document.getElementById('category-select');
-                  if (categorySelect) {
-                    categorySelect.value = category.id;
-                  }
-                }
-              }
+              const result = await categorizer.categorize(trimmed);
+              category = result.category;
+              console.log(`Categorized "${trimmed}" as ${category} (${result.method}, confidence: ${result.confidence})`);
             } catch (error) {
-              console.error('Auto-categorization failed:', error);
+              console.error('Categorization failed:', error);
             }
           }
           
           const item = { 
             id: 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8), 
             text: trimmed, 
-            completed: false,
-            categoryId: selectedCategory
+            category: category,
+            completed: false 
           };
-          console.log('Item added:', item);
           state.items.push(item);
           saveState();
-          render();
-          
-          // Show categorization feedback
-          if (suggestedCategory) {
-            announce(`${trimmed} added to ${suggestedCategory} (AI suggested)`);
-          } else {
-            announce(`${trimmed} added to ${selectedCategory ? state.categories.find(c => c.id === selectedCategory)?.name : 'Uncategorized'}`);
-          }
+          render(); // Re-render to show in correct category
+          updateProgress();
+          announce(`${trimmed} added to ${categorizer?.getCategoryInfo(category)?.name || 'list'}`);
         }
 
         function render() {
-          const categoriesContainer = document.getElementById('categories');
-          categoriesContainer.innerHTML = '';
+          const container = document.getElementById('categories-container');
+          const filtersContainer = document.getElementById('category-filters');
+          container.innerHTML = '';
           
-          // Create uncategorized section first
-          const uncategorizedItems = state.items.filter(item => !item.categoryId);
-          if (uncategorizedItems.length > 0) {
-            const uncategorizedSection = createCategorySection(null, 'Uncategorized', uncategorizedItems);
-            categoriesContainer.appendChild(uncategorizedSection);
+          // Group items by category
+          const itemsByCategory = {};
+          state.items.forEach(item => {
+            const cat = item.category || 'pantry';
+            if (!itemsByCategory[cat]) itemsByCategory[cat] = [];
+            itemsByCategory[cat].push(item);
+          });
+          
+          // If no items, show empty state
+          if (state.items.length === 0) {
+            container.innerHTML = '<div class="empty-category">Din shoppinglista är tom. Lägg till varor ovan!</div>';
+            filtersContainer.style.display = 'none';
+            updateProgress();
+            return;
           }
           
-          // Create sections for each category
-          state.categories.forEach(category => {
-            const categoryItems = state.items.filter(item => item.categoryId === category.id);
-            if (categoryItems.length > 0) {
-              const categorySection = createCategorySection(category.id, category.name, categoryItems);
-              categoriesContainer.appendChild(categorySection);
+          // Show filters if there are items
+          if (state.items.length > 0) {
+            renderFilters(itemsByCategory);
+            filtersContainer.style.display = 'flex';
+          }
+          
+          // Render each category
+          const categoryOrder = ['dairy', 'meat_fish', 'fruits_vegetables', 'bread_bakery', 'frozen', 'pantry', 'beverages', 'snacks_candy', 'household', 'baby_kids', 'health_pharmacy'];
+          
+          categoryOrder.forEach(categoryKey => {
+            if (!itemsByCategory[categoryKey]) return;
+            
+            // Skip if filtered out
+            if (activeFilters.size > 0 && !activeFilters.has(categoryKey)) return;
+            
+            const categoryInfo = categorizer?.getCategoryInfo(categoryKey) || { name: categoryKey, emoji: '📦' };
+            const items = itemsByCategory[categoryKey];
+            
+            // Create category section
+            const section = document.createElement('div');
+            section.className = 'category-section';
+            section.dataset.category = categoryKey;
+            section.innerHTML = `
+              <div class="category-header">
+                <span class="category-emoji">${categoryInfo.emoji}</span>
+                <span>${categoryInfo.name}</span>
+                <span class="category-count">${items.length} ${items.length === 1 ? 'vara' : 'varor'}</span>
+              </div>
+              <div class="category-items"></div>
+            `;
+            
+            const itemsContainer = section.querySelector('.category-items');
+            items.forEach(item => itemsContainer.appendChild(createItemElement(item)));
+            
+            container.appendChild(section);
+          });
+          
+          // Handle any items with unknown categories
+          Object.keys(itemsByCategory).forEach(cat => {
+            if (!categoryOrder.includes(cat)) {
+              const items = itemsByCategory[cat];
+              const section = document.createElement('div');
+              section.className = 'category-section';
+              section.innerHTML = `
+                <div class="category-header">
+                  <span class="category-emoji">📦</span>
+                  <span>Övrigt</span>
+                  <span class="category-count">${items.length} ${items.length === 1 ? 'vara' : 'varor'}</span>
+                </div>
+                <div class="category-items"></div>
+              `;
+              
+              const itemsContainer = section.querySelector('.category-items');
+              items.forEach(item => itemsContainer.appendChild(createItemElement(item)));
+              
+              container.appendChild(section);
             }
           });
           
-          updateCategorySelector();
           updateProgress();
         }
 
-        function updateCategorySelector() {
-          const categorySelect = document.getElementById('category-select');
-          const currentValue = categorySelect.value;
-          
-          categorySelect.innerHTML = '<option value="">Select category (optional)</option>';
-          
-          state.categories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category.id;
-            option.textContent = category.name;
-            categorySelect.appendChild(option);
-          });
-          
-          // Restore selected value if it still exists
-          if (currentValue && state.categories.some(c => c.id === currentValue)) {
-            categorySelect.value = currentValue;
-          }
-        }
-
-        // Drag and drop handlers
-        function handleDragOver(e) {
-          e.preventDefault();
-          e.dataTransfer.dropEffect = 'move';
-          
-          console.log('Drag over:', e.currentTarget.className);
-          
-          // Add visual feedback for drop zone
-          const container = e.currentTarget;
-          container.style.backgroundColor = 'rgba(255,255,255,0.1)';
-          container.style.border = '2px dashed rgba(255,255,255,0.3)';
-          
-          // Show different cursor for category containers
-          if (container.classList.contains('items-container')) {
-            container.style.cursor = 'copy';
-          }
-        }
-        
-        // Theme management
-        let currentTheme = localStorage.getItem('app_theme') || 'light';
-        
-        // Apply theme on load
-        function applyTheme(theme) {
-          document.documentElement.setAttribute('data-theme', theme);
-          localStorage.setItem('app_theme', theme);
-          
-          // Update theme toggle button
-          const themeToggle = document.getElementById('theme-toggle');
-          if (themeToggle) {
-            themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
-            themeToggle.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
-          }
-        }
-        
-        // Toggle theme
-        function toggleTheme() {
-          currentTheme = currentTheme === 'light' ? 'dark' : 'light';
-          applyTheme(currentTheme);
-        }
-        
-        // Version management and update detection
-        // 
-        // BUILD SYSTEM:
-        // 1. APP_VERSION: Semantic version (major.minor.patch)
-        //    - Increment for new features, bug fixes, breaking changes
-        //    - Examples: 1.0.0, 1.0.1, 1.1.0, 2.0.0
-        // 2. APP_BUILD: Date-based build number (YYYYMMDD.XXX)
-        //    - Format: YYYYMMDD.XXX where XXX is a 3-digit sequence
-        //    - Example: 20241201.001, 20241201.002, etc.
-        //    - MANUAL INCREMENT required for each deployment
-        //    - Date resets to current date when day changes
-        //    - Build number only changes on actual deployments, not page reloads
-        // 3. Smart version comparison detects both version and build changes
-        // 4. Auto-check every 15 seconds for updates
-        // 5. Users can choose "Update Now" or "Later"
-        // 6. First-time users don't see update popups
-        //
-        const APP_VERSION = '1.0.0';
-        
-        // BUILD NUMBER SYSTEM
-        // The build number should only change on actual deployments, not page reloads
-        // For now, we'll use a static build number that developers manually increment
-        // In a production environment, this would be set by the build/deployment process
-        
-        const APP_BUILD = '20241201.004'; // MANUAL: Increment this for each deployment
-        
-        // Function to help developers increment build numbers
-        function getNextBuildNumber() {
-          const currentBuildParts = APP_BUILD.split('.');
-          const currentDate = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-          
-          // If date changed, reset sequence to 001
-          if (currentDate !== currentBuildParts[0]) {
-            return `${currentDate}.001`;
-          }
-          
-          // Otherwise increment sequence
-          const newBuildNumber = parseInt(currentBuildParts[1]) + 1;
-          return `${currentBuildParts[0]}.${newBuildNumber.toString().padStart(3, '0')}`;
-        }
-        
-        // Helper function to show next build number in console
-        function showNextBuildNumber() {
-          const next = getNextBuildNumber();
-          console.log(`📋 Next build number should be: ${next}`);
-          console.log(`📝 Update this line: const APP_BUILD = '${next}';`);
-          return next;
-        }
-        
-        // TENSORFLOW.JS + MOBILE LLM INTEGRATION FOR SMART CATEGORIZATION
-        class TensorFlowLLM {
-          constructor() {
-            this.isAvailable = false;
-            this.model = null;
-            this.tokenizer = null;
-            this.cache = new Map(); // Local categorization cache
-            this.userCorrections = new Map(); // Learn from user corrections
-            this.categories = ['Mejeri', 'Bröd', 'Frukt & Grönt', 'Kött & Fisk', 'Drycker', 'Övrigt'];
-            
-            // Initialize TensorFlow.js and load model
-            this.initialize();
-          }
-          
-          // Initialize TensorFlow.js and load the model
-          async initialize() {
-            try {
-              // Check if TensorFlow.js is available
-              if (typeof tf === 'undefined') {
-                console.log('🤖 TensorFlow.js not loaded, loading from CDN...');
-                await this.loadTensorFlowJS();
-              }
-              
-              // Load the lightweight categorization model
-              await this.loadModel();
-              
-              this.isAvailable = true;
-              this.updateLLMStatus('🟢 TensorFlow.js Ready');
-              console.log('🤖 TensorFlow.js LLM initialized successfully');
-              
-            } catch (error) {
-              console.error('🤖 TensorFlow.js initialization failed:', error);
-              this.isAvailable = false;
-              this.updateLLMStatus('🔴 TF.js Failed');
-            }
-          }
-          
-          // Load TensorFlow.js from CDN if not available
-          async loadTensorFlowJS() {
-            return new Promise((resolve, reject) => {
-              const script = document.createElement('script');
-              script.src = 'https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.15.0/dist/tf.min.js';
-              script.onload = resolve;
-              script.onerror = reject;
-              document.head.appendChild(script);
-            });
-          }
-          
-          // Load a lightweight categorization model
-          async loadModel() {
-            try {
-              // For now, we'll use a simple rule-based approach with TensorFlow.js
-              // In a production app, you'd load a pre-trained model here
-              console.log('🤖 Using rule-based categorization with TensorFlow.js');
-              
-              // Create a simple neural network for categorization
-              this.model = this.createSimpleModel();
-              
-            } catch (error) {
-              console.error('Failed to load model:', error);
-              throw error;
-            }
-          }
-          
-          // Create a simple neural network for categorization
-          createSimpleModel() {
-            const model = tf.sequential();
-            
-            // Input layer - word embeddings (simplified)
-            model.add(tf.layers.dense({
-              units: 32,
-              inputShape: [this.getVocabularySize()],
-              activation: 'relu'
-            }));
-            
-            // Hidden layer
-            model.add(tf.layers.dense({
-              units: 16,
-              activation: 'relu'
-            }));
-            
-            // Output layer - 6 categories
-            model.add(tf.layers.dense({
-              units: this.categories.length,
-              activation: 'softmax'
-            }));
-            
-            // Compile the model
-            model.compile({
-              optimizer: 'adam',
-              loss: 'categoricalCrossentropy',
-              metrics: ['accuracy']
-            });
-            
-            return model;
-          }
-          
-          // Get vocabulary size for the model
-          getVocabularySize() {
-            // Simplified vocabulary for shopping items
-            const vocabulary = [
-              'mjölk', 'ost', 'yoghurt', 'grädde', 'smör', 'kefir', 'fil',
-              'bröd', 'limpa', 'franska', 'hamburgerbröd', 'tunnbröd',
-              'äpple', 'banan', 'tomat', 'gurka', 'lök', 'potatis', 'morot',
-              'kött', 'fisk', 'kyckling', 'fläsk', 'lamm', 'nötkött',
-              'öl', 'vatten', 'juice', 'kaffe', 'te', 'läsk', 'vin',
-              'chips', 'godis', 'nötter', 'kex', 'kakor'
-            ];
-            return vocabulary.length;
-          }
-          
-          // Update LLM status in UI
-          updateLLMStatus(status) {
-            const statusEl = document.getElementById('llm-status');
-            if (statusEl) {
-              statusEl.textContent = status;
-            }
-          }
-          
-          // Categorize shopping item using TensorFlow.js
-          async categorizeItem(itemName) {
-            // Check cache first
-            if (this.cache.has(itemName.toLowerCase())) {
-              return this.cache.get(itemName.toLowerCase());
-            }
-            
-            // Check user corrections
-            if (this.userCorrections.has(itemName.toLowerCase())) {
-              return this.userCorrections.get(itemName.toLowerCase());
-            }
-            
-            if (!this.isAvailable || !this.model) {
-              return this.fallbackCategorization(itemName);
-            }
-            
-            try {
-              // Use TensorFlow.js for categorization
-              const category = await this.tensorFlowCategorization(itemName);
-              
-              // Cache the result
-              this.cache.set(itemName.toLowerCase(), category);
-              
-              return category;
-            } catch (error) {
-              console.error('TensorFlow.js categorization failed:', error);
-              return this.fallbackCategorization(itemName);
-            }
-          }
-          
-          // TensorFlow.js-based categorization
-          async tensorFlowCategorization(itemName) {
-            // Convert item name to feature vector
-            const features = this.textToFeatures(itemName);
-            
-            // Make prediction
-            const prediction = this.model.predict(features);
-            const categoryIndex = prediction.argMax(-1).dataSync()[0];
-            
-            // Clean up tensors
-            features.dispose();
-            prediction.dispose();
-            
-            return this.categories[categoryIndex];
-          }
-          
-          // Convert text to feature vector
-          textToFeatures(text) {
-            const cleanText = text.toLowerCase();
-            const vocabulary = [
-              'mjölk', 'ost', 'yoghurt', 'grädde', 'smör', 'kefir', 'fil',
-              'bröd', 'limpa', 'franska', 'hamburgerbröd', 'tunnbröd',
-              'äpple', 'banan', 'tomat', 'gurka', 'lök', 'potatis', 'morot',
-              'kött', 'fisk', 'kyckling', 'fläsk', 'lamm', 'nötkött',
-              'öl', 'vatten', 'juice', 'kaffe', 'te', 'läsk', 'vin',
-              'chips', 'godis', 'nötter', 'kex', 'kakor'
-            ];
-            
-            const features = new Array(vocabulary.length).fill(0);
-            
-            // Simple bag-of-words approach
-            vocabulary.forEach((word, index) => {
-              if (cleanText.includes(word)) {
-                features[index] = 1;
-              }
-            });
-            
-            return tf.tensor2d([features], [1, vocabulary.length]);
-          }
-          
-          // Fallback categorization using rules
-          fallbackCategorization(itemName) {
-            const cleanText = itemName.toLowerCase();
-            
-            // Swedish and English category mappings
-            const categoryMap = {
-              // Dairy
-              'mjölk': 'Mejeri', 'ost': 'Mejeri', 'yoghurt': 'Mejeri', 'grädde': 'Mejeri',
-              'smör': 'Mejeri', 'kefir': 'Mejeri', 'fil': 'Mejeri', 'dairy': 'Mejeri',
-              'milk': 'Mejeri', 'cheese': 'Mejeri', 'cream': 'Mejeri', 'butter': 'Mejeri',
-              
-              // Bread
-              'bröd': 'Bröd', 'limpa': 'Bröd', 'franska': 'Bröd', 'tunnbröd': 'Bröd',
-              'bread': 'Bröd', 'loaf': 'Bröd', 'bun': 'Bröd', 'roll': 'Bröd',
-              
-              // Fruits & Vegetables
-              'äpple': 'Frukt & Grönt', 'banan': 'Frukt & Grönt', 'tomat': 'Frukt & Grönt',
-              'gurka': 'Frukt & Grönt', 'lök': 'Frukt & Grönt', 'potatis': 'Frukt & Grönt',
-              'morot': 'Frukt & Grönt', 'apple': 'Frukt & Grönt', 'banana': 'Frukt & Grönt',
-              'tomato': 'Frukt & Grönt', 'cucumber': 'Frukt & Grönt', 'onion': 'Frukt & Grönt',
-              'potato': 'Frukt & Grönt', 'carrot': 'Frukt & Grönt', 'frukt': 'Frukt & Grönt',
-              'grönt': 'Frukt & Grönt', 'vegetables': 'Frukt & Grönt', 'fruits': 'Frukt & Grönt',
-              
-              // Meat & Fish
-              'kött': 'Kött & Fisk', 'fisk': 'Kött & Fisk', 'kyckling': 'Kött & Fisk',
-              'fläsk': 'Kött & Fisk', 'lamm': 'Kött & Fisk', 'nötkött': 'Kött & Fisk',
-              'meat': 'Kött & Fisk', 'fish': 'Kött & Fisk', 'chicken': 'Kött & Fisk',
-              'pork': 'Kött & Fisk', 'lamb': 'Kött & Fisk', 'beef': 'Kött & Fisk',
-              
-              // Drinks
-              'öl': 'Drycker', 'vatten': 'Drycker', 'juice': 'Drycker', 'kaffe': 'Drycker',
-              'te': 'Drycker', 'läsk': 'Drycker', 'vin': 'Drycker', 'beer': 'Drycker',
-              'water': 'Drycker', 'coffee': 'Drycker', 'tea': 'Drycker', 'soda': 'Drycker',
-              'wine': 'Drycker', 'drycker': 'Drycker', 'drinks': 'Drycker'
-            };
-            
-            // Check for exact matches first
-            for (const [key, category] of Object.entries(categoryMap)) {
-              if (cleanText.includes(key)) {
-                return category;
-              }
-            }
-            
-            // Check for partial matches
-            for (const [key, category] of Object.entries(categoryMap)) {
-              if (cleanText.includes(key.slice(0, 3))) { // Check first 3 characters
-                return category;
-              }
-            }
-            
-            return 'Övrigt'; // Default fallback
-          }
-          
-          // Learn from user corrections
-          learnFromCorrection(itemName, correctCategory) {
-            this.userCorrections.set(itemName.toLowerCase(), correctCategory);
-            console.log(`🤖 Learned: "${itemName}" → "${correctCategory}"`);
-            
-            // Save to localStorage for persistence
-            localStorage.setItem('llm_user_corrections', JSON.stringify(Array.from(this.userCorrections.entries())));
-          }
-          
-          // Load user corrections from localStorage
-          loadUserCorrections() {
-            try {
-              const saved = localStorage.getItem('llm_user_corrections');
-              if (saved) {
-                this.userCorrections = new Map(JSON.parse(saved));
-                console.log(`🤖 Loaded ${this.userCorrections.size} user corrections`);
-              }
-            } catch (error) {
-              console.error('Failed to load user corrections:', error);
-            }
-          }
-          
-          // Get model info for debugging
-          getModelInfo() {
-            return {
-              isAvailable: this.isAvailable,
-              modelType: 'TensorFlow.js Neural Network',
-              categories: this.categories,
-              vocabularySize: this.getVocabularySize(),
-              cacheSize: this.cache.size,
-              userCorrections: this.userCorrections.size
-            };
-          }
-        }
-        
-        // Initialize TensorFlow.js LLM
-        const localLLM = new TensorFlowLLM();
-        
-        // Function to correct LLM categorization and learn from it
-        function correctLLMCategorization(itemId, correctCategoryName) {
-          const item = state.items.find(i => i.id === itemId);
-          if (!item) return;
-          
-          // Find the correct category
-          const correctCategory = state.categories.find(c => c.name === correctCategoryName);
-          if (!correctCategory) return;
-          
-          // Update the item's category
-          item.categoryId = correctCategory.id;
-          saveState();
-          render();
-          
-          // Teach the LLM from this correction
-          localLLM.learnFromCorrection(item.text, correctCategoryName);
-          
-          // Announce the correction
-          announce(`Moved ${item.text} to ${correctCategoryName} and learned from correction`);
-        }
-        
-        // Debug function to show TensorFlow.js model information
-        function showTensorFlowInfo() {
-          const info = localLLM.getModelInfo();
-          console.log('🤖 TensorFlow.js Model Info:', info);
-          
-          // Show in UI
-          const statusEl = document.getElementById('llm-status');
-          if (statusEl) {
-            statusEl.textContent = `🤖 TF.js: ${info.modelType} | Cache: ${info.cacheSize} | Learned: ${info.userCorrections}`;
-          }
-        }
-        
-        // Log current build info for developers
-        console.log('🚀 VIBEshopper Build Info:', {
-          version: APP_VERSION,
-          build: APP_BUILD,
-          nextBuild: getNextBuildNumber(),
-          buildDate: new Date().toISOString().slice(0, 10),
-          note: 'Manual increment required - change APP_BUILD constant for each deployment'
-        });
-        let currentVersion = localStorage.getItem('app_version') || APP_VERSION;
-        let currentBuild = localStorage.getItem('app_build') || APP_BUILD;
-        
-        // Check for updates
-        function checkForUpdates() {
-          const storedVersion = localStorage.getItem('app_version');
-          const storedBuild = localStorage.getItem('app_build');
-          
-          console.log('Version check: stored=', { version: storedVersion, build: storedBuild }, 'current=', { version: APP_VERSION, build: APP_BUILD });
-          
-          // Update status display
-          updateStatusDisplay('🔍 Checking...');
-          
-          // Simulate a brief check delay
-          setTimeout(() => {
-            const hasUpdate = compareVersions(storedVersion, storedBuild);
-            
-            if (hasUpdate) {
-              updateStatusDisplay('🆕 Update available!');
-              showUpdatePopup();
-            } else {
-              updateStatusDisplay('✅ Up to date');
-              // Reset status after 3 seconds
-              setTimeout(() => {
-                updateStatusDisplay('🔄 Auto-checking...');
-              }, 3000);
-            }
-          }, 500);
-        }
-        
-        // Enhanced version comparison function
-        function compareVersions(storedVersion, storedBuild) {
-          // If no stored version, this is a first-time user
-          if (!storedVersion || !storedBuild) {
-            console.log('First-time user detected');
-            return false; // Don't show update popup for first-time users
-          }
-          
-          // Compare semantic versions
-          const versionChanged = compareSemanticVersions(storedVersion, APP_VERSION);
-          
-          // Compare build numbers
-          const buildChanged = compareBuildNumbers(storedBuild, APP_BUILD);
-          
-          console.log('Version comparison:', {
-            versionChanged,
-            buildChanged,
-            storedVersion,
-            currentVersion: APP_VERSION,
-            storedBuild,
-            currentBuild: APP_BUILD
-          });
-          
-          return versionChanged || buildChanged;
-        }
-        
-        // Compare semantic versions (e.g., "1.0.0" vs "1.0.1")
-        function compareSemanticVersions(stored, current) {
-          if (stored === current) return false;
-          
-          const storedParts = stored.split('.').map(Number);
-          const currentParts = current.split('.').map(Number);
-          
-          // Ensure both versions have 3 parts
-          while (storedParts.length < 3) storedParts.push(0);
-          while (currentParts.length < 3) currentParts.push(0);
-          
-          // Compare major.minor.patch
-          for (let i = 0; i < 3; i++) {
-            if (currentParts[i] > storedParts[i]) return true;
-            if (currentParts[i] < storedParts[i]) return false;
-          }
-          
-          return false;
-        }
-        
-        // Compare build numbers (e.g., "20241201.001" vs "20241201.002")
-        function compareBuildNumbers(stored, current) {
-          if (stored === current) return false;
-          
-          const storedParts = stored.split('.');
-          const currentParts = current.split('.');
-          
-          if (storedParts.length !== 2 || currentParts.length !== 2) return false;
-          
-          const storedDate = storedParts[0];
-          const currentDate = currentParts[0];
-          const storedSequence = parseInt(storedParts[1]);
-          const currentSequence = parseInt(currentParts[1]);
-          
-          // If date is newer, it's definitely a new build
-          if (currentDate > storedDate) return true;
-          
-          // If same date but higher sequence number, it's a new build
-          if (currentDate === storedDate && currentSequence > storedSequence) return true;
-          
-          return false;
-        }
-        
-
-        
-        // Function to increment build number (for developers)
-        function incrementBuild() {
-          const currentBuildParts = APP_BUILD.split('.');
-          const newBuildNumber = parseInt(currentBuildParts[1]) + 1;
-          const newBuild = `${currentBuildParts[0]}.${newBuildNumber.toString().padStart(3, '0')}`;
-          
-          console.log(`Build incremented from ${APP_BUILD} to ${newBuild}`);
-          return newBuild;
-        }
-        
-
-        
-        // Log current build info for developers
-        console.log('🚀 VIBEshopper Build Info:', {
-          version: APP_VERSION,
-          build: APP_BUILD,
-          buildDate: new Date().toISOString().slice(0, 10),
-          autoIncrement: 'Enabled - Build number increments automatically on each deployment'
-        });
-        
-        // Show update popup
-        function showUpdatePopup() {
-          const popup = document.createElement('div');
-          popup.id = 'update-popup';
-          popup.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-            backdrop-filter: blur(5px);
-          `;
-          
-          const popupContent = document.createElement('div');
-          popupContent.style.cssText = `
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            text-align: center;
-            max-width: 400px;
-            margin: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-          `;
-          
-          const title = document.createElement('h2');
-          title.textContent = '🔄 New Version Available!';
-          title.style.cssText = 'margin: 0 0 20px 0; color: #333; font-size: 1.5rem;';
-          
-          const versionInfo = document.createElement('div');
-          versionInfo.style.cssText = 'margin: 0 0 15px 0; padding: 10px; background: #f5f5f5; border-radius: 8px; font-family: monospace; font-size: 0.9rem;';
-          
-          // Determine what type of update this is
-          const versionChanged = compareSemanticVersions(currentVersion, APP_VERSION);
-          const buildChanged = compareBuildNumbers(currentBuild, APP_BUILD);
-          
-          let updateType = '';
-          if (versionChanged) {
-            updateType = '🆕 New Version';
-          } else if (buildChanged) {
-            updateType = '🔧 New Build';
-          }
-          
-          versionInfo.innerHTML = `
-            <div style="margin-bottom: 8px; font-weight: bold; color: #333;">${updateType}</div>
-            <strong>Current:</strong> v${currentVersion} (${currentBuild})<br>
-            <strong>Available:</strong> v${APP_VERSION} (${APP_BUILD})
-          `;
-          
-          const message = document.createElement('p');
-          message.textContent = 'A new version of the app is available. Click the button below to load the latest version.';
-          message.style.cssText = 'margin: 0 0 25px 0; color: #666; line-height: 1.5;';
-          
-          const updateBtn = document.createElement('button');
-          updateBtn.textContent = '🚀 Load New Version';
-          updateBtn.style.cssText = `
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-          `;
-          
-          updateBtn.addEventListener('mouseenter', () => {
-            updateBtn.style.transform = 'scale(1.05)';
-          });
-          
-          updateBtn.addEventListener('mouseleave', () => {
-            updateBtn.style.transform = 'scale(1)';
-          });
-          
-          updateBtn.addEventListener('click', () => {
-            // Clear cache and reload
-            if ('caches' in window) {
-              caches.keys().then(names => {
-                names.forEach(name => caches.delete(name));
-              });
-            }
-            
-            if ('serviceWorker' in navigator) {
-              navigator.serviceWorker.getRegistrations().then(registrations => {
-                registrations.forEach(registration => registration.unregister());
-              });
-            }
-            
-            // Update stored version and build
-            localStorage.setItem('app_version', APP_VERSION);
-            localStorage.setItem('app_build', APP_BUILD);
-            
-            // Force reload
-            window.location.reload(true);
-          });
-          
-          const cancelBtn = document.createElement('button');
-          cancelBtn.textContent = 'Later';
-          cancelBtn.style.cssText = `
-            background: transparent;
-            color: #666;
-            border: 1px solid #ddd;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            margin-top: 15px;
-            transition: all 0.2s ease;
-          `;
-          
-          cancelBtn.addEventListener('click', () => {
-            // Store current version to prevent immediate re-prompting
-            localStorage.setItem('app_version', currentVersion);
-            localStorage.setItem('app_build', currentBuild);
-            document.body.removeChild(popup);
-          });
-          
-          popupContent.appendChild(title);
-          popupContent.appendChild(versionInfo);
-          popupContent.appendChild(message);
-          popupContent.appendChild(updateBtn);
-          popupContent.appendChild(cancelBtn);
-          popup.appendChild(popupContent);
-          
-          document.body.appendChild(popup);
-        }
-        
-        // Mobile detection and optimization
-        const isMobile = /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 
-                         ('ontouchstart' in window) || 
-                         (navigator.maxTouchPoints > 0);
-        
-
-        
-
-        
-        // Mobile touch gesture support
-        let touchStartY = 0;
-        let touchStartTime = 0;
-        let longPressTimer = null;
-        let isDragging = false;
-        let draggedItem = null;
-        let draggedItemRect = null;
-        
-        function handleTouchStart(e, item) {
-          e.preventDefault();
-          touchStartY = e.touches[0].clientY;
-          touchStartTime = Date.now();
-          
-          // Start long press timer for mobile drag
-          longPressTimer = setTimeout(() => {
-            startMobileDrag(item, e);
-          }, 300); // Reduced to 300ms for better responsiveness
-        }
-        
-        function handleTouchMove(e, item) {
-          if (longPressTimer) {
-            const touchY = e.touches[0].clientY;
-            const deltaY = Math.abs(touchY - touchStartY);
-            
-            // If moved significantly, cancel long press
-            if (deltaY > 5) {
-              clearTimeout(longPressTimer);
-              longPressTimer = null;
-            }
-          }
-          
-          if (isDragging && draggedItem) {
-            e.preventDefault();
-            updateMobileDragPosition(e);
-          }
-        }
-        
-        function handleTouchEnd(e, item) {
-          if (longPressTimer) {
-            clearTimeout(longPressTimer);
-            longPressTimer = null;
-          }
-          
-          if (isDragging && draggedItem) {
-            endMobileDrag(e);
-          }
-        }
-        
-        function startMobileDrag(item, e) {
-          isDragging = true;
-          draggedItem = item;
-          draggedItemRect = item.getBoundingClientRect();
-          
-          // Create floating drag element
-          const dragElement = document.createElement('div');
-          dragElement.id = 'mobile-drag-element';
-          dragElement.style.cssText = `
-            position: fixed;
-            top: ${draggedItemRect.top}px;
-            left: ${draggedItemRect.left}px;
-            width: ${draggedItemRect.width}px;
-            height: ${draggedItemRect.height}px;
-            background: rgba(255,255,255,0.9);
-            border: 2px solid #667eea;
-            border-radius: 12px;
-            z-index: 10000;
-            pointer-events: none;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-            transform: scale(1.05);
-          `;
-          dragElement.innerHTML = item.innerHTML;
-          document.body.appendChild(dragElement);
-          
-          // Hide original item
-          item.style.opacity = '0.3';
-          
-          // Add dragging class
-          item.classList.add('dragging');
-          
-          console.log('Mobile drag started for:', item.textContent);
-        }
-        
-        function updateMobileDragPosition(e) {
-          if (!isDragging || !draggedItem) return;
-          
-          const touch = e.touches[0];
-          const dragElement = document.getElementById('mobile-drag-element');
-          
-          if (dragElement) {
-            dragElement.style.top = (touch.clientY - draggedItemRect.height / 2) + 'px';
-            dragElement.style.left = (touch.clientX - draggedItemRect.width / 2) + 'px';
-          }
-          
-          // Find drop target
-          const dropTarget = findDropTarget(touch.clientX, touch.clientY);
-          highlightDropTarget(dropTarget);
-        }
-        
-        function endMobileDrag(e) {
-          if (!isDragging || !draggedItem) return;
-          
-          const touch = e.changedTouches[0];
-          const dropTarget = findDropTarget(touch.clientX, touch.clientY);
-          
-          if (dropTarget) {
-            handleMobileDrop(draggedItem, dropTarget);
-          }
-          
-          // Clean up
-          cleanupMobileDrag();
-        }
-        
-        function findDropTarget(x, y) {
-          const dropZones = document.querySelectorAll('.items-container');
-          let bestTarget = null;
-          let bestDistance = Infinity;
-          
-          dropZones.forEach(zone => {
-            const rect = zone.getBoundingClientRect();
-            if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-              const centerX = rect.left + rect.width / 2;
-              const centerY = rect.top + rect.height / 2;
-              const distance = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
-              
-              if (distance < bestDistance) {
-                bestDistance = distance;
-                bestTarget = zone;
-              }
-            }
-          });
-          
-          return bestTarget;
-        }
-        
-        function highlightDropTarget(target) {
-          // Remove previous highlights
-          document.querySelectorAll('.items-container').forEach(zone => {
-            zone.style.backgroundColor = '';
-            zone.style.border = '';
-          });
-          
-          // Highlight current target
-          if (target) {
-            target.style.backgroundColor = 'rgba(255,255,255,0.2)';
-            target.style.border = '2px dashed rgba(102, 126, 234, 0.8)';
-          }
-        }
-        
-        function handleMobileDrop(item, dropTarget) {
-          const targetCategoryId = dropTarget.dataset.categoryId;
-          const itemId = item.dataset.id;
-          
-          console.log('Mobile drop: item', itemId, 'to category', targetCategoryId);
-          
-          // Handle the drop using existing logic
-          const dropEvent = {
-            preventDefault: () => {},
-            target: dropTarget,
-            currentTarget: dropTarget
-          };
-          
-          // Create a fake dataTransfer object
-          const fakeDataTransfer = {
-            getData: () => itemId
-          };
-          
-          // Store the item ID temporarily
-          dropEvent.dataTransfer = fakeDataTransfer;
-          
-          handleDrop(dropEvent, targetCategoryId === 'uncategorized' ? null : targetCategoryId);
-        }
-        
-        function cleanupMobileDrag() {
-          isDragging = false;
-          draggedItem = null;
-          draggedItemRect = null;
-          
-          // Remove floating element
-          const dragElement = document.getElementById('mobile-drag-element');
-          if (dragElement) {
-            document.body.removeChild(dragElement);
-          }
-          
-          // Remove dragging class from all items
-          document.querySelectorAll('.item').forEach(item => {
-            item.classList.remove('dragging');
-            item.style.opacity = '';
-          });
-          
-          // Remove highlights
-          document.querySelectorAll('.items-container').forEach(zone => {
-            zone.style.backgroundColor = '';
-            zone.style.border = '';
-          });
-        }
-
-        function handleDrop(e, targetCategoryId) {
-          e.preventDefault();
-          console.log('Drop event triggered on:', e.currentTarget.className);
-          
-          const itemId = e.dataTransfer.getData('text/plain');
-          console.log('Dropped item ID:', itemId);
-          if (!itemId) return;
-          
-          // Reset drop zone styling
-          const container = e.currentTarget;
-          container.style.backgroundColor = '';
-          container.style.border = '';
-          
-          // Check if we're dropping on an item (for sorting) or the container (for category change)
-          const targetItem = e.target.closest('.item');
-          
-          if (targetItem && targetItem.dataset.id !== itemId) {
-            // Dropping on another item - sort within the same category
-            handleItemSort(e, targetCategoryId, itemId, targetItem);
-          } else {
-            // Dropping on container - change category
-            handleCategoryChange(itemId, targetCategoryId);
-          }
-        }
-
-        function handleItemSort(e, categoryId, draggedItemId, targetItem) {
-          const draggedItem = state.items.find(i => i.id === draggedItemId);
-          if (!draggedItem) return;
-          
-          // Get all items in this category
-          const categoryItems = state.items.filter(item => item.categoryId === categoryId);
-          
-          // Find the target item's position
-          const targetIndex = categoryItems.findIndex(item => item.id === targetItem.dataset.id);
-          
-          // Remove dragged item from its current position
-          const draggedIndex = categoryItems.findIndex(item => item.id === draggedItemId);
-          categoryItems.splice(draggedIndex, 1);
-          
-          // Insert at new position
-          categoryItems.splice(targetIndex, 0, draggedItem);
-          
-          // Update the order in the main items array
-          const allItems = [...state.items];
-          categoryItems.forEach((item, index) => {
-            const itemIndex = allItems.findIndex(i => i.id === item.id);
-            if (itemIndex !== -1) {
-              allItems[itemIndex] = item;
-            }
-          });
-          
-          state.items = allItems;
-          saveState();
-          render();
-          
-          announce(`${draggedItem.text} reordered in ${categoryId ? state.categories.find(c => c.id === categoryId)?.name : 'Uncategorized'}`);
-        }
-
-        function handleCategoryChange(itemId, targetCategoryId) {
-          // Find the item and update its category
-          const item = state.items.find(i => i.id === itemId);
-          if (!item) return;
-          
-          const oldCategoryId = item.categoryId;
-          const oldCategory = oldCategoryId ? state.categories.find(c => c.id === oldCategoryId)?.name : 'Uncategorized';
-          const newCategory = targetCategoryId ? state.categories.find(c => c.id === targetCategoryId)?.name : 'Uncategorized';
-          
-          // Update the item's category
-          item.categoryId = targetCategoryId;
-          saveState();
-          
-          // Re-render to show the item in its new category
-          render();
-          
-          announce(`${item.text} moved from ${oldCategory} to ${newCategory}`);
-        }
-
-        function createCategorySection(categoryId, categoryName, items) {
-          const section = document.createElement('div');
-          section.className = 'category-section';
-          section.style.marginBottom = '25px';
-          
-          const header = document.createElement('div');
-          header.className = 'category-header';
-          header.style.cssText = `
-            font-size: 0.9rem; 
-            font-weight: 700; 
-            margin-bottom: 12px; 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-            color: var(--text-secondary); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
-            padding: 8px 12px;
-            background: var(--bg-tertiary);
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            transition: all 0.3s ease;
-          `;
-          
-          const title = document.createElement('span');
-          title.textContent = categoryName;
-          header.appendChild(title);
-          
-          // Add remove button for categories (not for uncategorized)
-          if (categoryId) {
-            const removeBtn = document.createElement('button');
-            removeBtn.textContent = '×';
-            removeBtn.style.cssText = 'background: none; border: none; color: #666; font-size: 1.2rem; cursor: pointer; padding: 2px 6px; border-radius: 3px;';
-            removeBtn.title = `Remove category "${categoryName}"`;
-            removeBtn.onclick = () => removeCategory(categoryId);
-            header.appendChild(removeBtn);
-          }
-          
-          section.appendChild(header);
-          
-          const itemsContainer = document.createElement('div');
-          itemsContainer.className = 'items-container';
-          itemsContainer.dataset.categoryId = categoryId || 'uncategorized';
-          
-          // Add drag and drop event listeners to the container
-          itemsContainer.addEventListener('dragover', handleDragOver);
-          itemsContainer.addEventListener('drop', (e) => handleDrop(e, categoryId));
-          itemsContainer.addEventListener('dragleave', (e) => {
-            // Only reset if we're leaving the container entirely
-            if (!e.currentTarget.contains(e.relatedTarget)) {
-              e.currentTarget.style.backgroundColor = '';
-              e.currentTarget.style.border = '';
-            }
-          });
-          
-          // Create and add items first
-          items.forEach(item => {
-            const itemEl = createItemElement(item);
-            itemsContainer.appendChild(itemEl);
-          });
-          
-          // Then add drop zone event listeners to items for sorting
-          const itemElements = itemsContainer.querySelectorAll('.item');
-          itemElements.forEach(itemEl => {
-            // Add drop zone styling for items
-            itemEl.addEventListener('dragover', (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              e.dataTransfer.dropEffect = 'move';
-              
-              // Visual feedback for dropping on item
-              itemEl.style.borderLeft = '3px solid rgba(255,255,255,0.5)';
-              itemEl.style.backgroundColor = 'rgba(255,255,255,0.1)';
-            });
-            
-            itemEl.addEventListener('dragleave', () => {
-              itemEl.style.borderLeft = '';
-              itemEl.style.backgroundColor = '';
-            });
-            
-            itemEl.addEventListener('drop', (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              
-              // Reset styling
-              itemEl.style.borderLeft = '';
-              itemEl.style.backgroundColor = '';
-              
-              // Handle the drop
-              handleDrop(e, categoryId);
-            });
-          });
-          
-          section.appendChild(itemsContainer);
-          return section;
-        }
-
         // Input handlers
-        function setupEventListeners() {
-          console.log('Setting up event listeners...');
-          const categoryInput = document.getElementById('category-input');
-          const addCategoryBtn = document.getElementById('add-category-btn');
-          const categorySelect = document.getElementById('category-select');
-          
-          console.log('Elements found:', { categoryInput, addCategoryBtn, categorySelect, inputEl });
-          
-          if (categoryInput) {
-            console.log('Adding keydown listener to categoryInput');
-            categoryInput.addEventListener('keydown', (e) => {
-              console.log('Category input keydown:', e.key);
-              if (e.key === 'Enter') {
-                console.log('Enter pressed in category input');
-                addCategory(categoryInput.value);
-                categoryInput.value = '';
-              }
-            });
+        inputEl.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            addItem(inputEl.value);
+            inputEl.value = '';
           }
+        });
+
+        // Initialize categorizer
+        async function initializeCategorizer() {
+          const loadingIndicator = document.getElementById('loading-indicator');
+          const loadingProgress = document.getElementById('loading-progress');
           
-          if (addCategoryBtn) {
-            console.log('Adding click listener to addCategoryBtn');
-            addCategoryBtn.addEventListener('click', () => {
-              console.log('Add category button clicked');
-              addCategory(categoryInput.value);
-              categoryInput.value = '';
+          try {
+            // Show loading indicator
+            loadingIndicator.style.display = 'block';
+            
+            // Initialize categorizer
+            categorizer = new window.GroceryCategorizer();
+            
+            // Listen for progress updates
+            window.addEventListener('llm-progress', (event) => {
+              loadingProgress.textContent = event.detail.text;
             });
-          }
-          
-          if (categorySelect) {
-            console.log('Adding change listener to categorySelect');
-            categorySelect.addEventListener('change', (e) => {
-              console.log('Category select changed:', e.target.value);
-              selectedCategory = e.target.value || null;
-            });
-          }
-          
-          if (inputEl) {
-            console.log('Adding keydown listener to inputEl');
-            inputEl.addEventListener('keydown', (e) => {
-              console.log('Item input keydown:', e.key);
-              if (e.key === 'Enter') {
-                console.log('Enter pressed in item input');
-                addItem(inputEl.value);
-                inputEl.value = '';
-              }
-            });
+            
+            // Initialize the model
+            const initialized = await categorizer.initialize();
+            
+            if (initialized) {
+              categorizerReady = true;
+              console.log('Categorizer ready!');
+              announce('AI-kategorisering klar');
+            } else {
+              console.warn('Categorizer initialization failed, using fallback');
+              announce('Använder enkel kategorisering');
+            }
+          } catch (error) {
+            console.error('Failed to initialize categorizer:', error);
+            announce('Kategorisering inte tillgänglig');
+          } finally {
+            // Hide loading indicator
+            loadingIndicator.style.display = 'none';
           }
         }
-
+        
         // Initial render
         render();
-        setupEventListeners();
         
-        // Apply theme on startup
-        applyTheme(currentTheme);
+        // Initialize categorizer in background
+        setTimeout(() => {
+          initializeCategorizer().catch(console.error);
+        }, 100);
         
-        // Load LLM user corrections
-        localLLM.loadUserCorrections();
+        // Offline/Online detection
+        const offlineBanner = document.getElementById('offline-banner');
         
-        // Check for updates on startup
-        checkForUpdates();
-        
-        // Check for updates every 15 seconds
-        setInterval(checkForUpdates, 15 * 1000);
-        
-        // Update version display
-        const versionDisplay = document.getElementById('version-display');
-        if (versionDisplay) {
-          versionDisplay.textContent = `v${APP_VERSION} (${APP_BUILD})`;
-        }
-        
-        // Update status display
-        function updateStatusDisplay(message) {
-          const statusDisplay = document.getElementById('update-status');
-          if (statusDisplay) {
-            statusDisplay.textContent = message;
+        function updateOnlineStatus() {
+          if (!navigator.onLine) {
+            offlineBanner.classList.add('show');
+            announce('You are offline. Changes will be saved locally.');
+          } else {
+            offlineBanner.classList.remove('show');
+            announce('You are back online.');
           }
         }
         
-
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
         
-
+        // Check initial status
+        updateOnlineStatus();
         
-        // Add theme toggle event listener
-        const themeToggle = document.getElementById('theme-toggle');
-        if (themeToggle) {
-          themeToggle.addEventListener('click', toggleTheme);
-        }
+        // PWA Install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          const installPrompt = document.getElementById('install-prompt');
+          installPrompt.style.display = 'flex';
+          
+          document.getElementById('install-btn').addEventListener('click', async () => {
+            installPrompt.style.display = 'none';
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+              announce('App installed successfully');
+            }
+            deferredPrompt = null;
+          });
+        });
         
-        // Register service worker
+        // Pull to refresh
+        let pullStartY = 0;
+        let isPulling = false;
+        
+        document.addEventListener('touchstart', (e) => {
+          if (window.scrollY === 0 && e.touches.length === 1) {
+            pullStartY = e.touches[0].clientY;
+            isPulling = true;
+          }
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', (e) => {
+          if (!isPulling || e.touches.length !== 1) return;
+          const pullDistance = e.touches[0].clientY - pullStartY;
+          
+          if (pullDistance > 0 && window.scrollY === 0) {
+            e.preventDefault();
+            document.body.style.transform = `translateY(${Math.min(pullDistance * 0.5, 80)}px)`;
+            
+            if (pullDistance > 100) {
+              document.body.style.background = 'linear-gradient(135deg, #F5EFEA 0%, #E5D9D3 50%, #D9C4BD 100%)';
+            }
+          }
+        }, { passive: false });
+        
+        document.addEventListener('touchend', () => {
+          if (!isPulling) return;
+          isPulling = false;
+          
+          const currentTransform = document.body.style.transform;
+          const pullDistance = currentTransform ? parseFloat(currentTransform.match(/\d+/)?.[0] || 0) : 0;
+          
+          document.body.style.transform = '';
+          document.body.style.transition = 'transform 0.3s ease';
+          
+          if (pullDistance > 40) {
+            // Refresh the page
+            window.location.reload();
+          }
+          
+          setTimeout(() => {
+            document.body.style.transition = '';
+            document.body.style.background = '';
+          }, 300);
+        });
+        
+        // Register service worker with cache busting
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('./sw.js')
+          navigator.serviceWorker.register('./sw.js?v=' + Date.now())
             .then(registration => {
               console.log('ServiceWorker registration successful');
             })
@@ -2188,6 +1058,158 @@
               console.log('ServiceWorker registration failed: ', err);
             });
         }
+        
+        // Force refresh function for cache busting
+        function forceRefresh() {
+          if (confirm('Force refresh to clear cache?')) {
+            window.location.reload(true);
+          }
+        }
+        
+        // Export functionality
+        document.getElementById('export-btn').addEventListener('click', () => {
+          if (state.items.length === 0) {
+            announce('Inget att exportera');
+            return;
+          }
+          
+          let exportText = 'VIBE SHOPPINGLISTA\n';
+          exportText += '=' .repeat(30) + '\n\n';
+          
+          // Group by category for export
+          const itemsByCategory = {};
+          state.items.forEach(item => {
+            const cat = item.category || 'pantry';
+            if (!itemsByCategory[cat]) itemsByCategory[cat] = [];
+            itemsByCategory[cat].push(item);
+          });
+          
+          Object.entries(itemsByCategory).forEach(([categoryKey, items]) => {
+            const categoryInfo = categorizer?.getCategoryInfo(categoryKey) || { name: categoryKey, emoji: '📦' };
+            exportText += `${categoryInfo.emoji} ${categoryInfo.name.toUpperCase()}\n`;
+            exportText += '-'.repeat(20) + '\n';
+            
+            items.forEach(item => {
+              const check = item.completed ? '✓' : '○';
+              exportText += `${check} ${item.text}\n`;
+            });
+            
+            exportText += '\n';
+          });
+          
+          // Create download
+          const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `shopping-list-${new Date().toISOString().split('T')[0]}.txt`;
+          a.click();
+          URL.revokeObjectURL(url);
+          
+          announce('Lista exporterad');
+        });
+        
+        // Statistics view
+        document.getElementById('stats-btn').addEventListener('click', () => {
+          const modal = document.createElement('div');
+          modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+          `;
+          
+          const content = document.createElement('div');
+          content.style.cssText = `
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+          `;
+          
+          // Calculate statistics
+          const itemsByCategory = {};
+          let totalCompleted = 0;
+          
+          state.items.forEach(item => {
+            const cat = item.category || 'pantry';
+            if (!itemsByCategory[cat]) itemsByCategory[cat] = { total: 0, completed: 0 };
+            itemsByCategory[cat].total++;
+            if (item.completed) {
+              itemsByCategory[cat].completed++;
+              totalCompleted++;
+            }
+          });
+          
+          let statsHTML = '<h2 style="margin: 0 0 20px 0; color: #444;">📊 Statistik</h2>';
+          statsHTML += `<p style="font-size: 1.2rem; margin-bottom: 20px;"><strong>${state.items.length}</strong> varor totalt`;
+          if (state.items.length > 0) {
+            const percentage = Math.round((totalCompleted / state.items.length) * 100);
+            statsHTML += ` (<strong>${percentage}%</strong> klart)</p>`;
+          } else {
+            statsHTML += '</p>';
+          }
+          
+          statsHTML += '<div style="margin-top: 20px;">';
+          Object.entries(itemsByCategory).forEach(([categoryKey, stats]) => {
+            const categoryInfo = categorizer?.getCategoryInfo(categoryKey) || { name: categoryKey, emoji: '📦' };
+            const catPercentage = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+            
+            statsHTML += `
+              <div style="margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                  <span>${categoryInfo.emoji} ${categoryInfo.name}</span>
+                  <span>${stats.completed}/${stats.total}</span>
+                </div>
+                <div style="background: #eee; height: 8px; border-radius: 4px; overflow: hidden;">
+                  <div style="background: #CCAFA5; width: ${catPercentage}%; height: 100%; transition: width 0.3s;"></div>
+                </div>
+              </div>
+            `;
+          });
+          statsHTML += '</div>';
+          
+          statsHTML += '<button id="close-stats" style="margin-top: 20px; padding: 10px 20px; background: #CCAFA5; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%;">Stäng</button>';
+          
+          content.innerHTML = statsHTML;
+          modal.appendChild(content);
+          document.body.appendChild(modal);
+          
+          // Close handlers
+          document.getElementById('close-stats').addEventListener('click', () => modal.remove());
+          modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.remove();
+          });
+        });
+        
+        // Add refresh button to header for easy cache clearing
+        const refreshBtn = document.createElement('button');
+        refreshBtn.textContent = '🔄';
+        refreshBtn.style.cssText = 'background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center;';
+        refreshBtn.title = 'Force refresh (clear cache)';
+        refreshBtn.onclick = forceRefresh;
+        document.querySelector('.app-header').appendChild(refreshBtn);
+        
+        // Add cache clear button
+        const cacheBtn = document.createElement('button');
+        cacheBtn.textContent = '🗑️';
+        cacheBtn.style.cssText = 'background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 10px; border-radius: 8px; margin-left: 10px; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center;';
+        cacheBtn.title = 'Clear all caches';
+        cacheBtn.onclick = function() {
+            if (confirm('Clear all caches and force refresh?')) {
+                window.clearAllCaches();
+            }
+        };
+        document.querySelector('.app-header').appendChild(cacheBtn);
       })();
     </script>
 </body>
