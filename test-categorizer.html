@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Categorizer</title>
+</head>
+<body>
+    <h1>Test Categorizer</h1>
+    <input type="text" id="test-input" placeholder="Enter item to categorize">
+    <button id="test-btn">Categorize</button>
+    <div id="result"></div>
+
+    <script type="module">
+        import { GroceryCategorizer } from './categorizer.js';
+        
+        const categorizer = new GroceryCategorizer();
+        const resultDiv = document.getElementById('result');
+        
+        async function init() {
+            console.log('Loading categories...');
+            await categorizer.loadCategories();
+            console.log('Categories loaded:', categorizer.categories);
+            console.log('Testing milk:', categorizer.quickCategorize('mjölk'));
+            console.log('Testing sugar:', categorizer.quickCategorize('socker'));
+        }
+        
+        init();
+        
+        document.getElementById('test-btn').addEventListener('click', async () => {
+            const input = document.getElementById('test-input').value;
+            const result = await categorizer.categorize(input);
+            resultDiv.innerHTML = `
+                <p>Item: ${input}</p>
+                <p>Category: ${result.category}</p>
+                <p>Method: ${result.method}</p>
+                <p>Confidence: ${result.confidence}</p>
+            `;
+        });
+    </script>
+</body>
+</html>

@@ -468,7 +468,7 @@
     </div>
 
     <script src="version.js"></script>
-    <script type="module" src="categorizer.js"></script>
+    <script src="simple-categorizer.js"></script>
     <script>
       (function() {
         const STORAGE_KEY = 'vibe.minimal.v1';
@@ -806,7 +806,7 @@
           
           // Categorize the item
           let category = 'pantry'; // default
-          if (categorizer && categorizerReady) {
+          if (categorizer) {
             try {
               const result = await categorizer.categorize(trimmed);
               category = result.category;
@@ -814,6 +814,8 @@
             } catch (error) {
               console.error('Categorization failed:', error);
             }
+          } else {
+            console.log('Categorizer not available, using default category');
           }
           
           const item = { 
@@ -929,25 +931,11 @@
             // Show loading indicator
             loadingIndicator.style.display = 'block';
             
-            // Initialize categorizer
-            categorizer = new window.GroceryCategorizer();
-            
-            // Listen for progress updates
-            window.addEventListener('llm-progress', (event) => {
-              loadingProgress.textContent = event.detail.text;
-            });
-            
-            // Initialize the model
-            const initialized = await categorizer.initialize();
-            
-            if (initialized) {
-              categorizerReady = true;
-              console.log('Categorizer ready!');
-              announce('AI-kategorisering klar');
-            } else {
-              console.warn('Categorizer initialization failed, using fallback');
-              announce('Använder enkel kategorisering');
-            }
+            // Initialize simple categorizer
+            categorizer = new window.SimpleCategorizer();
+            categorizerReady = true;
+            console.log('Simple categorizer ready');
+            announce('Kategorisering klar');
           } catch (error) {
             console.error('Failed to initialize categorizer:', error);
             announce('Kategorisering inte tillgänglig');
@@ -960,10 +948,8 @@
         // Initial render
         render();
         
-        // Initialize categorizer in background
-        setTimeout(() => {
-          initializeCategorizer().catch(console.error);
-        }, 100);
+        // Initialize categorizer immediately
+        initializeCategorizer().catch(console.error);
         
         // Offline/Online detection
         const offlineBanner = document.getElementById('offline-banner');

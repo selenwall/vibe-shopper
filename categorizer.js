@@ -12,20 +12,35 @@ class GroceryCategorizer {
   async loadCategories() {
     try {
       const response = await fetch('./grocery_categories.json');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
       const data = await response.json();
       this.categories = data.categories;
       this.keywordPatterns = data.rules.keyword_patterns;
+      console.log('Categories loaded successfully:', Object.keys(this.categories).length, 'categories');
       return true;
     } catch (error) {
-      console.error('Failed to load categories:', error);
+      console.error('Failed to load categories from JSON:', error);
+      console.log('Using fallback categories');
       // Fallback categories if JSON fails to load
       this.categories = {
-        dairy: { name: "Mejeri", emoji: "🥛", items: ["mjölk", "ost", "yoghurt", "smör"] },
-        meat_fish: { name: "Kött & Fisk", emoji: "🥩", items: ["kött", "fisk", "kyckling", "lax"] },
-        fruits_vegetables: { name: "Frukt & Grönsaker", emoji: "🥬", items: ["äpple", "banan", "tomat", "gurka"] },
-        pantry: { name: "Skafferi", emoji: "🥫", items: ["mjöl", "socker", "pasta", "ris"] },
-        frozen: { name: "Frysvaror", emoji: "🧊", items: ["glass", "fryst"] },
-        household: { name: "Hushåll", emoji: "🧹", items: ["tvättmedel", "papper", "påse"] }
+        dairy: { name: "Mejeri", emoji: "🥛", items: ["mjölk", "ost", "yoghurt", "smör", "grädde", "fil", "kvarg", "kefir", "crème fraiche"] },
+        meat_fish: { name: "Kött & Fisk", emoji: "🥩", items: ["kött", "fisk", "kyckling", "lax", "korv", "bacon", "skinka", "fläsk", "nöt"] },
+        fruits_vegetables: { name: "Frukt & Grönsaker", emoji: "🥬", items: ["äpple", "banan", "tomat", "gurka", "sallad", "paprika", "lök", "potatis", "morot"] },
+        pantry: { name: "Skafferi", emoji: "🥫", items: ["mjöl", "socker", "pasta", "ris", "salt", "peppar", "olja", "vinäger"] },
+        frozen: { name: "Frysvaror", emoji: "🧊", items: ["glass", "fryst", "frysta", "frys"] },
+        household: { name: "Hushåll", emoji: "🧹", items: ["tvättmedel", "papper", "påse", "diskmedel", "toalettpapper"] }
+      };
+      
+      // Fallback keyword patterns
+      this.keywordPatterns = {
+        dairy: ["mjölk", "ost", "yoghurt", "grädde", "smör"],
+        meat_fish: ["kött", "fisk", "kyckling", "korv", "bacon"],
+        fruits_vegetables: ["frukt", "grönsak", "sallad", "tomat"],
+        pantry: ["mjöl", "socker", "krydd", "sås"],
+        frozen: ["fryst", "frys", "glass"],
+        household: ["tvätt", "disk", "städ", "papper"]
       };
       return false;
     }
@@ -68,11 +83,18 @@ class GroceryCategorizer {
 
   // Quick rule-based categorization
   quickCategorize(item) {
+    if (!this.categories) {
+      console.error('Categories not loaded!');
+      return null;
+    }
+    
     const normalized = item.toLowerCase().trim();
+    console.log(`Quick categorizing: "${normalized}"`);
     
     // Check exact matches first
     for (const [categoryKey, category] of Object.entries(this.categories)) {
-      if (category.items.some(i => i.toLowerCase() === normalized)) {
+      if (category.items && category.items.some(i => i.toLowerCase() === normalized)) {
+        console.log(`Found exact match in ${categoryKey}`);
         return {
           category: categoryKey,
           confidence: 1.0,
@@ -159,9 +181,12 @@ Respond with ONLY the category key (e.g., dairy, meat_fish, fruits_vegetables, e
       return { category: 'pantry', confidence: 0, method: 'default' };
     }
 
+    console.log(`Categorizing: "${item}"`);
+
     // Try quick categorization first
     const quickResult = this.quickCategorize(item);
     if (quickResult && quickResult.confidence >= 0.8) {
+      console.log(`Quick categorization result:`, quickResult);
       return quickResult;
     }
 
@@ -208,3 +233,6 @@ Respond with ONLY the category key (e.g., dairy, meat_fish, fruits_vegetables, e
 
 // Export as global for use in index.html
 window.GroceryCategorizer = GroceryCategorizer;
+
+// Also export as ES module
+export { GroceryCategorizer };
