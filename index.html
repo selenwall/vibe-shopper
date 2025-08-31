@@ -397,21 +397,7 @@
             transform: translateY(0);
         }
         
-        /* PWA install prompt */
-        .install-prompt {
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.95);
-            padding: 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            display: none;
-            align-items: center;
-            justify-content: space-between;
-            z-index: 1000;
-        }
+
         
         /* Spell correction notification */
         .spell-notification {
@@ -440,15 +426,7 @@
             }
         }
         
-        .install-prompt button {
-            background: #CCAFA5;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-        }
+
     </style>
 </head>
 <body>
@@ -488,13 +466,7 @@
     
     <div class="spell-notification" id="spell-notification"></div>
     
-    <div class="install-prompt" id="install-prompt">
-        <div>
-            <strong>Install Vibe Shopper</strong>
-            <div style="font-size: 0.9rem; opacity: 0.8; margin-top: 4px;">Add to your home screen for easy access</div>
-        </div>
-        <button id="install-btn">Install</button>
-    </div>
+
 
     <script src="version.js"></script>
     <script src="simple-categorizer.js"></script>
@@ -508,7 +480,6 @@
 
         let state = loadState();
         let longPressTimer = null;
-        let deferredPrompt = null;
         let touchStartX = 0;
         let touchStartY = 0;
         let currentSwipeEl = null;
@@ -1017,23 +988,7 @@
         // Check initial status
         updateOnlineStatus();
         
-        // PWA Install prompt
-        window.addEventListener('beforeinstallprompt', (e) => {
-          e.preventDefault();
-          deferredPrompt = e;
-          const installPrompt = document.getElementById('install-prompt');
-          installPrompt.style.display = 'flex';
-          
-          document.getElementById('install-btn').addEventListener('click', async () => {
-            installPrompt.style.display = 'none';
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-              announce('App installed successfully');
-            }
-            deferredPrompt = null;
-          });
-        });
+        // PWA Install prompt - removed per user request
         
         // Pull to refresh
         let pullStartY = 0;
