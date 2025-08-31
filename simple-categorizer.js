@@ -1,13 +1,159 @@
 // Simple categorizer that works without WebLLM
 class SimpleCategorizer {
   constructor() {
+    // Common misspellings and variations
+    this.spellCorrections = {
+      // Mejeri
+      "mjök": "mjölk",
+      "mjolk": "mjölk",
+      "mjölken": "mjölk",
+      "mlök": "mjölk",
+      "jogurt": "yoghurt",
+      "yogurt": "yoghurt",
+      "youghurt": "yoghurt",
+      "gradde": "grädde",
+      "gräde": "grädde",
+      "smörr": "smör",
+      "smorr": "smör",
+      "ossst": "ost",
+      
+      // Kött & Fisk
+      "kycling": "kyckling",
+      "kykling": "kyckling",
+      "kötfärs": "köttfärs",
+      "kotfars": "köttfärs",
+      "fläskkött": "fläsk",
+      "flaskkott": "fläsk",
+      "laxfile": "laxfilé",
+      "korvv": "korv",
+      "baacon": "bacon",
+      "bacoon": "bacon",
+      
+      // Frukt & Grönsaker
+      "äple": "äpple",
+      "apple": "äpple",
+      "aplen": "äpple",
+      "bannan": "banan",
+      "bananer": "banan",
+      "tomater": "tomat",
+      "tomatr": "tomat",
+      "gurkor": "gurka",
+      "salad": "sallad",
+      "sallat": "sallad",
+      "paprikka": "paprika",
+      "paprica": "paprika",
+      "lökk": "lök",
+      "morotter": "morot",
+      "morötter": "morot",
+      "potatiss": "potatis",
+      "potatisar": "potatis",
+      
+      // Skafferi
+      "mjoll": "mjöl",
+      "mjol": "mjöl",
+      "sockeer": "socker",
+      "sockr": "socker",
+      "paasta": "pasta",
+      "spagetti": "spaghetti",
+      "spageti": "spaghetti",
+      "riis": "ris",
+      "sallt": "salt",
+      "pepppar": "peppar",
+      "pepar": "peppar",
+      "ollja": "olja",
+      "olivolja": "olja",
+      
+      // Bröd
+      "brödd": "bröd",
+      "brod": "bröd",
+      "knäckebrödd": "knäckebröd",
+      "knäcke": "knäckebröd",
+      "bulllar": "bulle",
+      "bullar": "bulle",
+      "kaakor": "kakor",
+      "kaaka": "kaka",
+      
+      // Drycker
+      "juise": "juice",
+      "juce": "juice",
+      "läskk": "läsk",
+      "lask": "läsk",
+      "kaffe": "kaffe",
+      "kafe": "kaffe",
+      "thee": "te",
+      "öll": "öl",
+      
+      // Hushåll
+      "tvätmedel": "tvättmedel",
+      "tvatmedel": "tvättmedel",
+      "diskmedell": "diskmedel",
+      "toalettpapper": "toalettpapper",
+      "toapapper": "toalettpapper",
+      "hushållspapper": "hushållspapper",
+      "hushålspapper": "hushållspapper",
+      
+      // Pluralformer som singularis
+      "äpplen": "äpple",
+      "päron": "päron",
+      "morötter": "morot",
+      "potatisar": "potatis",
+      "tomater": "tomat",
+      "gurkor": "gurka",
+      "limpor": "limpa",
+      "ostar": "ost",
+      "mjölkar": "mjölk",
+      "bröder": "bröd",
+      
+      // Engelska till svenska
+      "milk": "mjölk",
+      "bread": "bröd",
+      "cheese": "ost",
+      "butter": "smör",
+      "eggs": "ägg",
+      "chicken": "kyckling",
+      "beef": "nötkött",
+      "pork": "fläsk",
+      "fish": "fisk",
+      "salmon": "lax",
+      "apple": "äpple",
+      "banana": "banan",
+      "orange": "apelsin",
+      "tomato": "tomat",
+      "potato": "potatis",
+      "onion": "lök",
+      "carrot": "morot",
+      "sugar": "socker",
+      "flour": "mjöl",
+      "rice": "ris",
+      "pasta": "pasta",
+      "coffee": "kaffe",
+      "tea": "te",
+      "juice": "juice",
+      "water": "vatten",
+      
+      // Mer vanliga felstavningar
+      "äggg": "ägg",
+      "agg": "ägg",
+      "melk": "mjölk",
+      "mölk": "mjölk",
+      "brød": "bröd",
+      "fisk": "fisk",
+      "kylling": "kyckling",
+      "løk": "lök",
+      "luk": "lök",
+      "gulrot": "morot",
+      "eple": "äpple",
+      "appelsin": "apelsin",
+      "sukker": "socker"
+    };
+    
     // Hardcoded categories for reliable categorization
     this.categories = {
       dairy: { 
         name: "Mejeri", 
         emoji: "🥛", 
-        items: ["mjölk", "mellanmjölk", "lättmjölk", "standardmjölk", "ost", "yoghurt", "smör", "grädde", "fil", "kvarg", "kefir", "crème fraiche", "smetana", "cottage cheese"],
-        keywords: ["mjölk", "ost", "yoghurt", "grädde", "smör", "fil"]
+        items: ["mjölk", "mellanmjölk", "lättmjölk", "standardmjölk", "ost", "yoghurt", "smör", "grädde", "fil", "kvarg", "kefir", "crème fraiche", "smetana", "cottage cheese", "ägg"],
+        keywords: ["mjölk", "ost", "yoghurt", "grädde", "smör", "fil", "ägg"]
       },
       meat_fish: { 
         name: "Kött & Fisk", 
@@ -54,12 +200,40 @@ class SimpleCategorizer {
     };
   }
 
+  // Spell correction method
+  correctSpelling(word) {
+    const normalized = word.toLowerCase().trim();
+    
+    // Check if it needs correction
+    if (this.spellCorrections[normalized]) {
+      return {
+        corrected: this.spellCorrections[normalized],
+        original: word,
+        wasCorrect: false
+      };
+    }
+    
+    // Check for common typos with Levenshtein distance for simple cases
+    // For now, just return as-is if no exact match in corrections
+    return {
+      corrected: word,
+      original: word,
+      wasCorrect: true
+    };
+  }
+
   categorize(item) {
     if (!item || typeof item !== 'string') {
       return { category: 'pantry', confidence: 0, method: 'default' };
     }
 
-    const normalized = item.toLowerCase().trim();
+    // First, try to correct spelling
+    const spellCheck = this.correctSpelling(item);
+    const normalized = spellCheck.corrected.toLowerCase().trim();
+    
+    if (!spellCheck.wasCorrect) {
+      console.log(`Rättstavning: "${item}" → "${spellCheck.corrected}"`);
+    }
     
     // Check exact matches
     for (const [categoryKey, category] of Object.entries(this.categories)) {
@@ -67,7 +241,8 @@ class SimpleCategorizer {
         return {
           category: categoryKey,
           confidence: 1.0,
-          method: 'exact'
+          method: 'exact',
+          correctedText: spellCheck.wasCorrect ? null : spellCheck.corrected
         };
       }
     }
@@ -79,7 +254,8 @@ class SimpleCategorizer {
           return {
             category: categoryKey,
             confidence: 0.8,
-            method: 'keyword'
+            method: 'keyword',
+            correctedText: spellCheck.wasCorrect ? null : spellCheck.corrected
           };
         }
       }
@@ -93,14 +269,20 @@ class SimpleCategorizer {
           return {
             category: categoryKey,
             confidence: 0.6,
-            method: 'partial'
+            method: 'partial',
+            correctedText: spellCheck.wasCorrect ? null : spellCheck.corrected
           };
         }
       }
     }
     
     // Default to pantry
-    return { category: 'pantry', confidence: 0.1, method: 'default' };
+    return { 
+      category: 'pantry', 
+      confidence: 0.1, 
+      method: 'default',
+      correctedText: spellCheck.wasCorrect ? null : spellCheck.corrected
+    };
   }
 
   getCategoryInfo(categoryKey) {

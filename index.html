@@ -413,6 +413,33 @@
             z-index: 1000;
         }
         
+        /* Spell correction notification */
+        .spell-notification {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.95);
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 1001;
+            font-size: 0.9rem;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateX(-50%) translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+        
         .install-prompt button {
             background: #CCAFA5;
             color: white;
@@ -458,6 +485,8 @@
     <div class="offline-banner" id="offline-banner">
         <span>📵 You're offline - changes will be saved locally</span>
     </div>
+    
+    <div class="spell-notification" id="spell-notification"></div>
     
     <div class="install-prompt" id="install-prompt">
         <div>
@@ -818,9 +847,12 @@
             console.log('Categorizer not available, using default category');
           }
           
+          // Use corrected text if spelling was corrected
+          const finalText = result.correctedText || trimmed;
+          
           const item = { 
             id: 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8), 
-            text: trimmed, 
+            text: finalText, 
             category: category,
             completed: false 
           };
@@ -828,7 +860,22 @@
           saveState();
           render(); // Re-render to show in correct category
           updateProgress();
-          announce(`${trimmed} added to ${categorizer?.getCategoryInfo(category)?.name || 'list'}`);
+          
+          // Announce with spell correction info if applicable
+          if (result.correctedText) {
+            // Show spell correction notification
+            const notification = document.getElementById('spell-notification');
+            notification.innerHTML = `✏️ "${trimmed}" → "${finalText}"`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+              notification.style.display = 'none';
+            }, 3000);
+            
+            announce(`"${trimmed}" rättstavat till "${finalText}" och lagt till i ${categorizer?.getCategoryInfo(category)?.name || 'listan'}`);
+          } else {
+            announce(`${finalText} added to ${categorizer?.getCategoryInfo(category)?.name || 'list'}`);
+          }
         }
 
         function render() {
