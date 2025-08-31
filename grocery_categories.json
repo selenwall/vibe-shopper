@@ -1,0 +1,263 @@
+{
+  "categories": {
+    "dairy": {
+      "name": "Mejeri",
+      "emoji": "🥛",
+      "items": [
+        "mjölk", "standardmjölk", "lättmjölk", "mellanmjölk", "laktosfri mjölk", "havremjölk", "sojamjölk", "mandelmjölk",
+        "yoghurt", "grekisk yoghurt", "turkisk yoghurt", "naturell yoghurt", "vaniljyoghurt", "fruktjoghurt", "kvarg",
+        "grädde", "vispgrädde", "matlagningsgrädde", "crème fraiche", "smetana", "gräddfil", "filmjölk", "kefir",
+        "smör", "normalsaltat smör", "osaltat smör", "laktosfritt smör", "margarin", "matfettsblandning",
+        "ost", "hårdost", "präst", "grevé", "edamer", "gouda", "herrgård", "västerbotten", "parmesan", "grana padano",
+        "mozzarella", "fetaost", "halloumi", "chèvre", "brie", "camembert", "gorgonzola", "ädelost",
+        "cottage cheese", "kesella", "ricotta", "mascarpone", "philadelphia", "mjukost", "smältost"
+      ]
+    },
+    "bread_bakery": {
+      "name": "Bröd & Bakverk",
+      "emoji": "🥖",
+      "items": [
+        "bröd", "limpa", "råglimpa", "fullkornsbröd", "grovt bröd", "ljust bröd", "formbröd", "rostbröd", "toast",
+        "baguette", "ciabatta", "surdegsbröd", "knäckebröd", "hårt bröd", "skorpa", "tunnbröd", "polarbröd",
+        "pitabröd", "tortilla", "wrap", "naan", "chapati", "rieska",
+        "fralla", "korvbröd", "hamburgerbröd", "hot dog bröd", "brödbullar", "frukostfrallor",
+        "croissant", "pain au chocolat", "wienerbröd", "kanelbulle", "kardemummabulle", "vaniljbulle",
+        "muffins", "scones", "tekakor", "småkakor", "cookies", "biskvier", "maränger",
+        "tårta", "prinsesstårta", "kladdkaka", "sockerkaka", "mjuk pepparkaka", "morotskaka"
+      ]
+    },
+    "meat_fish": {
+      "name": "Kött & Fisk",
+      "emoji": "🥩",
+      "items": [
+        "nötfärs", "blandfärs", "fläskfärs", "köttfärs", "lammfärs", "kycklingfärs",
+        "biff", "ryggbiff", "entrecote", "fläskfilé", "fläskkotlett", "revbensspjäll", "fläskkarré",
+        "köttbullar", "pannbiff", "wallenbergare", "köttfärslimpa",
+        "korv", "falukorv", "prinskorv", "bratwurst", "chorizo", "kabanos", "salami", "pepperoni",
+        "bacon", "fläsk", "rimmat fläsk", "kassler", "skinka", "julskinka", "rökt skinka", "prosciutto",
+        "kyckling", "kycklingbröst", "kycklinglår", "kycklingvingar", "hel kyckling", "kycklingsfilé",
+        "kalkon", "kalkonbröst", "ankbröst", "anka", "lamm", "lammkotlett", "lammstek", "lammracks",
+        "lax", "laxfilé", "gravad lax", "rökt lax", "varmrökt lax", "kallrökt lax",
+        "torsk", "torskfilé", "kolja", "sej", "alaska pollock", "pangasius", "tilapia",
+        "makrill", "sill", "inlagd sill", "strömming", "ansjovis", "sardiner", "tonfisk", "tonfisk i olja",
+        "räkor", "scampi", "kräftor", "hummer", "krabba", "musslor", "ostron",
+        "fiskpinnar", "fiskbullar", "fiskgratäng", "laxpudding"
+      ]
+    },
+    "fruits_vegetables": {
+      "name": "Frukt & Grönsaker",
+      "emoji": "🥬",
+      "items": [
+        "äpple", "päron", "banan", "apelsin", "clementin", "mandarin", "grapefrukt", "citron", "lime",
+        "vindruvor", "gröna druvor", "röda druvor", "jordgubbar", "hallon", "blåbär", "björnbär", "lingon",
+        "mango", "ananas", "papaya", "passionsfrukt", "kiwi", "dragon fruit", "lychee", "rambutan",
+        "melon", "vattenmelon", "honungsmelon", "galiamelon", "cantaloupe",
+        "avokado", "tomat", "körsbärstomater", "plommontomater", "kvisttomater",
+        "gurka", "slanggurka", "salladsgurka", "inlagd gurka",
+        "paprika", "röd paprika", "gul paprika", "grön paprika", "spetspaprika", "chili", "jalapeño",
+        "lök", "gul lök", "rödlök", "salladslök", "vårslök", "purjolök", "vitlök", "schalottenlök",
+        "potatis", "färskpotatis", "bakpotatis", "sötpotatis", "kålrot", "rotselleri", "palsternacka",
+        "morot", "morötter", "babymorötter", "rädisor", "rödbetor", "rödbeta",
+        "sallad", "isbergssallad", "romansallad", "rucola", "spenat", "babyspenat", "mangold",
+        "kål", "vitkål", "rödkål", "savoykål", "spetskål", "grönkål", "blomkål", "broccoli", "romanesco",
+        "bönor", "haricots verts", "brytbönor", "vaxbönor", "edamame", "sockerärtor", "ärtor", "gröna ärtor",
+        "majs", "majskolvar", "baby corn", "zucchini", "aubergine", "pumpa", "butternut squash",
+        "svamp", "champinjoner", "portabello", "shiitake", "kantareller", "karljohan"
+      ]
+    },
+    "pantry": {
+      "name": "Skafferi & Torrvaror",
+      "emoji": "🥫",
+      "items": [
+        "mjöl", "vetemjöl", "rågsikt", "grovt rågmjöl", "grahamsmjöl", "dinkelmjöl", "havremjöl", "mandelmjöl",
+        "socker", "strösocker", "florsocker", "farinsocker", "muscovadosocker", "kokossocker", "rörsocker",
+        "salt", "havssalt", "flingsalt", "grovt salt", "himalayasalt", "sellerisalt",
+        "pasta", "spaghetti", "penne", "fusilli", "farfalle", "rigatoni", "lasagneplattor", "makaroner",
+        "ris", "jasminris", "basmatiris", "fullkornsris", "råris", "risotto ris", "sushiris", "vildris",
+        "quinoa", "bulgur", "couscous", "hirs", "bovete", "amaranth", "linfrön", "chiafrön",
+        "havregryn", "rågryn", "korngryn", "müsli", "granola", "cornflakes", "special k", "weetabix",
+        "nötter", "mandel", "valnötter", "cashewnötter", "paranötter", "macadamianötter", "pistagenötter",
+        "russin", "aprikoser", "dadlar", "fikon", "tranbär", "katrinplommon",
+        "olja", "olivolja", "rapsolja", "solrosolja", "kokosolja", "sesamolja", "valnötsolja",
+        "vinäger", "vitvinsvinäger", "rödvinsvinäger", "balsamvinäger", "äppelcidervinäger", "risvinäger",
+        "konserver", "krossade tomater", "tomatsås", "tomatpuré", "kokosmjölk", "kikärtor", "kidneybönor",
+        "svarta bönor", "vita bönor", "linser", "röda linser", "gröna linser", "majs på burk",
+        "sylt", "jordgubbssylt", "hallonsylt", "blåbärssylt", "apelsinmarmelad", "lingonsylt", "drottningsylt",
+        "honung", "lönnsirap", "agavesirap", "rissirap", "mörk sirap", "ljus sirap",
+        "kakao", "choklad", "mörk choklad", "mjölkchoklad", "vit choklad", "chokladknappar",
+        "kryddor", "svartpeppar", "vitpeppar", "paprikapulver", "chiliflakes", "curry", "gurkmeja",
+        "kanel", "kardemumma", "ingefära", "nejlika", "muskot", "saffran", "vanilj", "vaniljsocker",
+        "basilika", "oregano", "timjan", "rosmarin", "salvia", "dragon", "persilja", "dill"
+      ]
+    },
+    "frozen": {
+      "name": "Frysvaror",
+      "emoji": "🧊",
+      "items": [
+        "fryst fisk", "fryst lax", "fryst torsk", "fiskpinnar", "fiskgratäng", "panerad fisk",
+        "fryst kött", "frysta köttbullar", "fryst kyckling", "kycklingnuggets", "frysta hamburgare",
+        "glass", "vaniljglass", "chokladglass", "jordgubbsglass", "glasspinnar", "glasstrutar", "sorbet",
+        "frysta grönsaker", "fryst broccoli", "fryst blomkål", "frysta morötter", "wokgrönsaker", "fryst spenat",
+        "fryst majs", "frysta ärtor", "fryst haricots verts", "edamame", "fryst paprika",
+        "frysta bär", "frysta jordgubbar", "frysta hallon", "frysta blåbär", "fryst mango", "bärmix",
+        "frysta frukter", "fryst ananas", "fryst melon", "smoothiemix", "exotisk fruktmix",
+        "fryst bröd", "fryst pizza", "pizzadeg", "fryst pajdeg", "smördeg", "filodeg", "fryst baguette",
+        "färdigrätter", "lasagne", "fiskgratäng", "köttfärssås", "fryst paj", "vårrullar", "dumplings",
+        "pommes frites", "klyftpotatis", "potatismos", "hash browns", "potatiskroketter",
+        "frysta kakor", "fryst tårta", "glasstårta", "fryst cheesecake"
+      ]
+    },
+    "beverages": {
+      "name": "Drycker",
+      "emoji": "🥤",
+      "items": [
+        "vatten", "mineralvatten", "kolsyrat vatten", "smaksatt vatten", "citronvatten", "sportdryck",
+        "juice", "apelsinjuice", "äppeljuice", "grapefruktjuice", "anananjuice", "multivitaminjuice",
+        "saft", "hallonsaft", "fläderssaft", "svartvinbärssaft", "lingonsaft", "blandsaft",
+        "läsk", "cola", "cola zero", "sprite", "fanta", "pepsi", "7up", "mountain dew", "tonic", "ginger ale",
+        "energidryck", "red bull", "monster", "battery", "burn", "nocco",
+        "te", "svart te", "grönt te", "rooibos", "kamomillte", "mynta te", "chai", "earl grey",
+        "kaffe", "bryggkaffe", "espresso", "kaffebönor", "malet kaffe", "snabbkaffe", "koffeinfritt kaffe",
+        "öl", "lager", "pilsner", "ale", "ipa", "stout", "alkoholfri öl", "lättöl", "folköl",
+        "vin", "rödvin", "vitt vin", "rosé", "mousserande vin", "champagne", "cava", "prosecco",
+        "cider", "äppelcider", "päroncider", "alkoholfri cider",
+        "mjölkdrycker", "chokladmjölk", "havredryck", "sojadryck", "mandeldryck", "risdryck", "kokosdrink"
+      ]
+    },
+    "snacks_candy": {
+      "name": "Snacks & Godis",
+      "emoji": "🍿",
+      "items": [
+        "chips", "potatischips", "sourcream chips", "lättsaltade chips", "grillchips", "dillchips", "tortillachips",
+        "popcorn", "mikropopcorn", "smöpopcorn", "saltade popcorn", "söta popcorn", "ostbågar", "jordnötsringar",
+        "nötter", "salta nötter", "cashewnötter", "jordnötter", "pistagenötter", "nötmix", "studentblandning",
+        "godis", "lösgodis", "choklad", "mjölkchoklad", "mörk choklad", "chokladpraliner", "chokladkaka",
+        "gelehallon", "gott & blandat", "ahlgrens bilar", "kexchoklad", "twix", "snickers", "mars", "bounty",
+        "lakrits", "salt lakrits", "djungelvrål", "lakritsbåtar", "salta fiskar", "lakritssnöre",
+        "tuggummi", "minttuggummi", "frukttuggummi", "bubbelgum", "pastiller", "halstabletter", "mintpastiller",
+        "kakor", "digestive", "mariekex", "ballerina", "singoalla", "havrekakor", "riskex", "kex choklad",
+        "kräckers", "tuc", "ritz", "vattenkex", "ostbrickor", "knäckebröd med smak",
+        "fruktsnacks", "fruktpuré", "torkad frukt", "bananships", "äppelringar", "fruktbitar"
+      ]
+    },
+    "household": {
+      "name": "Hushållsartiklar",
+      "emoji": "🧹",
+      "items": [
+        "toalettpapper", "hushållspapper", "servetter", "näsdukar", "våtservetter", "ansiktsservetter",
+        "diskmedel", "maskindiskmedel", "disktabletter", "sköljmedel", "diskborste", "disksvamp", "disktrasa",
+        "tvättmedel", "sköljmedel", "fläckborttagning", "blekmedel", "tvättsudd", "tvättpåse",
+        "rengöringsmedel", "allrengöring", "badrumsspray", "köksspray", "fönsterputs", "golvmopp", "dammsugarpåsar",
+        "plastpåsar", "fryspåsar", "soppåsar", "matlådor", "plastfolie", "aluminiumfolie", "bakplåtspapper",
+        "stearinljus", "värmeljus", "tändstickor", "tändare", "batterier", "glödlampor", "säkringar",
+        "tandkräm", "tandborste", "munskölj", "tandtråd", "tandstickor",
+        "schampo", "balsam", "duschkräm", "tvål", "handtvål", "deodorant", "raklödder", "rakhyvel",
+        "papperstallrikar", "pappersmuggar", "plastbestick", "sugrör", "cocktailpinnar"
+      ]
+    },
+    "baby_kids": {
+      "name": "Barn & Baby",
+      "emoji": "👶",
+      "items": [
+        "blöjor", "nyföddhetsblöjor", "storlek 1", "storlek 2", "storlek 3", "storlek 4", "storlek 5", "nattblöjor",
+        "våtservetter", "babyvåtservetter", "känslig hud servetter", "vattenbaserade servetter",
+        "barnmat", "fruktpuré", "grönsakspuré", "köttpuré", "barnvälling", "gröt", "barngröt", "kvällsgröt",
+        "modersmjölksersättning", "tillskottsnäring", "formula", "aptamil", "nan", "semper",
+        "nappflaska", "napp", "nappar", "silikonnappar", "latexnappar", "nappkedja",
+        "babyschampo", "badolja", "babykräm", "zinkselva", "barnsolkräm", "barntandkräm",
+        "barnmellanmål", "fruktpuré klämpåse", "smoothie barn", "barnkex", "riskex barn", "maissticks"
+      ]
+    },
+    "health_pharmacy": {
+      "name": "Hälsa & Apotek",
+      "emoji": "💊",
+      "items": [
+        "huvudvärkstabletter", "paracetamol", "ibuprofen", "aspirin", "värktabletter", "febernedsättande",
+        "förkylningsmedicin", "hostmedicin", "halstabletter", "nässpray", "ögondroppar",
+        "vitaminer", "multivitamin", "c-vitamin", "d-vitamin", "b12", "folsyra", "järn", "kalcium", "magnesium",
+        "plåster", "kompresser", "elastisk binda", "sporttejp", "skavsårsplåster", "sårtvätt",
+        "handsprit", "munskydd", "engångshandskar", "termometer", "blodtrycksmätare",
+        "graviditetstest", "ägglossningstest", "kondomer", "glidmedel", "bindor", "tamponger", "trosskydd",
+        "kosttillskott", "proteinpulver", "kreatin", "omega-3", "probiotika", "fibertillskott"
+      ]
+    },
+    "condiments_sauces": {
+      "name": "Kryddor & Såser",
+      "emoji": "🧂",
+      "items": [
+        "ketchup", "senap", "majonnäs", "remouladsås", "bearnaisesås", "hollandaisesås", "aioli",
+        "soja", "teriyakisås", "sweet chili sås", "sriracha", "tabasco", "worcestershiresås", "fisksås",
+        "pesto", "grön pesto", "röd pesto", "tapenade", "hummus", "tzatziki", "guacamole",
+        "grillsås", "bbq-sås", "hamburgerdressing", "thousand island", "caesardressing", "vinägrett",
+        "tomatpuré", "tomatsås", "pastasås", "bolognese", "carbonara", "arrabiata", "bechamelsås",
+        "currysås", "tikka masala", "korma", "kokossås", "sataysås", "jordnötssås",
+        "buljong", "köttbuljong", "kycklingbuljong", "grönsaksbuljong", "fond", "demi-glace",
+        "gräddsås", "pepparsås", "svampsås", "rödvinssås", "citronsås", "vitlökssås"
+      ]
+    },
+    "baking": {
+      "name": "Bakning",
+      "emoji": "🧁",
+      "items": [
+        "bakpulver", "bikarbonat", "hjorthornssalt", "jäst", "torrjäst", "färsk jäst", "surdeg",
+        "vaniljsocker", "vaniljextrakt", "vaniljstång", "vaniljessens", "mandelextrakt", "romessens",
+        "ägg", "äggvita", "äggula", "pastöriserade ägg", "frigående ägg", "ekologiska ägg",
+        "baksmör", "margarin bakning", "kokosfett", "shortening", "smörflavour",
+        "chokladknappar", "chokladbitar", "kakao", "kakaonibs", "vit choklad bitar", "chokladströssel",
+        "strössel", "nonpareils", "pärlsocker", "mandelspån", "kokos", "riven kokos",
+        "marsipan", "fondant", "glasyr", "kristyr", "gelatin", "gelatinblad", "agar agar",
+        "fruktfyllning", "sylt bakning", "lemon curd", "nutella", "dulce de leche", "karamellsås",
+        "mandelmjöl", "kokosmjöl", "potatismjöl", "majsstärkelse", "fiberhusk", "graham mjöl",
+        "mörk sirap", "ljus sirap", "honung bakning", "melass", "maltextrakt",
+        "tårtbottnar", "maränger", "petit choux", "ladyfingers", "digestivekross"
+      ]
+    },
+    "international": {
+      "name": "Internationellt",
+      "emoji": "🌍",
+      "items": [
+        "tortilla", "tacoskal", "nachochips", "salsa", "jalapeños", "refried beans", "guacamole mix",
+        "sushi ris", "nori", "wasabi", "ingefära sushi", "sojasås", "miso", "dashi", "mirin", "sake",
+        "pasta italiana", "parmesan", "pecorino", "mascarpone", "gorgonzola", "pancetta", "salami milano",
+        "baguette", "croissant", "brie", "camembert", "foie gras", "confit", "dijonsenap",
+        "paella ris", "chorizo", "manchego", "serrano skinka", "oliver", "kapris", "saffran",
+        "pita bröd", "hummus", "tahini", "falafel mix", "halloumi", "fetaost", "dolma", "baba ganoush",
+        "curry paste", "kokosgrädde", "tamarind", "limeblad", "citrongräs", "galangal", "thaibasilika",
+        "kimchi", "gochujang", "doenjang", "glass noodles", "sesamolja", "perillablad",
+        "injera", "berbere", "harissa", "ras el hanout", "merguez", "couscous", "bulgur", "freekeh",
+        "empanada deg", "chimichurri", "dulce de leche", "yerba mate", "cassava", "platanos"
+      ]
+    },
+    "pet_supplies": {
+      "name": "Djurmat & Tillbehör",
+      "emoji": "🐾",
+      "items": [
+        "hundmat", "torrfoder hund", "våtfoder hund", "hundgodis", "hundben", "tuggben", "hundkex",
+        "kattmat", "torrfoder katt", "våtfoder katt", "kattgodis", "kattgräs", "kattmynta",
+        "fågelfrö", "solrosfrö", "jordnötter fågel", "talgbollar", "fågelmat vinter",
+        "fiskmat", "flingfoder", "granulatfoder", "frysfoder fisk", "akvariefoder",
+        "smådjursfoder", "kaninmat", "marsvinsmat", "hamstermat", "höpellets", "gnagarpinnar",
+        "kattsand", "klumpbildande", "kiselgel", "träpellets", "kattsandspade", "luktneutraliserare",
+        "hundschampo", "kattschampo", "pälsborste", "klotrimmer", "fästingmedel", "loppmedel"
+      ]
+    }
+  },
+  "rules": {
+    "keyword_patterns": {
+      "dairy": ["mjölk", "yoghurt", "grädde", "smör", "ost", "kvarg", "kefir", "crème", "fraiche"],
+      "meat": ["kött", "fläsk", "nöt", "lamm", "kyckling", "kalkon", "bacon", "korv", "skinka"],
+      "fish": ["fisk", "lax", "torsk", "sill", "makrill", "räkor", "skaldjur", "tonfisk"],
+      "bread": ["bröd", "limpa", "baguette", "fralla", "bulle", "kaka", "tårta", "croissant"],
+      "frozen": ["fryst", "frys", "glass", "sorbet"],
+      "baby": ["blöja", "barnmat", "välling", "napp", "baby"],
+      "household": ["papper", "påse", "diskmedel", "tvättmedel", "rengöring", "ljus", "batteri"],
+      "beverages": ["dryck", "juice", "saft", "läsk", "öl", "vin", "kaffe", "te", "vatten"]
+    },
+    "priority_rules": [
+      "Om produkten innehåller 'fryst' eller 'frys', kategorisera som frysvaror",
+      "Om produkten är en dryck, kategorisera som drycker",
+      "Om produkten är för barn/baby, kategorisera som barn & baby",
+      "Om produkten inte är mat, kontrollera hushållsartiklar först"
+    ]
+  }
+}
