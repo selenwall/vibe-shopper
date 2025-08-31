@@ -2,11 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Vibe Shopper - Modern Minimalist v1.0.1</title>
+    <title>Vibe Shopper - AI Edition v2.0.0</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#CCAFA5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Vibe">
+    <link rel="manifest" href="manifest.webmanifest">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%23CCAFA5' rx='40'/%3E%3Ctext x='90' y='110' font-family='-apple-system,system-ui' font-size='80' font-weight='600' text-anchor='middle' fill='white'%3EV%3C/text%3E%3C/svg%3E">
     <style>
         * {
             margin: 0;
@@ -17,15 +27,18 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #EDE7DC 0%, #DCD2CC 50%, #CCAFA5 100%);
-            height: 100vh;
+            min-height: 100vh;
             padding: 20px;
+            padding-bottom: env(safe-area-inset-bottom, 20px);
             color: #444;
+            -webkit-text-size-adjust: 100%;
+            overscroll-behavior: contain;
         }
         
         .app-container {
             max-width: 400px;
             margin: 0 auto;
-            height: 100%;
+            min-height: calc(100vh - 40px - env(safe-area-inset-bottom, 0px));
             display: flex;
             flex-direction: column;
         }
@@ -67,7 +80,7 @@
             width: 100%;
             background: rgba(255,255,255,0.5);
             border: none;
-            padding: 12px;
+            padding: 16px;
             border-radius: 10px;
             color: #444;
             font-size: 16px;
@@ -94,6 +107,136 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .category-emoji {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+        
+        .category-count {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            font-weight: normal;
+            margin-left: auto;
+        }
+        
+        .empty-category {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        /* Category filter buttons */
+        .category-filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            padding: 10px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 12px;
+        }
+        
+        .filter-btn {
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.4);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .filter-btn:hover {
+            background: rgba(255,255,255,0.6);
+        }
+        
+        .filter-btn.active {
+            background: #CCAFA5;
+            color: white;
+            border-color: #CCAFA5;
+        }
+        
+        .filter-btn .count {
+            font-size: 0.75rem;
+            opacity: 0.8;
+            background: rgba(0,0,0,0.1);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        
+        /* Recategorize menu */
+        .recategorize-menu {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.95);
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 4px;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .recategorize-btn {
+            width: 30px;
+            height: 30px;
+            background: rgba(204,175,165,0.2);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        
+        .recategorize-btn:hover {
+            background: rgba(204,175,165,0.4);
+        }
+        
+        .category-menu {
+            position: absolute;
+            right: 40px;
+            top: -10px;
+            background: white;
+            border: 1px solid rgba(0,0,0,0.1);
+            border-radius: 8px;
+            padding: 8px;
+            display: none;
+            min-width: 200px;
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+        
+        .category-menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .category-menu-item:hover {
+            background: rgba(204,175,165,0.2);
+        }
+        
+        .category-menu-item.current {
+            background: rgba(204,175,165,0.3);
+            font-weight: 600;
         }
         
         .item {
@@ -106,10 +249,18 @@
             justify-content: space-between;
             transition: all 0.3s ease;
             border: 1px solid rgba(255,255,255,0.2);
+            touch-action: pan-y;
+            position: relative;
+            overflow: hidden;
         }
         
         .item:hover {
             background: rgba(255,255,255,0.6);
+        }
+        
+        .item:active {
+            background: rgba(255,255,255,0.5);
+            transform: scale(0.99);
         }
         
         .item-content {
@@ -119,8 +270,8 @@
         }
         
         .checkbox {
-            width: 20px;
-            height: 20px;
+            width: 44px;
+            height: 44px;
             border: 2px solid #CCAFA5;
             border-radius: 50%;
             cursor: pointer;
@@ -129,17 +280,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .checkbox.checked {
             background: #CCAFA5;
             color: white;
-            font-size: 12px;
+            font-size: 20px;
             font-weight: bold;
         }
         
+        .checkbox:active {
+            transform: scale(0.95);
+            background: rgba(204,175,165,0.2);
+        }
+        
         .item-text {
-            font-size: 1rem;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            flex: 1;
         }
         
         .item-text.completed {
@@ -148,12 +307,131 @@
         }
         
         .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        
+        /* Mobile-specific improvements */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+                padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px));
+            }
+            
+            .app-title {
+                font-size: 1.6rem;
+            }
+            
+            .stats {
+                padding: 12px;
+            }
+            
+            .item {
+                transition: transform 0.2s ease;
+            }
+            
+            .item.swiping {
+                transition: none;
+            }
+            
+            .item-content {
+                transition: transform 0.2s ease;
+                will-change: transform;
+            }
+            
+            .delete-hint {
+                position: absolute;
+                right: 0;
+                top: 0;
+                bottom: 0;
+                width: 80px;
+                background: #e74c3c;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+                opacity: 0;
+                transition: opacity 0.2s ease;
+            }
+            
+            .item.show-delete .delete-hint {
+                opacity: 1;
+            }
+        }
+        
+        /* Reduce motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
+        
+        /* Performance optimizations for mobile */
+        @media (max-width: 768px) and (hover: none) {
+            .item {
+                will-change: auto;
+            }
+            
+            body {
+                /* Simpler gradient for better performance */
+                background: #EDE7DC;
+            }
+        }
+        
+        /* Offline indicator */
+        .offline-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #e74c3c;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+        
+        .offline-banner.show {
+            transform: translateY(0);
+        }
+        
+        /* PWA install prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.95);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 1000;
+        }
+        
+        .install-prompt button {
+            background: #CCAFA5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
         <div class="app-header">
             <div class="app-title">VIBE</div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button id="stats-btn" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 8px;" title="Visa statistik">📊</button>
+                <button id="export-btn" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 8px;" title="Exportera lista">📤</button>
+            </div>
         </div>
         
         <div class="stats">
@@ -166,16 +444,31 @@
         </div>
         
         <div class="shopping-list" id="shopping-list" aria-label="Shopping list">
-            <div class="category-section" id="main-category">
-                <div class="category-header">Items</div>
-                <div id="items"></div>
+            <div id="loading-indicator" style="display: none; text-align: center; padding: 20px; color: #666;">
+                <div style="font-size: 1.2rem;">🤖 Laddar AI-modell...</div>
+                <div id="loading-progress" style="font-size: 0.9rem; margin-top: 10px;"></div>
             </div>
+            <div id="category-filters" class="category-filters" style="display: none;"></div>
+            <div id="categories-container"></div>
         </div>
     </div>
 
     <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    
+    <div class="offline-banner" id="offline-banner">
+        <span>📵 You're offline - changes will be saved locally</span>
+    </div>
+    
+    <div class="install-prompt" id="install-prompt">
+        <div>
+            <strong>Install Vibe Shopper</strong>
+            <div style="font-size: 0.9rem; opacity: 0.8; margin-top: 4px;">Add to your home screen for easy access</div>
+        </div>
+        <button id="install-btn">Install</button>
+    </div>
 
     <script src="version.js"></script>
+    <script type="module" src="categorizer.js"></script>
     <script>
       (function() {
         const STORAGE_KEY = 'vibe.minimal.v1';
@@ -186,23 +479,44 @@
 
         let state = loadState();
         let longPressTimer = null;
+        let deferredPrompt = null;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let currentSwipeEl = null;
+        let categorizer = null;
+        let categorizerReady = false;
+        let activeFilters = new Set();
+        let showFilters = false;
 
-        // Global drag handlers (once)
-        itemsContainer.addEventListener('dragover', (e) => {
+        // Global drag handlers for categories
+        document.addEventListener('dragover', (e) => {
+          if (!e.dataTransfer?.types.includes('text/plain')) return;
           e.preventDefault();
           const draggingId = e.dataTransfer?.getData('text/plain');
-          const draggingEl = draggingId ? itemsContainer.querySelector(`[data-id="${draggingId}"]`) : null;
-          const target = (e.target.closest && e.target.closest('.item')) || null;
+          const draggingEl = draggingId ? document.querySelector(`[data-id="${draggingId}"]`) : null;
+          const target = e.target.closest('.item');
           if (!draggingEl || !target || draggingEl === target) return;
           const rect = target.getBoundingClientRect();
           const isBefore = e.clientY < rect.top + rect.height / 2;
-          if (isBefore) itemsContainer.insertBefore(draggingEl, target);
-          else itemsContainer.insertBefore(draggingEl, target.nextSibling);
+          target.parentNode.insertBefore(draggingEl, isBefore ? target : target.nextSibling);
         });
-        itemsContainer.addEventListener('drop', persistOrder);
+        document.addEventListener('drop', (e) => {
+          e.preventDefault();
+          persistOrder();
+        });
 
         function loadState() {
-          try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { items: [] }; }
+          try { 
+            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { items: [] };
+            // Migrate old items without categories
+            if (saved.items && saved.items.length > 0 && !saved.items[0].category) {
+              saved.items = saved.items.map(item => ({
+                ...item,
+                category: 'pantry' // Default category
+              }));
+            }
+            return saved;
+          }
           catch { return { items: [] }; }
         }
         function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
@@ -212,6 +526,50 @@
           const total = state.items.length;
           const done = state.items.filter(i => i.completed).length;
           progressEl.textContent = `${done} of ${total} item${total === 1 ? '' : 's'}`;
+        }
+        
+        function renderFilters(itemsByCategory) {
+          const filtersContainer = document.getElementById('category-filters');
+          filtersContainer.innerHTML = '';
+          
+          // Add "Show All" button
+          const allBtn = document.createElement('button');
+          allBtn.className = 'filter-btn';
+          if (activeFilters.size === 0) allBtn.classList.add('active');
+          allBtn.innerHTML = `<span>Alla</span><span class="count">${state.items.length}</span>`;
+          allBtn.addEventListener('click', () => {
+            activeFilters.clear();
+            render();
+          });
+          filtersContainer.appendChild(allBtn);
+          
+          // Add category filter buttons
+          Object.entries(itemsByCategory).forEach(([categoryKey, items]) => {
+            const categoryInfo = categorizer?.getCategoryInfo(categoryKey) || { name: categoryKey, emoji: '📦' };
+            
+            const filterBtn = document.createElement('button');
+            filterBtn.className = 'filter-btn';
+            if (activeFilters.has(categoryKey)) filterBtn.classList.add('active');
+            filterBtn.innerHTML = `<span>${categoryInfo.emoji}</span><span class="count">${items.length}</span>`;
+            filterBtn.title = categoryInfo.name;
+            
+            filterBtn.addEventListener('click', () => {
+              if (activeFilters.has(categoryKey)) {
+                activeFilters.delete(categoryKey);
+              } else {
+                if (activeFilters.size === 0) {
+                  // First filter, add only this one
+                  activeFilters.add(categoryKey);
+                } else {
+                  // Toggle filter
+                  activeFilters.add(categoryKey);
+                }
+              }
+              render();
+            });
+            
+            filtersContainer.appendChild(filterBtn);
+          });
         }
 
         function createItemElement(item) {
@@ -223,6 +581,11 @@
             <div class="item-content">
               <div class="checkbox${item.completed ? ' checked' : ''}" role="checkbox" aria-checked="${item.completed}" tabindex="0">${item.completed ? '✓' : ''}</div>
               <div class="item-text${item.completed ? ' completed' : ''}" tabindex="0"></div>
+            </div>
+            <div class="delete-hint">Delete</div>
+            <div class="recategorize-menu">
+              <button class="recategorize-btn" title="Ändra kategori">📂</button>
+              <div class="category-menu"></div>
             </div>
           `;
           const checkbox = el.querySelector('.checkbox');
@@ -239,6 +602,11 @@
             saveState();
             updateProgress();
             if (announceToggle) announce(`${item.text} ${item.completed ? 'completed' : 'marked active'}`);
+            
+            // Haptic feedback on mobile
+            if ('vibrate' in navigator && item.completed) {
+              navigator.vibrate(50);
+            }
           }
           checkbox.addEventListener('click', () => toggle(true));
           checkbox.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(true); }});
@@ -284,6 +652,62 @@
           el.addEventListener('pointerdown', scheduleDelete);
           el.addEventListener('pointerup', cancelDelete);
           el.addEventListener('pointerleave', cancelDelete);
+          
+          // Swipe gestures for mobile
+          const itemContent = el.querySelector('.item-content');
+          let startX = 0;
+          let currentX = 0;
+          let startTime = 0;
+          
+          el.addEventListener('touchstart', (e) => {
+            if (e.touches.length !== 1) return;
+            startX = e.touches[0].clientX;
+            currentX = startX;
+            startTime = Date.now();
+            touchStartX = startX;
+            touchStartY = e.touches[0].clientY;
+            currentSwipeEl = el;
+            el.classList.add('swiping');
+          }, { passive: true });
+          
+          el.addEventListener('touchmove', (e) => {
+            if (e.touches.length !== 1 || !currentSwipeEl) return;
+            currentX = e.touches[0].clientX;
+            const deltaX = currentX - startX;
+            const deltaY = e.touches[0].clientY - touchStartY;
+            
+            // Only swipe horizontally if the gesture is more horizontal than vertical
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+              e.preventDefault();
+              const maxSwipe = 100;
+              const swipeAmount = Math.max(-maxSwipe, Math.min(0, deltaX));
+              itemContent.style.transform = `translateX(${swipeAmount}px)`;
+              
+              if (swipeAmount < -50) {
+                el.classList.add('show-delete');
+              } else {
+                el.classList.remove('show-delete');
+              }
+            }
+          }, { passive: false });
+          
+          el.addEventListener('touchend', (e) => {
+            if (!currentSwipeEl) return;
+            const deltaX = currentX - startX;
+            const velocity = deltaX / (Date.now() - startTime);
+            
+            // If swiped far enough or fast enough, delete the item
+            if (deltaX < -80 || velocity < -0.5) {
+              itemContent.style.transform = 'translateX(-100%)';
+              setTimeout(() => removeItem(el), 200);
+            } else {
+              itemContent.style.transform = '';
+              el.classList.remove('show-delete');
+            }
+            
+            el.classList.remove('swiping');
+            currentSwipeEl = null;
+          }, { passive: true });
 
           // Keyboard delete when focused on row
           el.addEventListener('keydown', (e) => {
@@ -297,11 +721,64 @@
           });
           el.addEventListener('dragend', () => { el.style.opacity = ''; });
 
+          // Recategorize functionality
+          const recatBtn = el.querySelector('.recategorize-btn');
+          const recatMenu = el.querySelector('.recategorize-menu');
+          const categoryMenu = el.querySelector('.category-menu');
+          
+          recatBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isVisible = categoryMenu.style.display === 'block';
+            
+            // Hide all other menus
+            document.querySelectorAll('.category-menu').forEach(menu => {
+              menu.style.display = 'none';
+            });
+            
+            if (!isVisible && categorizer) {
+              // Build category menu
+              categoryMenu.innerHTML = '';
+              const categories = categorizer.getAllCategories();
+              
+              categories.forEach(cat => {
+                const menuItem = document.createElement('div');
+                menuItem.className = 'category-menu-item';
+                if (cat.key === item.category) {
+                  menuItem.classList.add('current');
+                }
+                menuItem.innerHTML = `<span>${cat.emoji}</span><span>${cat.name}</span>`;
+                menuItem.addEventListener('click', () => {
+                  item.category = cat.key;
+                  saveState();
+                  render();
+                  announce(`${item.text} flyttad till ${cat.name}`);
+                });
+                categoryMenu.appendChild(menuItem);
+              });
+              
+              categoryMenu.style.display = 'block';
+              recatMenu.style.display = 'block';
+            } else {
+              categoryMenu.style.display = 'none';
+              recatMenu.style.display = 'none';
+            }
+          });
+          
+          // Show/hide recategorize button on hover
+          el.addEventListener('mouseenter', () => {
+            if (!currentSwipeEl) recatMenu.style.display = 'block';
+          });
+          el.addEventListener('mouseleave', () => {
+            if (categoryMenu.style.display !== 'block') {
+              recatMenu.style.display = 'none';
+            }
+          });
+
           return el;
         }
 
         function persistOrder() {
-          const ids = Array.from(itemsContainer.querySelectorAll('.item')).map(el => el.dataset.id);
+          const ids = Array.from(document.querySelectorAll('.item')).map(el => el.dataset.id);
           state.items.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
           saveState();
           announce('Items reordered');
@@ -319,25 +796,119 @@
           announce(`${text} removed`);
         }
 
-        function addItem(text) {
+        async function addItem(text) {
           const trimmed = (text || '').trim().replace(/\s+/g, ' ');
           if (!trimmed) return;
           if (state.items.some(i => i.text.toLowerCase() === trimmed.toLowerCase())) {
             announce('Already on your list');
             return;
           }
-          const item = { id: 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8), text: trimmed, completed: false };
+          
+          // Categorize the item
+          let category = 'pantry'; // default
+          if (categorizer && categorizerReady) {
+            try {
+              const result = await categorizer.categorize(trimmed);
+              category = result.category;
+              console.log(`Categorized "${trimmed}" as ${category} (${result.method}, confidence: ${result.confidence})`);
+            } catch (error) {
+              console.error('Categorization failed:', error);
+            }
+          }
+          
+          const item = { 
+            id: 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8), 
+            text: trimmed, 
+            category: category,
+            completed: false 
+          };
           state.items.push(item);
           saveState();
-          const el = createItemElement(item);
-          itemsContainer.appendChild(el);
+          render(); // Re-render to show in correct category
           updateProgress();
-          announce(`${trimmed} added`);
+          announce(`${trimmed} added to ${categorizer?.getCategoryInfo(category)?.name || 'list'}`);
         }
 
         function render() {
-          itemsContainer.innerHTML = '';
-          state.items.forEach(item => itemsContainer.appendChild(createItemElement(item)));
+          const container = document.getElementById('categories-container');
+          const filtersContainer = document.getElementById('category-filters');
+          container.innerHTML = '';
+          
+          // Group items by category
+          const itemsByCategory = {};
+          state.items.forEach(item => {
+            const cat = item.category || 'pantry';
+            if (!itemsByCategory[cat]) itemsByCategory[cat] = [];
+            itemsByCategory[cat].push(item);
+          });
+          
+          // If no items, show empty state
+          if (state.items.length === 0) {
+            container.innerHTML = '<div class="empty-category">Din shoppinglista är tom. Lägg till varor ovan!</div>';
+            filtersContainer.style.display = 'none';
+            updateProgress();
+            return;
+          }
+          
+          // Show filters if there are items
+          if (state.items.length > 0) {
+            renderFilters(itemsByCategory);
+            filtersContainer.style.display = 'flex';
+          }
+          
+          // Render each category
+          const categoryOrder = ['dairy', 'meat_fish', 'fruits_vegetables', 'bread_bakery', 'frozen', 'pantry', 'beverages', 'snacks_candy', 'household', 'baby_kids', 'health_pharmacy'];
+          
+          categoryOrder.forEach(categoryKey => {
+            if (!itemsByCategory[categoryKey]) return;
+            
+            // Skip if filtered out
+            if (activeFilters.size > 0 && !activeFilters.has(categoryKey)) return;
+            
+            const categoryInfo = categorizer?.getCategoryInfo(categoryKey) || { name: categoryKey, emoji: '📦' };
+            const items = itemsByCategory[categoryKey];
+            
+            // Create category section
+            const section = document.createElement('div');
+            section.className = 'category-section';
+            section.dataset.category = categoryKey;
+            section.innerHTML = `
+              <div class="category-header">
+                <span class="category-emoji">${categoryInfo.emoji}</span>
+                <span>${categoryInfo.name}</span>
+                <span class="category-count">${items.length} ${items.length === 1 ? 'vara' : 'varor'}</span>
+              </div>
+              <div class="category-items"></div>
+            `;
+            
+            const itemsContainer = section.querySelector('.category-items');
+            items.forEach(item => itemsContainer.appendChild(createItemElement(item)));
+            
+            container.appendChild(section);
+          });
+          
+          // Handle any items with unknown categories
+          Object.keys(itemsByCategory).forEach(cat => {
+            if (!categoryOrder.includes(cat)) {
+              const items = itemsByCategory[cat];
+              const section = document.createElement('div');
+              section.className = 'category-section';
+              section.innerHTML = `
+                <div class="category-header">
+                  <span class="category-emoji">📦</span>
+                  <span>Övrigt</span>
+                  <span class="category-count">${items.length} ${items.length === 1 ? 'vara' : 'varor'}</span>
+                </div>
+                <div class="category-items"></div>
+              `;
+              
+              const itemsContainer = section.querySelector('.category-items');
+              items.forEach(item => itemsContainer.appendChild(createItemElement(item)));
+              
+              container.appendChild(section);
+            }
+          });
+          
           updateProgress();
         }
 
@@ -349,8 +920,133 @@
           }
         });
 
+        // Initialize categorizer
+        async function initializeCategorizer() {
+          const loadingIndicator = document.getElementById('loading-indicator');
+          const loadingProgress = document.getElementById('loading-progress');
+          
+          try {
+            // Show loading indicator
+            loadingIndicator.style.display = 'block';
+            
+            // Initialize categorizer
+            categorizer = new window.GroceryCategorizer();
+            
+            // Listen for progress updates
+            window.addEventListener('llm-progress', (event) => {
+              loadingProgress.textContent = event.detail.text;
+            });
+            
+            // Initialize the model
+            const initialized = await categorizer.initialize();
+            
+            if (initialized) {
+              categorizerReady = true;
+              console.log('Categorizer ready!');
+              announce('AI-kategorisering klar');
+            } else {
+              console.warn('Categorizer initialization failed, using fallback');
+              announce('Använder enkel kategorisering');
+            }
+          } catch (error) {
+            console.error('Failed to initialize categorizer:', error);
+            announce('Kategorisering inte tillgänglig');
+          } finally {
+            // Hide loading indicator
+            loadingIndicator.style.display = 'none';
+          }
+        }
+        
         // Initial render
         render();
+        
+        // Initialize categorizer in background
+        setTimeout(() => {
+          initializeCategorizer().catch(console.error);
+        }, 100);
+        
+        // Offline/Online detection
+        const offlineBanner = document.getElementById('offline-banner');
+        
+        function updateOnlineStatus() {
+          if (!navigator.onLine) {
+            offlineBanner.classList.add('show');
+            announce('You are offline. Changes will be saved locally.');
+          } else {
+            offlineBanner.classList.remove('show');
+            announce('You are back online.');
+          }
+        }
+        
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        
+        // Check initial status
+        updateOnlineStatus();
+        
+        // PWA Install prompt
+        window.addEventListener('beforeinstallprompt', (e) => {
+          e.preventDefault();
+          deferredPrompt = e;
+          const installPrompt = document.getElementById('install-prompt');
+          installPrompt.style.display = 'flex';
+          
+          document.getElementById('install-btn').addEventListener('click', async () => {
+            installPrompt.style.display = 'none';
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+              announce('App installed successfully');
+            }
+            deferredPrompt = null;
+          });
+        });
+        
+        // Pull to refresh
+        let pullStartY = 0;
+        let isPulling = false;
+        
+        document.addEventListener('touchstart', (e) => {
+          if (window.scrollY === 0 && e.touches.length === 1) {
+            pullStartY = e.touches[0].clientY;
+            isPulling = true;
+          }
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', (e) => {
+          if (!isPulling || e.touches.length !== 1) return;
+          const pullDistance = e.touches[0].clientY - pullStartY;
+          
+          if (pullDistance > 0 && window.scrollY === 0) {
+            e.preventDefault();
+            document.body.style.transform = `translateY(${Math.min(pullDistance * 0.5, 80)}px)`;
+            
+            if (pullDistance > 100) {
+              document.body.style.background = 'linear-gradient(135deg, #F5EFEA 0%, #E5D9D3 50%, #D9C4BD 100%)';
+            }
+          }
+        }, { passive: false });
+        
+        document.addEventListener('touchend', () => {
+          if (!isPulling) return;
+          isPulling = false;
+          
+          const currentTransform = document.body.style.transform;
+          const pullDistance = currentTransform ? parseFloat(currentTransform.match(/\d+/)?.[0] || 0) : 0;
+          
+          document.body.style.transform = '';
+          document.body.style.transition = 'transform 0.3s ease';
+          
+          if (pullDistance > 40) {
+            // Refresh the page
+            window.location.reload();
+          }
+          
+          setTimeout(() => {
+            document.body.style.transition = '';
+            document.body.style.background = '';
+          }, 300);
+        });
         
         // Register service worker with cache busting
         if ('serviceWorker' in navigator) {
@@ -370,10 +1066,135 @@
           }
         }
         
+        // Export functionality
+        document.getElementById('export-btn').addEventListener('click', () => {
+          if (state.items.length === 0) {
+            announce('Inget att exportera');
+            return;
+          }
+          
+          let exportText = 'VIBE SHOPPINGLISTA\n';
+          exportText += '=' .repeat(30) + '\n\n';
+          
+          // Group by category for export
+          const itemsByCategory = {};
+          state.items.forEach(item => {
+            const cat = item.category || 'pantry';
+            if (!itemsByCategory[cat]) itemsByCategory[cat] = [];
+            itemsByCategory[cat].push(item);
+          });
+          
+          Object.entries(itemsByCategory).forEach(([categoryKey, items]) => {
+            const categoryInfo = categorizer?.getCategoryInfo(categoryKey) || { name: categoryKey, emoji: '📦' };
+            exportText += `${categoryInfo.emoji} ${categoryInfo.name.toUpperCase()}\n`;
+            exportText += '-'.repeat(20) + '\n';
+            
+            items.forEach(item => {
+              const check = item.completed ? '✓' : '○';
+              exportText += `${check} ${item.text}\n`;
+            });
+            
+            exportText += '\n';
+          });
+          
+          // Create download
+          const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `shopping-list-${new Date().toISOString().split('T')[0]}.txt`;
+          a.click();
+          URL.revokeObjectURL(url);
+          
+          announce('Lista exporterad');
+        });
+        
+        // Statistics view
+        document.getElementById('stats-btn').addEventListener('click', () => {
+          const modal = document.createElement('div');
+          modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+          `;
+          
+          const content = document.createElement('div');
+          content.style.cssText = `
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+          `;
+          
+          // Calculate statistics
+          const itemsByCategory = {};
+          let totalCompleted = 0;
+          
+          state.items.forEach(item => {
+            const cat = item.category || 'pantry';
+            if (!itemsByCategory[cat]) itemsByCategory[cat] = { total: 0, completed: 0 };
+            itemsByCategory[cat].total++;
+            if (item.completed) {
+              itemsByCategory[cat].completed++;
+              totalCompleted++;
+            }
+          });
+          
+          let statsHTML = '<h2 style="margin: 0 0 20px 0; color: #444;">📊 Statistik</h2>';
+          statsHTML += `<p style="font-size: 1.2rem; margin-bottom: 20px;"><strong>${state.items.length}</strong> varor totalt`;
+          if (state.items.length > 0) {
+            const percentage = Math.round((totalCompleted / state.items.length) * 100);
+            statsHTML += ` (<strong>${percentage}%</strong> klart)</p>`;
+          } else {
+            statsHTML += '</p>';
+          }
+          
+          statsHTML += '<div style="margin-top: 20px;">';
+          Object.entries(itemsByCategory).forEach(([categoryKey, stats]) => {
+            const categoryInfo = categorizer?.getCategoryInfo(categoryKey) || { name: categoryKey, emoji: '📦' };
+            const catPercentage = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+            
+            statsHTML += `
+              <div style="margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                  <span>${categoryInfo.emoji} ${categoryInfo.name}</span>
+                  <span>${stats.completed}/${stats.total}</span>
+                </div>
+                <div style="background: #eee; height: 8px; border-radius: 4px; overflow: hidden;">
+                  <div style="background: #CCAFA5; width: ${catPercentage}%; height: 100%; transition: width 0.3s;"></div>
+                </div>
+              </div>
+            `;
+          });
+          statsHTML += '</div>';
+          
+          statsHTML += '<button id="close-stats" style="margin-top: 20px; padding: 10px 20px; background: #CCAFA5; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%;">Stäng</button>';
+          
+          content.innerHTML = statsHTML;
+          modal.appendChild(content);
+          document.body.appendChild(modal);
+          
+          // Close handlers
+          document.getElementById('close-stats').addEventListener('click', () => modal.remove());
+          modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.remove();
+          });
+        });
+        
         // Add refresh button to header for easy cache clearing
         const refreshBtn = document.createElement('button');
         refreshBtn.textContent = '🔄';
-        refreshBtn.style.cssText = 'background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; border-radius: 5px;';
+        refreshBtn.style.cssText = 'background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 10px; border-radius: 8px; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center;';
         refreshBtn.title = 'Force refresh (clear cache)';
         refreshBtn.onclick = forceRefresh;
         document.querySelector('.app-header').appendChild(refreshBtn);
@@ -381,7 +1202,7 @@
         // Add cache clear button
         const cacheBtn = document.createElement('button');
         cacheBtn.textContent = '🗑️';
-        cacheBtn.style.cssText = 'background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; border-radius: 5px; margin-left: 10px;';
+        cacheBtn.style.cssText = 'background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 10px; border-radius: 8px; margin-left: 10px; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center;';
         cacheBtn.title = 'Clear all caches';
         cacheBtn.onclick = function() {
             if (confirm('Clear all caches and force refresh?')) {

@@ -1,9 +1,38 @@
 {
-  "name": "Shopping Vibes",
-  "short_name": "Shopping",
+  "name": "Vibe Shopper",
+  "short_name": "Vibe",
+  "description": "A minimalist shopping list app with a calming vibe",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0b1020",
-  "theme_color": "#0b1020",
-  "icons": []
+  "orientation": "portrait",
+  "background_color": "#EDE7DC",
+  "theme_color": "#CCAFA5",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%23CCAFA5' rx='48'/%3E%3Ctext x='96' y='115' font-family='-apple-system,system-ui' font-size='80' font-weight='600' text-anchor='middle' fill='white'%3EV%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23CCAFA5' rx='128'/%3E%3Ctext x='256' y='320' font-family='-apple-system,system-ui' font-size='220' font-weight='600' text-anchor='middle' fill='white'%3EV%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23CCAFA5' rx='128'/%3E%3Ctext x='256' y='320' font-family='-apple-system,system-ui' font-size='220' font-weight='600' text-anchor='middle' fill='white'%3EV%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["productivity", "lifestyle", "shopping"],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 1170'%3E%3Crect width='540' height='1170' fill='%23EDE7DC'/%3E%3Ctext x='270' y='100' font-family='-apple-system' font-size='48' font-weight='600' text-anchor='middle' fill='%23444'%3EVIBE%3C/text%3E%3Crect x='70' y='150' width='400' height='80' fill='rgba(255,255,255,0.4)' rx='15'/%3E%3Ctext x='270' y='200' font-family='-apple-system' font-size='24' text-anchor='middle' fill='%23444'%3E0 of 0 items%3C/text%3E%3C/svg%3E",
+      "sizes": "540x1170",
+      "type": "image/svg+xml"
+    }
+  ]
 }
