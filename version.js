@@ -1,6 +1,7 @@
 // Version configuration for cache busting
-window.APP_VERSION = '1.0.1';
+window.APP_VERSION = '2.0.0';
 window.APP_BUILD_TIME = Date.now();
+console.log('Vibe Shopper v' + window.APP_VERSION + ' - AI Edition with TinyLlama');
 
 // Function to get cache-busted URLs
 window.getCacheBustedUrl = function(url) {

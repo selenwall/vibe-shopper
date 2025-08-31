@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Vibe Shopper - Modern Minimalist v1.0.1</title>
+    <title>Vibe Shopper - AI Edition v2.0.0</title>
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#CCAFA5">
@@ -428,6 +428,10 @@
     <div class="app-container">
         <div class="app-header">
             <div class="app-title">VIBE</div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button id="stats-btn" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 8px;" title="Visa statistik">📊</button>
+                <button id="export-btn" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 8px;" title="Exportera lista">📤</button>
+            </div>
         </div>
         
         <div class="stats">
@@ -444,6 +448,7 @@
                 <div style="font-size: 1.2rem;">🤖 Laddar AI-modell...</div>
                 <div id="loading-progress" style="font-size: 0.9rem; margin-top: 10px;"></div>
             </div>
+            <div id="category-filters" class="category-filters" style="display: none;"></div>
             <div id="categories-container"></div>
         </div>
     </div>
@@ -480,6 +485,8 @@
         let currentSwipeEl = null;
         let categorizer = null;
         let categorizerReady = false;
+        let activeFilters = new Set();
+        let showFilters = false;
 
         // Global drag handlers for categories
         document.addEventListener('dragover', (e) => {
@@ -520,6 +527,50 @@
           const done = state.items.filter(i => i.completed).length;
           progressEl.textContent = `${done} of ${total} item${total === 1 ? '' : 's'}`;
         }
+        
+        function renderFilters(itemsByCategory) {
+          const filtersContainer = document.getElementById('category-filters');
+          filtersContainer.innerHTML = '';
+          
+          // Add "Show All" button
+          const allBtn = document.createElement('button');
+          allBtn.className = 'filter-btn';
+          if (activeFilters.size === 0) allBtn.classList.add('active');
+          allBtn.innerHTML = `<span>Alla</span><span class="count">${state.items.length}</span>`;
+          allBtn.addEventListener('click', () => {
+            activeFilters.clear();
+            render();
+          });
+          filtersContainer.appendChild(allBtn);
+          
+          // Add category filter buttons
+          Object.entries(itemsByCategory).forEach(([categoryKey, items]) => {
+            const categoryInfo = categorizer?.getCategoryInfo(categoryKey) || { name: categoryKey, emoji: '📦' };
+            
+            const filterBtn = document.createElement('button');
+            filterBtn.className = 'filter-btn';
+            if (activeFilters.has(categoryKey)) filterBtn.classList.add('active');
+            filterBtn.innerHTML = `<span>${categoryInfo.emoji}</span><span class="count">${items.length}</span>`;
+            filterBtn.title = categoryInfo.name;
+            
+            filterBtn.addEventListener('click', () => {
+              if (activeFilters.has(categoryKey)) {
+                activeFilters.delete(categoryKey);
+              } else {
+                if (activeFilters.size === 0) {
+                  // First filter, add only this one
+                  activeFilters.add(categoryKey);
+                } else {
+                  // Toggle filter
+                  activeFilters.add(categoryKey);
+                }
+              }
+              render();
+            });
+            
+            filtersContainer.appendChild(filterBtn);
+          });
+        }
 
         function createItemElement(item) {
           const el = document.createElement('div');
@@ -532,6 +583,10 @@
               <div class="item-text${item.completed ? ' completed' : ''}" tabindex="0"></div>
             </div>
             <div class="delete-hint">Delete</div>
+            <div class="recategorize-menu">
+              <button class="recategorize-btn" title="Ändra kategori">📂</button>
+              <div class="category-menu"></div>
+            </div>
           `;
           const checkbox = el.querySelector('.checkbox');
           const textEl = el.querySelector('.item-text');
@@ -666,6 +721,59 @@
           });
           el.addEventListener('dragend', () => { el.style.opacity = ''; });
 
+          // Recategorize functionality
+          const recatBtn = el.querySelector('.recategorize-btn');
+          const recatMenu = el.querySelector('.recategorize-menu');
+          const categoryMenu = el.querySelector('.category-menu');
+          
+          recatBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isVisible = categoryMenu.style.display === 'block';
+            
+            // Hide all other menus
+            document.querySelectorAll('.category-menu').forEach(menu => {
+              menu.style.display = 'none';
+            });
+            
+            if (!isVisible && categorizer) {
+              // Build category menu
+              categoryMenu.innerHTML = '';
+              const categories = categorizer.getAllCategories();
+              
+              categories.forEach(cat => {
+                const menuItem = document.createElement('div');
+                menuItem.className = 'category-menu-item';
+                if (cat.key === item.category) {
+                  menuItem.classList.add('current');
+                }
+                menuItem.innerHTML = `<span>${cat.emoji}</span><span>${cat.name}</span>`;
+                menuItem.addEventListener('click', () => {
+                  item.category = cat.key;
+                  saveState();
+                  render();
+                  announce(`${item.text} flyttad till ${cat.name}`);
+                });
+                categoryMenu.appendChild(menuItem);
+              });
+              
+              categoryMenu.style.display = 'block';
+              recatMenu.style.display = 'block';
+            } else {
+              categoryMenu.style.display = 'none';
+              recatMenu.style.display = 'none';
+            }
+          });
+          
+          // Show/hide recategorize button on hover
+          el.addEventListener('mouseenter', () => {
+            if (!currentSwipeEl) recatMenu.style.display = 'block';
+          });
+          el.addEventListener('mouseleave', () => {
+            if (categoryMenu.style.display !== 'block') {
+              recatMenu.style.display = 'none';
+            }
+          });
+
           return el;
         }
 
@@ -723,6 +831,7 @@
 
         function render() {
           const container = document.getElementById('categories-container');
+          const filtersContainer = document.getElementById('category-filters');
           container.innerHTML = '';
           
           // Group items by category
@@ -736,8 +845,15 @@
           // If no items, show empty state
           if (state.items.length === 0) {
             container.innerHTML = '<div class="empty-category">Din shoppinglista är tom. Lägg till varor ovan!</div>';
+            filtersContainer.style.display = 'none';
             updateProgress();
             return;
+          }
+          
+          // Show filters if there are items
+          if (state.items.length > 0) {
+            renderFilters(itemsByCategory);
+            filtersContainer.style.display = 'flex';
           }
           
           // Render each category
@@ -746,12 +862,16 @@
           categoryOrder.forEach(categoryKey => {
             if (!itemsByCategory[categoryKey]) return;
             
+            // Skip if filtered out
+            if (activeFilters.size > 0 && !activeFilters.has(categoryKey)) return;
+            
             const categoryInfo = categorizer?.getCategoryInfo(categoryKey) || { name: categoryKey, emoji: '📦' };
             const items = itemsByCategory[categoryKey];
             
             // Create category section
             const section = document.createElement('div');
             section.className = 'category-section';
+            section.dataset.category = categoryKey;
             section.innerHTML = `
               <div class="category-header">
                 <span class="category-emoji">${categoryInfo.emoji}</span>
@@ -945,6 +1065,131 @@
             window.location.reload(true);
           }
         }
+        
+        // Export functionality
+        document.getElementById('export-btn').addEventListener('click', () => {
+          if (state.items.length === 0) {
+            announce('Inget att exportera');
+            return;
+          }
+          
+          let exportText = 'VIBE SHOPPINGLISTA\n';
+          exportText += '=' .repeat(30) + '\n\n';
+          
+          // Group by category for export
+          const itemsByCategory = {};
+          state.items.forEach(item => {
+            const cat = item.category || 'pantry';
+            if (!itemsByCategory[cat]) itemsByCategory[cat] = [];
+            itemsByCategory[cat].push(item);
+          });
+          
+          Object.entries(itemsByCategory).forEach(([categoryKey, items]) => {
+            const categoryInfo = categorizer?.getCategoryInfo(categoryKey) || { name: categoryKey, emoji: '📦' };
+            exportText += `${categoryInfo.emoji} ${categoryInfo.name.toUpperCase()}\n`;
+            exportText += '-'.repeat(20) + '\n';
+            
+            items.forEach(item => {
+              const check = item.completed ? '✓' : '○';
+              exportText += `${check} ${item.text}\n`;
+            });
+            
+            exportText += '\n';
+          });
+          
+          // Create download
+          const blob = new Blob([exportText], { type: 'text/plain;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `shopping-list-${new Date().toISOString().split('T')[0]}.txt`;
+          a.click();
+          URL.revokeObjectURL(url);
+          
+          announce('Lista exporterad');
+        });
+        
+        // Statistics view
+        document.getElementById('stats-btn').addEventListener('click', () => {
+          const modal = document.createElement('div');
+          modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+          `;
+          
+          const content = document.createElement('div');
+          content.style.cssText = `
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+          `;
+          
+          // Calculate statistics
+          const itemsByCategory = {};
+          let totalCompleted = 0;
+          
+          state.items.forEach(item => {
+            const cat = item.category || 'pantry';
+            if (!itemsByCategory[cat]) itemsByCategory[cat] = { total: 0, completed: 0 };
+            itemsByCategory[cat].total++;
+            if (item.completed) {
+              itemsByCategory[cat].completed++;
+              totalCompleted++;
+            }
+          });
+          
+          let statsHTML = '<h2 style="margin: 0 0 20px 0; color: #444;">📊 Statistik</h2>';
+          statsHTML += `<p style="font-size: 1.2rem; margin-bottom: 20px;"><strong>${state.items.length}</strong> varor totalt`;
+          if (state.items.length > 0) {
+            const percentage = Math.round((totalCompleted / state.items.length) * 100);
+            statsHTML += ` (<strong>${percentage}%</strong> klart)</p>`;
+          } else {
+            statsHTML += '</p>';
+          }
+          
+          statsHTML += '<div style="margin-top: 20px;">';
+          Object.entries(itemsByCategory).forEach(([categoryKey, stats]) => {
+            const categoryInfo = categorizer?.getCategoryInfo(categoryKey) || { name: categoryKey, emoji: '📦' };
+            const catPercentage = stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+            
+            statsHTML += `
+              <div style="margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                  <span>${categoryInfo.emoji} ${categoryInfo.name}</span>
+                  <span>${stats.completed}/${stats.total}</span>
+                </div>
+                <div style="background: #eee; height: 8px; border-radius: 4px; overflow: hidden;">
+                  <div style="background: #CCAFA5; width: ${catPercentage}%; height: 100%; transition: width 0.3s;"></div>
+                </div>
+              </div>
+            `;
+          });
+          statsHTML += '</div>';
+          
+          statsHTML += '<button id="close-stats" style="margin-top: 20px; padding: 10px 20px; background: #CCAFA5; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%;">Stäng</button>';
+          
+          content.innerHTML = statsHTML;
+          modal.appendChild(content);
+          document.body.appendChild(modal);
+          
+          // Close handlers
+          document.getElementById('close-stats').addEventListener('click', () => modal.remove());
+          modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.remove();
+          });
+        });
         
         // Add refresh button to header for easy cache clearing
         const refreshBtn = document.createElement('button');
