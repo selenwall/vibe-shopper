@@ -479,7 +479,6 @@
         const live = document.getElementById('live');
 
         let state = loadState();
-        let longPressTimer = null;
         let touchStartX = 0;
         let touchStartY = 0;
         let currentSwipeEl = null;
@@ -646,12 +645,7 @@
             input.addEventListener('blur', () => commit(true));
           }
 
-          // Long-press to delete (700ms)
-          function scheduleDelete() { longPressTimer = setTimeout(() => removeItem(el), 700); }
-          function cancelDelete() { clearTimeout(longPressTimer); longPressTimer = null; }
-          el.addEventListener('pointerdown', scheduleDelete);
-          el.addEventListener('pointerup', cancelDelete);
-          el.addEventListener('pointerleave', cancelDelete);
+          // Long-press to delete removed - users found it confusing
           
           // Swipe gestures for mobile
           const itemContent = el.querySelector('.item-content');
