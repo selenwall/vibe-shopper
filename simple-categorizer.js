@@ -176,13 +176,13 @@ class SimpleCategorizer {
       bread_bakery: {
         name: "Bröd & Bakverk",
         emoji: "🥖",
-        items: ["bröd", "limpa", "fralla", "baguette", "knäckebröd", "kex", "kakor", "bulle", "croissant", "toast", "pitabröd", "tunnbröd"],
+        items: ["bröd", "limpa", "fralla", "baguette", "knäckebröd", "kex", "kakor", "bulle", "croissant", "toast", "pitabröd", "tunnbröd", "fullkornsbröd", "rågbröd", "surdegsbröd", "rostbröd", "formbröd", "mjukbröd", "hårt bröd", "glutenfritt bröd"],
         keywords: ["bröd", "bulle", "kaka", "kex"]
       },
       frozen: { 
         name: "Frysvaror", 
         emoji: "🧊", 
-        items: ["glass", "fryst", "frysta", "frys", "fryspizza", "frysgrönsaker", "fryst fisk", "glasspinnar"],
+        items: ["glass", "fryst", "frysta", "frys", "fryspizza", "frysgrönsaker", "fryst fisk", "glasspinnar", "fryst kyckling", "fryst kött", "frysta bär", "fryst broccoli", "fryst spenat", "frysta pommes", "fryst lasagne", "frysta köttbullar", "fryst lax"],
         keywords: ["fryst", "frys", "glass"]
       },
       beverages: {
@@ -233,6 +233,26 @@ class SimpleCategorizer {
     
     if (!spellCheck.wasCorrect) {
       console.log(`Rättstavning: "${item}" → "${spellCheck.corrected}"`);
+    }
+    
+    // PRIORITY RULE 1: If it contains "fryst" or "frys", it's always frozen
+    if (normalized.includes('fryst') || normalized.includes('frys')) {
+      return {
+        category: 'frozen',
+        confidence: 1.0,
+        method: 'priority-frozen',
+        correctedText: spellCheck.wasCorrect ? null : spellCheck.corrected
+      };
+    }
+    
+    // PRIORITY RULE 2: If it ends with "bröd", it's bread
+    if (normalized.endsWith('bröd')) {
+      return {
+        category: 'bread_bakery',
+        confidence: 1.0,
+        method: 'priority-bread',
+        correctedText: spellCheck.wasCorrect ? null : spellCheck.corrected
+      };
     }
     
     // Check exact matches
