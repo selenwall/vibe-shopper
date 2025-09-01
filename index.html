@@ -469,7 +469,7 @@
 
 
     <script src="version.js"></script>
-    <script src="simple-categorizer.js"></script>
+    <script src="tflite-categorizer.js"></script>
     <script>
       (function() {
         const STORAGE_KEY = 'vibe.minimal.v1';
@@ -814,12 +814,9 @@
             console.log('Categorizer not available, using default category');
           }
           
-          // Use corrected text if spelling was corrected
-          const finalText = result?.correctedText || trimmed;
-          
           const item = { 
             id: 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8), 
-            text: finalText, 
+            text: trimmed, 
             category: category,
             completed: false 
           };
@@ -828,21 +825,7 @@
           render(); // Re-render to show in correct category
           updateProgress();
           
-          // Announce with spell correction info if applicable
-          if (result?.correctedText) {
-            // Show spell correction notification
-            const notification = document.getElementById('spell-notification');
-            notification.innerHTML = `✏️ "${trimmed}" → "${finalText}"`;
-            notification.style.display = 'block';
-            
-            setTimeout(() => {
-              notification.style.display = 'none';
-            }, 3000);
-            
-            announce(`"${trimmed}" rättstavat till "${finalText}" och lagt till i ${categorizer?.getCategoryInfo(category)?.name || 'listan'}`);
-          } else {
-            announce(`${finalText} added to ${categorizer?.getCategoryInfo(category)?.name || 'list'}`);
-          }
+          announce(`${trimmed} added to ${categorizer?.getCategoryInfo(category)?.name || 'list'}`);
         }
 
         function render() {
@@ -945,11 +928,21 @@
             // Show loading indicator
             loadingIndicator.style.display = 'block';
             
-            // Initialize simple categorizer
-            categorizer = new window.SimpleCategorizer();
-            categorizerReady = true;
-            console.log('Simple categorizer ready');
-            announce('Kategorisering klar');
+            // Initialize TFLite categorizer
+            categorizer = new window.TFLiteCategorizer();
+            
+            // Try to initialize the model
+            const initialized = await categorizer.initialize();
+            
+            if (initialized) {
+              categorizerReady = true;
+              console.log('TFLite categorizer ready');
+              announce('AI-kategorisering klar');
+            } else {
+              console.warn('TFLite initialization failed');
+              announce('Kategorisering inte tillgänglig');
+              categorizerReady = false;
+            }
           } catch (error) {
             console.error('Failed to initialize categorizer:', error);
             announce('Kategorisering inte tillgänglig');

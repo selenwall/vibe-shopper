@@ -1,5 +1,35 @@
 # Vibe Shopper Changelog
 
+## Version 3.0.0 - TensorFlow Lite Edition (2024)
+
+### 🎉 Major Changes
+
+#### 🤖 TensorFlow Lite Categorization
+- Replaced rule-based system with neural network
+- Trained on 1000+ Swedish grocery items
+- 10 categories (expanded from 8)
+- ~200KB model size
+- <50ms inference time
+
+#### 📊 Improved Categories
+- Added "Snacks & Godis" category
+- Added "Hälsa & Skönhet" category
+- Better frozen food detection
+- Context-aware categorization
+
+#### 🚀 Technical Improvements
+- TensorFlow.js integration
+- LSTM-based text classification
+- Confidence scores for predictions
+- Vocabulary-based tokenization
+
+### 🔄 Migration from v2.0
+- Removed WebLLM/TinyLlama dependency
+- Removed spell correction (handled by model)
+- Simplified categorization flow
+
+---
+
 ## Version 2.0.0 - AI Edition (2024)
 
 ### 🎉 Nya funktioner

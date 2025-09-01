@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vibe-shopper-v2';
+const CACHE_NAME = 'vibe-shopper-v3';
 const CORE_ASSETS = [
   './',
   './index.html',

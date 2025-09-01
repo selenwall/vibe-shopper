@@ -1,0 +1,5 @@
+This is a placeholder for the TFLite model file.
+To generate the actual model, run:
+python build_tflite_model.py
+
+The model file will be approximately 200KB when generated.
