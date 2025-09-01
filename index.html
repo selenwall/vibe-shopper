@@ -806,9 +806,11 @@
           
           // Categorize the item
           let category = 'pantry'; // default
+          let result = null;
+          
           if (categorizer) {
             try {
-              const result = await categorizer.categorize(trimmed);
+              result = await categorizer.categorize(trimmed);
               category = result.category;
               console.log(`Categorized "${trimmed}" as ${category} (${result.method}, confidence: ${result.confidence})`);
             } catch (error) {
@@ -819,7 +821,7 @@
           }
           
           // Use corrected text if spelling was corrected
-          const finalText = result.correctedText || trimmed;
+          const finalText = result?.correctedText || trimmed;
           
           const item = { 
             id: 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8), 
@@ -833,7 +835,7 @@
           updateProgress();
           
           // Announce with spell correction info if applicable
-          if (result.correctedText) {
+          if (result?.correctedText) {
             // Show spell correction notification
             const notification = document.getElementById('spell-notification');
             notification.innerHTML = `✏️ "${trimmed}" → "${finalText}"`;
