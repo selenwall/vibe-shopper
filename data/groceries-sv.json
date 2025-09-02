@@ -4,7 +4,20 @@
     "mejeri": [
       "mjölk", "laktosfri mjölk", "fil", "yoghurt", "grädde", "vispgrädde",
       "smör", "bregott", "margarin", "ost", "hushållsost", "kvarg",
-      "keso", "creme fraiche", "gräddfil", "filmjölk"
+      "keso", "creme fraiche", "gräddfil", "filmjölk",
+      "mjölk 1%", "mjölk 1,5%", "mjölk 3%", "ekologisk mjölk", "havremjölk",
+      "sojamjölk", "mandelmjölk", "laktosfri yoghurt", "grekisk yoghurt",
+      "turkisk yoghurt", "vaniljyoghurt", "naturell yoghurt", "kokosyoghurt",
+      "matlagningsgrädde", "creme double", "mascarpone", "ricotta",
+      "parmesan", "mozzarella", "fetaost", "halloumi", "brie", "camembert",
+      "gouda", "edamer", "cheddar", "prästost", "västerbottenost",
+      "skivad ost", "riven ost", "smältost", "leverpastej",
+      "smör normalsaltat", "smör extrasaltat", "bordsmargarin",
+      "smör-&rapsolja", "bregott mellan", "keso mini", "kvarg vanilj",
+      "kvarg naturell", "kesella", "ägg 6-pack", "ägg 12-pack",
+      "ägg ekologiska", "ägg frigoende", "kesella kvarg",
+      "proteinpudding vanilj", "proteinpudding choklad",
+      "drickyoghurt jordgubb", "drickyoghurt vanilj"
     ],
     "frukt_gront": [
       "äpple", "banan", "apelsin", "citron", "lime", "päron", "kiwi",
@@ -12,13 +25,33 @@
       "sötpotatis", "lök", "gul lök", "röd lök", "vitlök", "morot",
       "paprika", "grön paprika", "röd paprika", "avokado", "broccoli",
       "blomkål", "zucchini", "svamp", "champinjon", "druvor", "jordgubbar",
-      "blåbär", "hallon"
+      "blåbär", "hallon",
+      "nektarin", "persika", "plommon", "mandarin", "clementin", "grapefrukt",
+      "granatäpple", "mango", "ananas", "papaya", "melon", "honungsmelon",
+      "vattenmelon", "kål", "vitkål", "rödkål", "grönkål", "savoykål",
+      "pak choi", "kålrot", "majrova", "rödbeta", "palsternacka",
+      "salladsmix", "ruccola", "hjärtsallad", "isbergssallad", "machésallad",
+      "sockerärtor", "haricots verts", "sparris", "fänkål", "purjolök",
+      "vårlök", "ingefära", "chili", "jalapeno", "koriander", "persilja",
+      "dill", "basilika färsk", "timjan färsk", "rosmarin", "mynta",
+      "svartkål", "pak choi baby", "portabellosvamp", "shiitake", "ostronskivling",
+      "tomat på kvist", "plommontomat", "romansallad", "körvel", "dragon",
+      "krondill", "citronmeliss"
     ],
     "kott_fisk": [
       "kyckling", "kycklingfilé", "hel kyckling", "nötfärs", "blandfärs",
       "fläsk", "fläskfilé", "bacon", "korv", "falukorv", "köttbullar",
       "biff", "entrecote", "lax", "laxfilé", "torsk", "torskfilé",
-      "sill", "skinka", "fiskpinnar"
+      "sill", "skinka", "fiskpinnar",
+      "kycklinglår", "kycklingklubbor", "kycklingfärs", "karré", "kotlett",
+      "högrev", "innanlår", "ytterfilé", "fläskkarré", "fläskytterfilé",
+      "sidfläsk", "rökt skinka", "kalkon", "kalkonpålägg", "pastrami",
+      "salami", "chorizo", "salsiccia", "prinskorv", "wienerkorv",
+      "köttfärs nöt", "köttfärs bland", "lammfärs", "lammstek", "lax sida",
+      "torskrygg", "kolja", "sej", "hoki", "räkor", "kräftstjärtar",
+      "tonfisk på burk", "makrill i tomatsås", "ansjovis", "gravlax",
+      "sill i dill", "sill i senap", "kaviar tub", "lever", "blodpudding",
+      "pannbiff", "köttgryta", "pulled pork", "pulled beef"
     ],
     "skafferi": [
       "bröd", "knäckebröd", "pasta", "spaghetti", "penne", "ris",
@@ -28,35 +61,96 @@
       "hönsbuljong", "grönsaksbuljong", "krydda", "oregano", "basilika",
       "kanel", "konserv", "krossade tomater", "majs", "kokosmjölk",
       "havregryn", "bönor", "kidneybönor", "linser", "kikärtor",
-      "jordnötssmör"
+      "jordnötssmör",
+      "solrosfrön", "pumpakärnor", "mandlar", "valnötter", "cashewnötter",
+      "pistaschnötter", "syltsocker", "gelésocker", "bakpulver", "vaniljsocker",
+      "kakao", "oboy", "honung", "sirap", "ljus sirap", "mörk sirap",
+      "risgryn", "korngryn", "couscous", "bulgur", "quinoa", "polenta",
+      "soja", "sojasås", "fisksås", "sriracha", "tabasco", "chilisås",
+      "majonnäs", "senap", "dijonsenap", "ketchup", "BBQ-sås",
+      "pesto", "tahini", "tortillabröd", "pitabröd", "nudlar", "ramen",
+      "udon", "risnudlar", "rispapper", "tomatpuré", "potatismjöl",
+      "maizena", "ströbröd", "vetemjöl special", "jäst", "torrjäst",
+      "vaniljstång", "saffran", "kardemumma", "ingefära malen", "paprikapulver",
+      "curry", "garam masala", "tikka masala pasta", "taco krydda",
+      "chips", "saltade nötter", "kex", "digestive", "mariekex",
+      "knäckebröd sesam", "knäckebröd råg", "risentas mjölmix",
+      "proteinbar", "müsli", "cornflakes", "havrefras"
     ],
     "frys": [
       "fryst", "glass", "vaniljglass", "ärtor", "gröna ärtor", "spenat fryst",
       "pizza fryst", "pommes frites", "bär frysta", "blåbär frysta",
-      "hallon frysta", "broccoli fryst"
+      "hallon frysta", "broccoli fryst",
+      "blomkål fryst", "wokgrönsaker", "grönkål fryst", "spenatbollar",
+      "vegetariska biffar", "vegobullar", "falafel fryst", "kycklingnuggets",
+      "fiskpinnar frysta", "laxfilé fryst", "torskfilé fryst", "fish and chips",
+      "pannkakor frysta", "våfflor frysta", "paj fryst", "pizzakit fryst",
+      "lasagne fryst", "cannelloni fryst", "köttbullar frysta", "korv stroganoff fryst",
+      "soppa fryst", "smoothie mix fryst", "vitlöksbröd fryst", "frysta örter",
+      "persilja fryst", "dill fryst", "gräslök fryst", "tärnad lök fryst",
+      "wokmix thai fryst", "risotto mix fryst", "pulled pork fryst"
     ],
     "bageri": [
       "baguette", "fralla", "frallor", "limpa", "bullar", "kanelbulle",
-      "kardemummabulle", "tårta", "bakelse"
+      "kardemummabulle", "tårta", "bakelse",
+      "rågbröd", "surdegsbröd", "levain", "ciabatta", "focaccia", "naan",
+      "pitabröd bageri", "hamburgerbröd", "korvbröd", "kaffebröd",
+      "wienerbröd", "mazarin", "dammsugare", "chokladboll", "sockerkaka",
+      "muffins", "cupcake", "bagel", "scones", "knäckebröd bageri",
+      "tunnbröd", "flatbread", "krutonger", "toastbröd", "texas toast",
+      "skorpor", "pepparkakor", "lussekatter", "semlor", "vaniljbulle",
+      "längd", "fröbröd", "franskbröd", "ciabatta mini", "flingfralla",
+      "grovlimpa", "fullkornsbröd", "glutenfritt bröd", "baguette vitlök",
+      "tigerkaka", "banankaka"
     ],
     "dryck": [
       "kaffe", "malet kaffe", "kaffebönor", "te", "svart te", "grönt te",
       "läsk", "cola", "fanta", "juice", "apelsinjuice", "äppeljuice", "saft",
-      "vatten", "mineralvatten", "öl", "vin", "energidryck"
+      "vatten", "mineralvatten", "öl", "vin", "energidryck",
+      "tonic", "ginger ale", "citronsoda", "club soda", "sodavatten",
+      "is-te", "is-kaffe", "lemonsquash", "smoothie jordgubb", "smoothie mango",
+      "havredryck", "sojadryck", "mandeldryck", "kokosvatten", "sportdryck",
+      "multivitamindryck", "tranbärsjuice", "grapejuice", "tomatjuice",
+      "barista havre", "barista soja", "barista mandel", "chai latte",
+      "matcha latte", "proteinshake vanilj", "proteinshake choklad",
+      "alkoholfri öl", "cider", "must julmust", "påskmust"
     ],
     "hushall": [
       "toapapper", "hushållspapper", "diskmedel", "diskmaskinstabletter",
       "tvättmedel", "sköljmedel", "schampo", "balsam", "duschgel",
       "tandkräm", "tandborste", "soppåse", "soppåsar", "aluminiumfolie",
       "folie", "plastfilm", "bakplåtspapper", "ljus", "servett", "servetter",
-      "tändstickor"
+      "tändstickor",
+      "diskborste", "svinto", "svampar", "mikrofiberduk", "gummihandskar",
+      "toalettblock", "toalettstäd", "fönsterputs", "allrengöring",
+      "klorin", "badrumsrengöring", "köksspray", "ugnsspray", "avkalkningsmedel",
+      "dammsugarpåsar", "klädnypor", "galgar", "förvaringspåsar", "fryspåsar",
+      "sopsäckar", "aska papperskorg", "doftljus", "tändare", "grillkol",
+      "tändvätska", "almanacka", "bakform", "bakplåt", "matlådor",
+      "glasförvaring", "zip-påsar", "resårsnöre", "gummisnoddar"
     ],
     "halsa": [
       "vitamin", "vitaminer", "c-vitamin", "d-vitamin", "alvedon",
-      "ipren", "plåster", "handdesinfektion", "handsprit", "nässpray"
+      "ipren", "plåster", "handdesinfektion", "handsprit", "nässpray",
+      "magtabletter", "resorb", "zink", "magnesium", "omega-3",
+      "järntabletter", "probitoika", "vätskeersättning", "hostmedicin",
+      "halstabletter", "solkräm", "after sun", "hudkräm", "cerat",
+      "handsalva", "halsduk medicinsk", "munskydd", "termometer",
+      "första hjälpen kit", "sårtejp", "kompresser", "elastisk binda",
+      "ögondroppar", "allergitabletter", "laktasenzym", "nikotintuggummi",
+      "nikotinplåster"
     ],
     "ovrigt": [
-      "presentkort", "batterier", "tidning"
+      "presentkort", "batterier", "tidning",
+      "glödlampor", "usb-kabel", "mobilskal", "skärmskydd", "packtejp",
+      "sax", "lim", "superlim", "häftmassa", "häftstift", "pennor",
+      "suddgummi", "linjal", "anteckningsbok", "post-it", "kuvert",
+      "frimärken", "snöre", "tape", "dubbelsidig tejp", "hushållssnöre",
+      "cykellyse", "cykelpump", "regnponcho", "paraply", "reflex",
+      "ljusslinga", "batteriladdare", "förlängningssladd", "grenuttag",
+      "hänglås", "nyckelring", "skoputs", "skosnören", "inläggssulor",
+      "klädroller", "sykit", "knappar", "nålar", "tråd", "presentpapper",
+      "presentband", "gratulationskort"
     ]
   }
 }
