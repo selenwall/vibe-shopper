@@ -445,7 +445,27 @@
         // Register service worker
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register('./sw.js')
-            .then(() => { console.log('ServiceWorker registrerad'); })
+            .then((registration) => {
+              console.log('ServiceWorker registrerad');
+              // Listen for updates and activate immediately
+              const refreshPage = () => { window.location.reload(); };
+              if (registration.waiting) {
+                registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                return;
+              }
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                if (!newWorker) return;
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  }
+                });
+              });
+              navigator.serviceWorker.addEventListener('controllerchange', () => {
+                refreshPage();
+              });
+            })
             .catch(err => { console.log('ServiceWorker registrering misslyckades: ', err); });
         }
         
