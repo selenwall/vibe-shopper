@@ -182,6 +182,7 @@
     <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
     <script src="version.js"></script>
+    <script src="ai.js"></script>
     <script>
       (function() {
         const STORAGE_KEY = 'vibe.minimal.v1';
@@ -207,8 +208,12 @@
         ];
 
         function loadState() {
-          try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { items: [] }; }
-          catch { return { items: [] }; }
+          try {
+            const s = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { items: [] };
+            if (typeof s.aiEnabled !== 'boolean') s.aiEnabled = false;
+            return s;
+          }
+          catch { return { items: [], aiEnabled: false }; }
         }
         function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
         function announce(msg) { live.textContent = msg; }
@@ -306,6 +311,9 @@
                 }
               }
               render();
+              if (state.aiEnabled && !item.manualCategory && window.AI && typeof window.AI.suggestCategory === 'function') {
+                aiSuggestAndUpdate(item);
+              }
             }
             input.addEventListener('keydown', (e) => {
               if (e.key === 'Enter') commit(true);
@@ -390,6 +398,9 @@
           state.items.push(item);
           saveState();
           render();
+          if (state.aiEnabled && window.AI && typeof window.AI.suggestCategory === 'function') {
+            aiSuggestAndUpdate(item);
+          }
           updateProgress();
           announce(`${trimmed} tillagd`);
         }
@@ -439,6 +450,38 @@
             shoppingListEl.appendChild(section);
           }
           updateProgress();
+        }
+
+        // AI helpers
+        async function aiSuggestAndUpdate(item) {
+          try {
+            const labelDefs = categories.map(c => ({ key: c.key, label: c.label }));
+            const suggestion = await window.AI.suggestCategory(item.text, labelDefs);
+            if (!suggestion) return;
+            if (!item.manualCategory && suggestion !== item.category) {
+              item.category = suggestion;
+              saveState();
+              render();
+              announce('AI-kategorisering uppdaterad');
+            }
+          } catch (_) {}
+        }
+
+        async function recategorizeAllWithAI() {
+          if (!window.AI || typeof window.AI.suggestCategory !== 'function') return;
+          const labelDefs = categories.map(c => ({ key: c.key, label: c.label }));
+          let changed = false;
+          for (const it of state.items) {
+            if (it.manualCategory) continue;
+            try {
+              const suggestion = await window.AI.suggestCategory(it.text, labelDefs);
+              if (suggestion && suggestion !== it.category) {
+                it.category = suggestion;
+                changed = true;
+              }
+            } catch (_) {}
+          }
+          if (changed) { saveState(); render(); announce('AI om-kategoriserade varor'); }
         }
 
         // Input handlers
@@ -512,6 +555,34 @@
         versionBadge.textContent = 'v ' + (window.APP_VERSION || 'dev');
         versionBadge.setAttribute('aria-label', 'Byggversion');
         document.querySelector('.app-header').appendChild(versionBadge);
+        
+        // AI toggle button
+        const aiBtn = document.createElement('button');
+        aiBtn.textContent = state.aiEnabled ? '🤖 AI: På' : '🤖 AI: Av';
+        aiBtn.style.cssText = 'background: none; border: none; font-size: 1rem; cursor: pointer; padding: 5px; border-radius: 5px; margin-left: 10px;';
+        aiBtn.title = 'Växla AI-kategorisering';
+        aiBtn.onclick = async function() {
+          state.aiEnabled = !state.aiEnabled;
+          saveState();
+          aiBtn.textContent = state.aiEnabled ? '🤖 AI: På' : '🤖 AI: Av';
+          if (state.aiEnabled && window.AI && typeof window.AI.init === 'function') {
+            await window.AI.init();
+          }
+        };
+        document.querySelector('.app-header').appendChild(aiBtn);
+
+        // AI re-categorize button
+        const recatBtn = document.createElement('button');
+        recatBtn.textContent = '🧠 Om-kategorisera';
+        recatBtn.style.cssText = 'background: none; border: none; font-size: 1rem; cursor: pointer; padding: 5px; border-radius: 5px; margin-left: 6px;';
+        recatBtn.title = 'AI om-kategoriserar varor som inte är manuellt flyttade';
+        recatBtn.onclick = recategorizeAllWithAI;
+        document.querySelector('.app-header').appendChild(recatBtn);
+
+        // Pre-init AI if enabled
+        if (state.aiEnabled && window.AI && typeof window.AI.init === 'function') {
+          window.AI.init();
+        }
       })();
     </script>
 </body>

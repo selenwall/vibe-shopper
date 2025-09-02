@@ -5,7 +5,8 @@ const CACHE_NAME = `shopping-vibes-cache-v${VERSION}`;
 const CORE_ASSETS = [
   './',
   './index.html',
-  './manifest.webmanifest'
+  './manifest.webmanifest',
+  './ai.js'
 ];
 
 self.addEventListener('install', (event) => {
