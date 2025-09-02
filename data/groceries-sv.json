@@ -1,0 +1,63 @@
+{
+  "version": "1.0.0",
+  "categories": {
+    "mejeri": [
+      "mjölk", "laktosfri mjölk", "fil", "yoghurt", "grädde", "vispgrädde",
+      "smör", "bregott", "margarin", "ost", "hushållsost", "kvarg",
+      "keso", "creme fraiche", "gräddfil", "filmjölk"
+    ],
+    "frukt_gront": [
+      "äpple", "banan", "apelsin", "citron", "lime", "päron", "kiwi",
+      "tomat", "körsbärstomat", "gurka", "sallad", "bladspenat", "potatis",
+      "sötpotatis", "lök", "gul lök", "röd lök", "vitlök", "morot",
+      "paprika", "grön paprika", "röd paprika", "avokado", "broccoli",
+      "blomkål", "zucchini", "svamp", "champinjon", "druvor", "jordgubbar",
+      "blåbär", "hallon"
+    ],
+    "kott_fisk": [
+      "kyckling", "kycklingfilé", "hel kyckling", "nötfärs", "blandfärs",
+      "fläsk", "fläskfilé", "bacon", "korv", "falukorv", "köttbullar",
+      "biff", "entrecote", "lax", "laxfilé", "torsk", "torskfilé",
+      "sill", "skinka", "fiskpinnar"
+    ],
+    "skafferi": [
+      "bröd", "knäckebröd", "pasta", "spaghetti", "penne", "ris",
+      "jasminris", "basmatiris", "mjöl", "vetemjöl", "rågmjöl", "socker",
+      "strösocker", "florsocker", "salt", "peppar", "svartpeppar",
+      "olja", "olivolja", "rapsolja", "vinäger", "balsamvinäger", "buljong",
+      "hönsbuljong", "grönsaksbuljong", "krydda", "oregano", "basilika",
+      "kanel", "konserv", "krossade tomater", "majs", "kokosmjölk",
+      "havregryn", "bönor", "kidneybönor", "linser", "kikärtor",
+      "jordnötssmör"
+    ],
+    "frys": [
+      "fryst", "glass", "vaniljglass", "ärtor", "gröna ärtor", "spenat fryst",
+      "pizza fryst", "pommes frites", "bär frysta", "blåbär frysta",
+      "hallon frysta", "broccoli fryst"
+    ],
+    "bageri": [
+      "baguette", "fralla", "frallor", "limpa", "bullar", "kanelbulle",
+      "kardemummabulle", "tårta", "bakelse"
+    ],
+    "dryck": [
+      "kaffe", "malet kaffe", "kaffebönor", "te", "svart te", "grönt te",
+      "läsk", "cola", "fanta", "juice", "apelsinjuice", "äppeljuice", "saft",
+      "vatten", "mineralvatten", "öl", "vin", "energidryck"
+    ],
+    "hushall": [
+      "toapapper", "hushållspapper", "diskmedel", "diskmaskinstabletter",
+      "tvättmedel", "sköljmedel", "schampo", "balsam", "duschgel",
+      "tandkräm", "tandborste", "soppåse", "soppåsar", "aluminiumfolie",
+      "folie", "plastfilm", "bakplåtspapper", "ljus", "servett", "servetter",
+      "tändstickor"
+    ],
+    "halsa": [
+      "vitamin", "vitaminer", "c-vitamin", "d-vitamin", "alvedon",
+      "ipren", "plåster", "handdesinfektion", "handsprit", "nässpray"
+    ],
+    "ovrigt": [
+      "presentkort", "batterier", "tidning"
+    ]
+  }
+}
+
