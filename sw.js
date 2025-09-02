@@ -1,8 +1,10 @@
-const CACHE_NAME = 'shopping-vibes-cache-v' + Date.now();
+// Use version from version.js if available (self.APP_VERSION) else fallback
+const VERSION = (typeof self !== 'undefined' && self.APP_VERSION) ? self.APP_VERSION : '1.0.1';
+const CACHE_NAME = `shopping-vibes-cache-v${VERSION}`;
 const CORE_ASSETS = [
   './',
   './index.html',
-  './styles.css'
+  './manifest.webmanifest'
 ];
 
 self.addEventListener('install', (event) => {

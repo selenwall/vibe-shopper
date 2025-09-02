@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
+    <link rel="manifest" href="manifest.webmanifest">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -441,15 +442,11 @@
         // Initial render
         render();
         
-        // Register service worker (kommer att versioneras senare)
+        // Register service worker
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('./sw.js?v=' + Date.now())
-            .then(() => {
-              console.log('ServiceWorker registrerad');
-            })
-            .catch(err => {
-              console.log('ServiceWorker registrering misslyckades: ', err);
-            });
+          navigator.serviceWorker.register('./sw.js')
+            .then(() => { console.log('ServiceWorker registrerad'); })
+            .catch(err => { console.log('ServiceWorker registrering misslyckades: ', err); });
         }
         
         // Force refresh function for cache busting
