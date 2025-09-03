@@ -89,13 +89,71 @@
     if (!text || !labels || labels.length === 0) return null;
 
     // TFLite path: depends on how the model expects inputs/outputs.
-    // This is a placeholder; real implementation requires a trained model and mapping.
+    // Attempt to use SignatureRunner if available. Supports models with string text input.
     if (AI_STATE.provider === 'tflite' && AI_STATE.tfliteModel) {
       try {
-        // Placeholder: not implemented without a concrete model spec
-        // Return null to allow fallback or heuristics in caller
-        return null;
-      } catch (_) {}
+        const model = AI_STATE.tfliteModel;
+        let runner = model.createSignatureRunner ? model.createSignatureRunner() : null;
+        // If multiple signatures are supported, try default names
+        if (!runner && model.createSignatureRunner) {
+          const candidateSigs = ['serving_default', 'signature', 'classify', 'predict'];
+          for (const sig of candidateSigs) {
+            try { runner = model.createSignatureRunner(sig); break; } catch (_) {}
+          }
+        }
+        if (runner && runner.inputNames && runner.inputNames.length >= 1) {
+          // Use first input by default
+          const inputName = runner.inputNames[0];
+          const feeds = {};
+          feeds[inputName] = text;
+          const outputs = runner.run(feeds);
+          // Try common output conventions
+          // Case 1: outputs contains {labels: string[], scores: Float32Array}
+          if (outputs && outputs.labels && outputs.scores) {
+            const labelsOut = Array.from(outputs.labels);
+            const scoresOut = Array.from(outputs.scores);
+            // Map model labels to our target labels by exact or includes match
+            let bestKey = null;
+            let bestScore = -Infinity;
+            for (let i = 0; i < labelsOut.length; i++) {
+              const modelLabel = String(labelsOut[i]).toLowerCase();
+              const score = scoresOut[i] ?? Number.NEGATIVE_INFINITY;
+              for (const l of labels) {
+                const target = l.label.toLowerCase();
+                if (modelLabel === target || modelLabel.includes(target) || target.includes(modelLabel)) {
+                  if (score > bestScore) { bestScore = score; bestKey = l.key; }
+                }
+              }
+            }
+            if (bestKey) return bestKey;
+          }
+          // Case 2: single Float32Array output representing logits aligned with provided labels
+          const outputKeys = outputs ? Object.keys(outputs) : [];
+          if (outputKeys.length === 1 && ArrayBuffer.isView(outputs[outputKeys[0]])) {
+            const scores = Array.from(outputs[outputKeys[0]]);
+            if (scores.length === labels.length) {
+              let maxIdx = 0; let maxVal = -Infinity;
+              for (let i = 0; i < scores.length; i++) { if (scores[i] > maxVal) { maxVal = scores[i]; maxIdx = i; } }
+              return labels[maxIdx].key;
+            }
+          }
+          // Case 3: dictionary of class->score
+          if (outputs && typeof outputs === 'object' && !Array.isArray(outputs)) {
+            let bestKey = null; let bestScore = -Infinity;
+            for (const l of labels) {
+              for (const [k,v] of Object.entries(outputs)) {
+                const keyLower = k.toLowerCase();
+                const target = l.label.toLowerCase();
+                if (keyLower === target || keyLower.includes(target) || target.includes(keyLower)) {
+                  const score = typeof v === 'number' ? v : (Array.isArray(v) ? v[0] : Number.NEGATIVE_INFINITY);
+                  if (score > bestScore) { bestScore = score; bestKey = l.key; }
+                }
+              }
+            }
+            if (bestKey) return bestKey;
+          }
+        }
+      } catch (_) { /* fall through to transformers */ }
     }
 
     if (AI_STATE.provider === 'transformers' && AI_STATE.zscPipeline) {
