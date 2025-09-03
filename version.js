@@ -1,7 +1,7 @@
 // Version configuration for cache busting (usable in Window and Worker contexts)
 (function() {
     const root = (typeof self !== 'undefined') ? self : window;
-    root.APP_VERSION = '1.0.2';
+    root.APP_VERSION = '1.0.3';
     root.APP_BUILD_TIME = Date.now();
 
     root.getCacheBustedUrl = function(url) {
