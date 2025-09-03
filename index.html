@@ -210,10 +210,10 @@
         function loadState() {
           try {
             const s = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { items: [] };
-            if (typeof s.aiEnabled !== 'boolean') s.aiEnabled = false;
+            if (typeof s.aiEnabled !== 'boolean') s.aiEnabled = true; // AI primary by default
             return s;
           }
-          catch { return { items: [], aiEnabled: false }; }
+          catch { return { items: [], aiEnabled: true }; }
         }
         function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
         function announce(msg) { live.textContent = msg; }
@@ -225,6 +225,35 @@
             .replace(/[\u0300-\u036f]/g, '')
             .replace(/\s+/g, ' ')
             .trim();
+        }
+
+        // Context from groceries JSON
+        const context = { map: new Map(), ready: false };
+        async function loadContext() {
+          try {
+            const res = await fetch('data/groceries-sv.json');
+            if (!res.ok) return;
+            const data = await res.json();
+            const categoriesObj = data.categories || {};
+            Object.entries(categoriesObj).forEach(([catKey, items]) => {
+              (items || []).forEach((name) => {
+                context.map.set(normalize(name), catKey);
+              });
+            });
+            context.ready = true;
+          } catch (_) {}
+        }
+        loadContext();
+
+        function matchCategoryFromContext(text) {
+          const n = normalize(text);
+          if (!n) return null;
+          const exact = context.map.get(n);
+          if (exact) return exact;
+          for (const [keyStr, cat] of context.map.entries()) {
+            if (n.includes(keyStr)) return cat;
+          }
+          return null;
         }
 
         function autoCategorize(text) {
@@ -305,7 +334,7 @@
                 const v = (input.value || '').trim().replace(/\s+/g, ' ');
                 if (v) {
                   item.text = v;
-                  if (!item.manualCategory) item.category = autoCategorize(item.text);
+                  if (!item.manualCategory) item.category = matchCategoryFromContext(item.text) || autoCategorize(item.text);
                   saveState();
                   announce('Vara uppdaterad');
                 }
@@ -392,7 +421,7 @@
             id: 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
             text: trimmed,
             completed: false,
-            category: autoCategorize(trimmed),
+            category: matchCategoryFromContext(trimmed) || autoCategorize(trimmed),
             manualCategory: false
           };
           state.items.push(item);

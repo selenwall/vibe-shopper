@@ -6,7 +6,8 @@ const CORE_ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './ai.js'
+  './ai.js',
+  './data/groceries-sv.json'
 ];
 
 self.addEventListener('install', (event) => {
