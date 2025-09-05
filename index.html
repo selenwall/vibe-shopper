@@ -159,12 +159,95 @@
             background: rgba(255,255,255,0.4);
             border: 1px solid rgba(255,255,255,0.2);
         }
+        
+        .game-mode-indicator {
+            font-size: 0.9rem;
+            color: #666;
+            margin-left: 10px;
+            padding: 3px 8px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.4);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .game-controls {
+            background: rgba(255,255,255,0.3);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .guessing-interface {
+            background: rgba(255,255,255,0.3);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .guess-input-section {
+            margin-bottom: 15px;
+        }
+        
+        .guess-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .guess-btn {
+            background: #CCAFA5;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .guess-btn:hover {
+            background: #B89A8F;
+        }
+        
+        .guess-btn.secondary {
+            background: rgba(255,255,255,0.3);
+            color: #666;
+        }
+        
+        .guess-btn.secondary:hover {
+            background: rgba(255,255,255,0.5);
+        }
+        
+        .guessed-item {
+            background: rgba(255,255,255,0.4);
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .guessed-item.correct {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+        }
+        
+        .guessed-item.incorrect {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
         <div class="app-header">
             <div class="app-title">VIBE</div>
+            <div class="game-mode-indicator" id="game-mode" style="display: none;">
+                <span id="game-status"></span>
+            </div>
         </div>
         
         <div class="stats">
@@ -174,6 +257,26 @@
         
         <div class="add-section">
             <input id="add-input" class="add-input" placeholder="Lägg till vara..." aria-label="Lägg till vara" />
+        </div>
+        
+        <!-- Game Mode Controls -->
+        <div class="game-controls" id="game-controls" style="display: none;">
+            <div class="game-info">
+                <div id="game-room-info"></div>
+                <div id="game-score" style="margin-top: 10px; font-weight: bold;"></div>
+            </div>
+        </div>
+        
+        <!-- Guessing Mode Interface -->
+        <div class="guessing-interface" id="guessing-interface" style="display: none;">
+            <div class="guess-input-section">
+                <input id="guess-input" class="add-input" placeholder="Gissa en vara..." aria-label="Gissa vara" />
+                <div class="guess-buttons">
+                    <button id="submit-guess" class="guess-btn">Gissa</button>
+                    <button id="give-up" class="guess-btn secondary">Ge upp</button>
+                </div>
+            </div>
+            <div class="guessed-items" id="guessed-items"></div>
         </div>
         
         <div class="shopping-list" id="shopping-list" aria-label="Inköpslista"></div>
@@ -608,10 +711,259 @@
         recatBtn.onclick = recategorizeAllWithAI;
         document.querySelector('.app-header').appendChild(recatBtn);
 
+        // Game mode buttons
+        const gameBtn = document.createElement('button');
+        gameBtn.textContent = '🎮 Spela';
+        gameBtn.style.cssText = 'background: none; border: none; font-size: 1rem; cursor: pointer; padding: 5px; border-radius: 5px; margin-left: 6px;';
+        gameBtn.title = 'Starta gissningsspel';
+        gameBtn.onclick = startGame;
+        document.querySelector('.app-header').appendChild(gameBtn);
+
+        const joinBtn = document.createElement('button');
+        joinBtn.textContent = '🔗 Anslut';
+        joinBtn.style.cssText = 'background: none; border: none; font-size: 1rem; cursor: pointer; padding: 5px; border-radius: 5px; margin-left: 6px;';
+        joinBtn.title = 'Anslut till spel';
+        joinBtn.onclick = joinGame;
+        document.querySelector('.app-header').appendChild(joinBtn);
+
         // Pre-init AI if enabled
         if (state.aiEnabled && window.AI && typeof window.AI.init === 'function') {
           window.AI.init();
         }
+
+        // Game state
+        let gameState = {
+          isHost: false,
+          isGuessing: false,
+          roomId: null,
+          gameData: null,
+          guessedItems: [],
+          score: 0
+        };
+
+        // Simple data sharing using localStorage and polling
+        const GAME_STORAGE_PREFIX = 'vibe.game.';
+        
+        function generateRoomId() {
+          return Math.random().toString(36).substr(2, 8).toUpperCase();
+        }
+
+        function startGame() {
+          if (state.items.length === 0) {
+            alert('Lägg till varor först innan du startar spelet!');
+            return;
+          }
+          
+          gameState.isHost = true;
+          gameState.isGuessing = false;
+          gameState.roomId = generateRoomId();
+          gameState.gameData = {
+            items: state.items.map(item => ({
+              id: item.id,
+              text: item.text,
+              category: item.category
+            })),
+            totalItems: state.items.length,
+            guessedItems: []
+          };
+          gameState.guessedItems = [];
+          gameState.score = 0;
+          
+          // Save game data to localStorage for sharing
+          localStorage.setItem(GAME_STORAGE_PREFIX + gameState.roomId, JSON.stringify(gameState.gameData));
+          
+          updateGameUI();
+          announce(`Spel startat! Rums-ID: ${gameState.roomId}`);
+        }
+
+        function joinGame() {
+          const roomId = prompt('Ange rums-ID:');
+          if (!roomId) return;
+          
+          const gameData = localStorage.getItem(GAME_STORAGE_PREFIX + roomId);
+          if (!gameData) {
+            alert('Spelrum hittades inte!');
+            return;
+          }
+          
+          gameState.isHost = false;
+          gameState.isGuessing = true;
+          gameState.roomId = roomId;
+          gameState.gameData = JSON.parse(gameData);
+          gameState.guessedItems = [];
+          gameState.score = 0;
+          
+          updateGameUI();
+          announce(`Ansluten till spel! Rums-ID: ${gameState.roomId}`);
+        }
+
+        function updateGameUI() {
+          const gameModeEl = document.getElementById('game-mode');
+          const gameControlsEl = document.getElementById('game-controls');
+          const guessingInterfaceEl = document.getElementById('guessing-interface');
+          const gameStatusEl = document.getElementById('game-status');
+          const gameRoomInfoEl = document.getElementById('game-room-info');
+          const gameScoreEl = document.getElementById('game-score');
+          
+          if (gameState.isHost || gameState.isGuessing) {
+            gameModeEl.style.display = 'block';
+            gameControlsEl.style.display = 'block';
+            
+            if (gameState.isHost) {
+              gameStatusEl.textContent = 'Värd';
+              gameRoomInfoEl.innerHTML = `
+                <strong>Rums-ID: ${gameState.roomId}</strong><br>
+                <small>Dela detta ID med andra spelare</small>
+              `;
+              guessingInterfaceEl.style.display = 'none';
+            } else {
+              gameStatusEl.textContent = 'Gissar';
+              gameRoomInfoEl.innerHTML = `
+                <strong>Rums-ID: ${gameState.roomId}</strong><br>
+                <small>Gissa varor på listan!</small>
+              `;
+              guessingInterfaceEl.style.display = 'block';
+            }
+            
+            gameScoreEl.textContent = `Poäng: ${gameState.score} / ${gameState.gameData.totalItems}`;
+          } else {
+            gameModeEl.style.display = 'none';
+            gameControlsEl.style.display = 'none';
+            guessingInterfaceEl.style.display = 'none';
+          }
+        }
+
+        function submitGuess() {
+          const guessInput = document.getElementById('guess-input');
+          const guess = guessInput.value.trim().toLowerCase();
+          
+          if (!guess) return;
+          
+          // Check if already guessed
+          if (gameState.guessedItems.some(item => item.guess.toLowerCase() === guess)) {
+            announce('Redan gissat!');
+            return;
+          }
+          
+          // Find matching item
+          const matchingItem = gameState.gameData.items.find(item => 
+            item.text.toLowerCase() === guess || 
+            item.text.toLowerCase().includes(guess) ||
+            guess.includes(item.text.toLowerCase())
+          );
+          
+          const isCorrect = !!matchingItem;
+          const guessedItem = {
+            guess: guessInput.value,
+            correct: isCorrect,
+            actualItem: matchingItem ? matchingItem.text : null,
+            timestamp: Date.now()
+          };
+          
+          gameState.guessedItems.push(guessedItem);
+          
+          if (isCorrect) {
+            gameState.score++;
+            announce(`Rätt! "${matchingItem.text}"`);
+          } else {
+            announce('Fel!');
+          }
+          
+          // Update host's game data
+          if (gameState.isHost) {
+            gameState.gameData.guessedItems = gameState.guessedItems;
+            localStorage.setItem(GAME_STORAGE_PREFIX + gameState.roomId, JSON.stringify(gameState.gameData));
+          }
+          
+          updateGameUI();
+          renderGuessedItems();
+          guessInput.value = '';
+          
+          // Check win condition
+          if (gameState.score >= gameState.gameData.totalItems) {
+            announce('Grattis! Du gissade alla varor!');
+          }
+        }
+
+        function giveUp() {
+          if (confirm('Är du säker på att du vill ge upp?')) {
+            const remainingItems = gameState.gameData.items.filter(item => 
+              !gameState.guessedItems.some(guessed => 
+                guessed.correct && guessed.actualItem === item.text
+              )
+            );
+            
+            alert(`Du gissade ${gameState.score} av ${gameState.gameData.totalItems} varor!\n\nKvarvarande varor:\n${remainingItems.map(item => item.text).join('\n')}`);
+            
+            // Reset game
+            gameState = {
+              isHost: false,
+              isGuessing: false,
+              roomId: null,
+              gameData: null,
+              guessedItems: [],
+              score: 0
+            };
+            updateGameUI();
+          }
+        }
+
+        function renderGuessedItems() {
+          const guessedItemsEl = document.getElementById('guessed-items');
+          guessedItemsEl.innerHTML = '';
+          
+          gameState.guessedItems.forEach(item => {
+            const itemEl = document.createElement('div');
+            itemEl.className = `guessed-item ${item.correct ? 'correct' : 'incorrect'}`;
+            itemEl.innerHTML = `
+              <span>${item.guess}</span>
+              <span>${item.correct ? '✓' : '✗'}</span>
+            `;
+            if (item.actualItem && item.actualItem !== item.guess) {
+              itemEl.innerHTML += `<div style="font-size: 0.8rem; opacity: 0.7;">Rätt svar: ${item.actualItem}</div>`;
+            }
+            guessedItemsEl.appendChild(itemEl);
+          });
+        }
+
+        // Event listeners for guessing interface
+        document.addEventListener('DOMContentLoaded', function() {
+          const guessInput = document.getElementById('guess-input');
+          const submitBtn = document.getElementById('submit-guess');
+          const giveUpBtn = document.getElementById('give-up');
+          
+          if (guessInput) {
+            guessInput.addEventListener('keydown', (e) => {
+              if (e.key === 'Enter') {
+                submitGuess();
+              }
+            });
+          }
+          
+          if (submitBtn) {
+            submitBtn.addEventListener('click', submitGuess);
+          }
+          
+          if (giveUpBtn) {
+            giveUpBtn.addEventListener('click', giveUp);
+          }
+        });
+
+        // Poll for game updates (for host)
+        setInterval(() => {
+          if (gameState.isHost && gameState.roomId) {
+            const gameData = localStorage.getItem(GAME_STORAGE_PREFIX + gameState.roomId);
+            if (gameData) {
+              const parsedData = JSON.parse(gameData);
+              if (parsedData.guessedItems.length !== gameState.guessedItems.length) {
+                gameState.guessedItems = parsedData.guessedItems;
+                gameState.score = gameState.guessedItems.filter(item => item.correct).length;
+                updateGameUI();
+                renderGuessedItems();
+              }
+            }
+          }
+        }, 1000);
       })();
     </script>
 </body>
