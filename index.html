@@ -1,12 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
 <head>
+    <link rel="manifest" href="manifest.webmanifest">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>Vibe Shopper - Modern Minimalist v1.0.1</title>
+    <title>Vibe Shopper - Modern Minimalist v1.0.3</title>
     <style>
         * {
             margin: 0;
@@ -148,6 +149,16 @@
         }
         
         .sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+        .version-badge {
+            font-size: 0.8rem;
+            color: #666;
+            margin-left: 10px;
+            padding: 3px 8px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.4);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
     </style>
 </head>
 <body>
@@ -157,61 +168,122 @@
         </div>
         
         <div class="stats">
-            <div style="font-size: 0.9rem; margin-bottom: 5px;">Today's Progress</div>
-            <div id="progress" style="font-size: 1.5rem; font-weight: 600;">0 of 0 items</div>
+            <div style="font-size: 0.9rem; margin-bottom: 5px;">Dagens framsteg</div>
+            <div id="progress" style="font-size: 1.5rem; font-weight: 600;">0 av 0 varor</div>
         </div>
         
         <div class="add-section">
-            <input id="add-input" class="add-input" placeholder="Add new item..." aria-label="Add new item" />
+            <input id="add-input" class="add-input" placeholder="Lägg till vara..." aria-label="Lägg till vara" />
         </div>
         
-        <div class="shopping-list" id="shopping-list" aria-label="Shopping list">
-            <div class="category-section" id="main-category">
-                <div class="category-header">Items</div>
-                <div id="items"></div>
-            </div>
-        </div>
+        <div class="shopping-list" id="shopping-list" aria-label="Inköpslista"></div>
     </div>
 
     <div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
 
     <script src="version.js"></script>
+    <script src="ai.js"></script>
     <script>
       (function() {
         const STORAGE_KEY = 'vibe.minimal.v1';
         const inputEl = document.getElementById('add-input');
-        const itemsContainer = document.getElementById('items');
+        const shoppingListEl = document.getElementById('shopping-list');
         const progressEl = document.getElementById('progress');
         const live = document.getElementById('live');
 
         let state = loadState();
         let longPressTimer = null;
 
-        // Global drag handlers (once)
-        itemsContainer.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          const draggingId = e.dataTransfer?.getData('text/plain');
-          const draggingEl = draggingId ? itemsContainer.querySelector(`[data-id="${draggingId}"]`) : null;
-          const target = (e.target.closest && e.target.closest('.item')) || null;
-          if (!draggingEl || !target || draggingEl === target) return;
-          const rect = target.getBoundingClientRect();
-          const isBefore = e.clientY < rect.top + rect.height / 2;
-          if (isBefore) itemsContainer.insertBefore(draggingEl, target);
-          else itemsContainer.insertBefore(draggingEl, target.nextSibling);
-        });
-        itemsContainer.addEventListener('drop', persistOrder);
+        const categories = [
+          { key: 'mejeri', label: 'Mejeri', keywords: ['mjölk','fil','yoghurt','grädde','smör','ost','kvarg','keso','creme fraiche'] },
+          { key: 'frukt_gront', label: 'Frukt & Grönt', keywords: ['äpple','banan','apelsin','citron','lime','tomat','gurka','sallad','potatis','lök','morot','paprika','avokado','bär','spenat','broccoli'] },
+          { key: 'kott_fisk', label: 'Kött & Fisk', keywords: ['kyckling','nötfärs','fläsk','bacon','korv','kött','biff','lax','torsk','sill','skinka','fisk'] },
+          { key: 'skafferi', label: 'Skafferi', keywords: ['bröd','pasta','ris','mjöl','socker','salt','peppar','olja','vinäger','buljong','krydda','konserv','havregryn','bönor','linser'] },
+          { key: 'frys', label: 'Frys', keywords: ['fryst','glass','ärtor','spenat fryst','pizza fryst','bär frysta'] },
+          { key: 'bageri', label: 'Bageri', keywords: ['baguette','fralla','bullar','kanelbulle','tårta','bakelse'] },
+          { key: 'dryck', label: 'Dryck', keywords: ['kaffe','te','läsk','juice','saft','vatten','öl','vin','energidryck'] },
+          { key: 'hushall', label: 'Hushåll', keywords: ['toapapper','diskmedel','tvättmedel','schampo','balsam','tandkräm','soppåse','folio','plastfilm','ljus','servett'] },
+          { key: 'halsa', label: 'Hälsa', keywords: ['vitamin','alvedon','ipren','plåster','handdesinfektion'] },
+          { key: 'ovrigt', label: 'Övrigt', keywords: [] }
+        ];
 
         function loadState() {
-          try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || { items: [] }; }
-          catch { return { items: [] }; }
+          try {
+            const s = JSON.parse(localStorage.getItem(STORAGE_KEY)) || { items: [] };
+            if (typeof s.aiEnabled !== 'boolean') s.aiEnabled = true; // AI primary by default
+            return s;
+          }
+          catch { return { items: [], aiEnabled: true }; }
         }
         function saveState() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
         function announce(msg) { live.textContent = msg; }
 
+        function normalize(text) {
+          return (text || '')
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+        }
+
+        // Context from groceries JSON
+        const context = { map: new Map(), ready: false };
+        async function loadContext() {
+          try {
+            const res = await fetch('data/groceries-sv.json');
+            if (!res.ok) return;
+            const data = await res.json();
+            const categoriesObj = data.categories || {};
+            Object.entries(categoriesObj).forEach(([catKey, items]) => {
+              (items || []).forEach((name) => {
+                context.map.set(normalize(name), catKey);
+              });
+            });
+            context.ready = true;
+          } catch (_) {}
+        }
+        loadContext();
+
+        function matchCategoryFromContext(text) {
+          const n = normalize(text);
+          if (!n) return null;
+          const exact = context.map.get(n);
+          if (exact) return exact;
+          for (const [keyStr, cat] of context.map.entries()) {
+            if (n.includes(keyStr)) return cat;
+          }
+          return null;
+        }
+
+        function autoCategorize(text) {
+          const n = normalize(text);
+          for (const cat of categories) {
+            if (cat.key === 'ovrigt') continue;
+            if (cat.keywords.some(k => n.includes(k))) return cat.key;
+          }
+          return 'ovrigt';
+        }
+
+        function ensureCategory(item) {
+          if (!item.manualCategory) {
+            item.category = item.category || autoCategorize(item.text);
+          }
+        }
+
+        // Migrate existing items to have categories
+        (function migrate() {
+          let changed = false;
+          state.items.forEach(it => {
+            if (!it.category) { it.category = autoCategorize(it.text); changed = true; }
+          });
+          if (changed) saveState();
+        })();
+
         function updateProgress() {
           const total = state.items.length;
           const done = state.items.filter(i => i.completed).length;
-          progressEl.textContent = `${done} of ${total} item${total === 1 ? '' : 's'}`;
+          progressEl.textContent = `${done} av ${total} ${total === 1 ? 'vara' : 'varor'}`;
         }
 
         function createItemElement(item) {
@@ -229,7 +301,6 @@
           const textEl = el.querySelector('.item-text');
           textEl.textContent = item.text;
 
-          // Toggle complete
           function toggle(announceToggle = true) {
             item.completed = !item.completed;
             checkbox.classList.toggle('checked', item.completed);
@@ -238,12 +309,12 @@
             textEl.classList.toggle('completed', item.completed);
             saveState();
             updateProgress();
-            if (announceToggle) announce(`${item.text} ${item.completed ? 'completed' : 'marked active'}`);
+            if (announceToggle) announce(`${item.text} ${item.completed ? 'klar' : 'markerad som aktiv'}`);
           }
           checkbox.addEventListener('click', () => toggle(true));
           checkbox.addEventListener('keydown', (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(true); }});
 
-          // Inline edit on double click
+          // Inline edit
           textEl.addEventListener('dblclick', () => startEdit());
           textEl.addEventListener('keydown', (e) => { if (e.key.toLowerCase() === 'e') { e.preventDefault(); startEdit(); }});
           function startEdit() {
@@ -261,15 +332,17 @@
             function commit(save) {
               if (save) {
                 const v = (input.value || '').trim().replace(/\s+/g, ' ');
-                if (v) { item.text = v; saveState(); announce('Item edited'); }
+                if (v) {
+                  item.text = v;
+                  if (!item.manualCategory) item.category = matchCategoryFromContext(item.text) || autoCategorize(item.text);
+                  saveState();
+                  announce('Vara uppdaterad');
+                }
               }
-              const newText = document.createElement('div');
-              newText.className = 'item-text' + (item.completed ? ' completed' : '');
-              newText.textContent = item.text;
-              newText.setAttribute('tabindex', '0');
-              input.replaceWith(newText);
-              newText.addEventListener('dblclick', () => startEdit());
-              newText.addEventListener('keydown', (e) => { if (e.key.toLowerCase() === 'e') { e.preventDefault(); startEdit(); }});
+              render();
+              if (state.aiEnabled && !item.manualCategory && window.AI && typeof window.AI.suggestCategory === 'function') {
+                aiSuggestAndUpdate(item);
+              }
             }
             input.addEventListener('keydown', (e) => {
               if (e.key === 'Enter') commit(true);
@@ -301,10 +374,25 @@
         }
 
         function persistOrder() {
-          const ids = Array.from(itemsContainer.querySelectorAll('.item')).map(el => el.dataset.id);
-          state.items.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+          // Build new items array by DOM order within each category container
+          const newItems = [];
+          const containers = shoppingListEl.querySelectorAll('.category-items');
+          containers.forEach(container => {
+            const catKey = container.dataset.category;
+            const ids = Array.from(container.querySelectorAll('.item')).map(el => el.dataset.id);
+            ids.forEach(id => {
+              const it = state.items.find(i => i.id === id);
+              if (it) {
+                if (it.category !== catKey) { it.category = catKey; it.manualCategory = true; }
+                newItems.push(it);
+              }
+            });
+          });
+          // Include any items that might not be in DOM (should not happen)
+          state.items.forEach(it => { if (!newItems.includes(it)) newItems.push(it); });
+          state.items = newItems;
           saveState();
-          announce('Items reordered');
+          announce('Varor omordnades');
         }
 
         function removeItem(el) {
@@ -316,29 +404,113 @@
           saveState();
           el.remove();
           updateProgress();
-          announce(`${text} removed`);
+          announce(`${text} borttagen`);
+          // If category becomes empty, re-render to hide empty section
+          const parent = el.closest('.category-items');
+          if (parent && parent.children.length === 0) render();
         }
 
         function addItem(text) {
           const trimmed = (text || '').trim().replace(/\s+/g, ' ');
           if (!trimmed) return;
           if (state.items.some(i => i.text.toLowerCase() === trimmed.toLowerCase())) {
-            announce('Already on your list');
+            announce('Finns redan på listan');
             return;
           }
-          const item = { id: 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8), text: trimmed, completed: false };
+          const item = {
+            id: 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+            text: trimmed,
+            completed: false,
+            category: matchCategoryFromContext(trimmed) || autoCategorize(trimmed),
+            manualCategory: false
+          };
           state.items.push(item);
           saveState();
-          const el = createItemElement(item);
-          itemsContainer.appendChild(el);
+          render();
+          if (state.aiEnabled && window.AI && typeof window.AI.suggestCategory === 'function') {
+            aiSuggestAndUpdate(item);
+          }
           updateProgress();
-          announce(`${trimmed} added`);
+          announce(`${trimmed} tillagd`);
+        }
+
+        function createCategorySection(catKey, label) {
+          const section = document.createElement('div');
+          section.className = 'category-section';
+          const header = document.createElement('div');
+          header.className = 'category-header';
+          header.textContent = label;
+          const list = document.createElement('div');
+          list.className = 'category-items';
+          list.dataset.category = catKey;
+
+          // Drag handlers for this category container
+          list.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const draggingId = e.dataTransfer?.getData('text/plain');
+            const draggingEl = draggingId ? shoppingListEl.querySelector(`[data-id="${draggingId}"]`) : null;
+            const target = (e.target.closest && e.target.closest('.item')) || null;
+            if (!draggingEl) return;
+            if (target && draggingEl !== target) {
+              const rect = target.getBoundingClientRect();
+              const isBefore = e.clientY < rect.top + rect.height / 2;
+              if (isBefore) list.insertBefore(draggingEl, target);
+              else list.insertBefore(draggingEl, target.nextSibling);
+            } else if (!target && draggingEl.parentElement !== list) {
+              list.appendChild(draggingEl);
+            }
+          });
+          list.addEventListener('drop', persistOrder);
+
+          section.appendChild(header);
+          section.appendChild(list);
+          return section;
         }
 
         function render() {
-          itemsContainer.innerHTML = '';
-          state.items.forEach(item => itemsContainer.appendChild(createItemElement(item)));
+          shoppingListEl.innerHTML = '';
+          // Render sections in fixed order, include only if there are items
+          for (const cat of categories) {
+            const items = state.items.filter(i => (i.category || 'ovrigt') === cat.key);
+            if (items.length === 0) continue;
+            const section = createCategorySection(cat.key, cat.label);
+            const list = section.querySelector('.category-items');
+            items.forEach(item => list.appendChild(createItemElement(item)));
+            shoppingListEl.appendChild(section);
+          }
           updateProgress();
+        }
+
+        // AI helpers
+        async function aiSuggestAndUpdate(item) {
+          try {
+            const labelDefs = categories.map(c => ({ key: c.key, label: c.label }));
+            const suggestion = await window.AI.suggestCategory(item.text, labelDefs);
+            if (!suggestion) return;
+            if (!item.manualCategory && suggestion !== item.category) {
+              item.category = suggestion;
+              saveState();
+              render();
+              announce('AI-kategorisering uppdaterad');
+            }
+          } catch (_) {}
+        }
+
+        async function recategorizeAllWithAI() {
+          if (!window.AI || typeof window.AI.suggestCategory !== 'function') return;
+          const labelDefs = categories.map(c => ({ key: c.key, label: c.label }));
+          let changed = false;
+          for (const it of state.items) {
+            if (it.manualCategory) continue;
+            try {
+              const suggestion = await window.AI.suggestCategory(it.text, labelDefs);
+              if (suggestion && suggestion !== it.category) {
+                it.category = suggestion;
+                changed = true;
+              }
+            } catch (_) {}
+          }
+          if (changed) { saveState(); render(); announce('AI om-kategoriserade varor'); }
         }
 
         // Input handlers
@@ -352,20 +524,36 @@
         // Initial render
         render();
         
-        // Register service worker with cache busting
+        // Register service worker
         if ('serviceWorker' in navigator) {
-          navigator.serviceWorker.register('./sw.js?v=' + Date.now())
-            .then(registration => {
-              console.log('ServiceWorker registration successful');
+          navigator.serviceWorker.register('./sw.js')
+            .then((registration) => {
+              console.log('ServiceWorker registrerad');
+              // Listen for updates and activate immediately
+              const refreshPage = () => { window.location.reload(); };
+              if (registration.waiting) {
+                registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                return;
+              }
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                if (!newWorker) return;
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  }
+                });
+              });
+              navigator.serviceWorker.addEventListener('controllerchange', () => {
+                refreshPage();
+              });
             })
-            .catch(err => {
-              console.log('ServiceWorker registration failed: ', err);
-            });
+            .catch(err => { console.log('ServiceWorker registrering misslyckades: ', err); });
         }
         
         // Force refresh function for cache busting
         function forceRefresh() {
-          if (confirm('Force refresh to clear cache?')) {
+          if (confirm('Tvinga uppdatering och rensa cache?')) {
             window.location.reload(true);
           }
         }
@@ -374,7 +562,7 @@
         const refreshBtn = document.createElement('button');
         refreshBtn.textContent = '🔄';
         refreshBtn.style.cssText = 'background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; border-radius: 5px;';
-        refreshBtn.title = 'Force refresh (clear cache)';
+        refreshBtn.title = 'Tvinga uppdatering (rensa cache)';
         refreshBtn.onclick = forceRefresh;
         document.querySelector('.app-header').appendChild(refreshBtn);
         
@@ -382,13 +570,48 @@
         const cacheBtn = document.createElement('button');
         cacheBtn.textContent = '🗑️';
         cacheBtn.style.cssText = 'background: none; border: none; font-size: 1.2rem; cursor: pointer; padding: 5px; border-radius: 5px; margin-left: 10px;';
-        cacheBtn.title = 'Clear all caches';
+        cacheBtn.title = 'Rensa alla cacher';
         cacheBtn.onclick = function() {
-            if (confirm('Clear all caches and force refresh?')) {
+            if (confirm('Rensa alla cacher och tvinga uppdatering?')) {
                 window.clearAllCaches();
             }
         };
         document.querySelector('.app-header').appendChild(cacheBtn);
+
+        // Version badge
+        const versionBadge = document.createElement('div');
+        versionBadge.className = 'version-badge';
+        versionBadge.textContent = 'v ' + (window.APP_VERSION || 'dev');
+        versionBadge.setAttribute('aria-label', 'Byggversion');
+        document.querySelector('.app-header').appendChild(versionBadge);
+        
+        // AI toggle button
+        const aiBtn = document.createElement('button');
+        aiBtn.textContent = state.aiEnabled ? '🤖 AI: På' : '🤖 AI: Av';
+        aiBtn.style.cssText = 'background: none; border: none; font-size: 1rem; cursor: pointer; padding: 5px; border-radius: 5px; margin-left: 10px;';
+        aiBtn.title = 'Växla AI-kategorisering';
+        aiBtn.onclick = async function() {
+          state.aiEnabled = !state.aiEnabled;
+          saveState();
+          aiBtn.textContent = state.aiEnabled ? '🤖 AI: På' : '🤖 AI: Av';
+          if (state.aiEnabled && window.AI && typeof window.AI.init === 'function') {
+            await window.AI.init();
+          }
+        };
+        document.querySelector('.app-header').appendChild(aiBtn);
+
+        // AI re-categorize button
+        const recatBtn = document.createElement('button');
+        recatBtn.textContent = '🧠 Om-kategorisera';
+        recatBtn.style.cssText = 'background: none; border: none; font-size: 1rem; cursor: pointer; padding: 5px; border-radius: 5px; margin-left: 6px;';
+        recatBtn.title = 'AI om-kategoriserar varor som inte är manuellt flyttade';
+        recatBtn.onclick = recategorizeAllWithAI;
+        document.querySelector('.app-header').appendChild(recatBtn);
+
+        // Pre-init AI if enabled
+        if (state.aiEnabled && window.AI && typeof window.AI.init === 'function') {
+          window.AI.init();
+        }
       })();
     </script>
 </body>

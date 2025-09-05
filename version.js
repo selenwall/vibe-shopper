@@ -1,31 +1,27 @@
-// Version configuration for cache busting
-window.APP_VERSION = '1.0.1';
-window.APP_BUILD_TIME = Date.now();
+// Version configuration for cache busting (usable in Window and Worker contexts)
+(function() {
+    const root = (typeof self !== 'undefined') ? self : window;
+    root.APP_VERSION = '1.0.3';
+    root.APP_BUILD_TIME = Date.now();
 
-// Function to get cache-busted URLs
-window.getCacheBustedUrl = function(url) {
-    const separator = url.includes('?') ? '&' : '?';
-    return `${url}${separator}v=${window.APP_VERSION}&t=${window.APP_BUILD_TIME}`;
-};
+    root.getCacheBustedUrl = function(url) {
+        const separator = url.includes('?') ? '&' : '?';
+        return `${url}${separator}v=${root.APP_VERSION}&t=${root.APP_BUILD_TIME}`;
+    };
 
-// Function to force clear all caches
-window.clearAllCaches = function() {
-    if ('caches' in window) {
-        caches.keys().then(names => {
-            names.forEach(name => {
-                caches.delete(name);
+    root.clearAllCaches = function() {
+        if (typeof caches !== 'undefined') {
+            caches.keys().then(names => {
+                names.forEach(name => { caches.delete(name); });
             });
-        });
-    }
-    
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-            registrations.forEach(registration => {
-                registration.unregister();
+        }
+        if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                registrations.forEach(registration => { registration.unregister(); });
             });
-        });
-    }
-    
-    // Force reload
-    window.location.reload(true);
-};
+        }
+        if (typeof location !== 'undefined' && typeof location.reload === 'function') {
+            location.reload(true);
+        }
+    };
+})();
