@@ -1,5 +1,5 @@
 /* Lightweight AI categorization helper
-   - Tries TFLite model at ./models/grocery-categorizer.tflite (if present)
+   - Tries TFLite model at ./data/grocery-category-model.tflite (if present)
    - Falls back to Transformers.js zero-shot classification (Xenova/nli-deberta-v3-xsmall)
    - If neither is available, returns null and caller should use heuristics
 */
@@ -25,12 +25,12 @@
   }
 
   async function tryInitTFLite() {
-    // Requires a local TFLite model to be present at ./models/grocery-categorizer.tflite
+    // Requires a local TFLite model to be present at ./data/grocery-category-model.tflite
     try {
       // Load TFLite runtime via CDN
       await loadScript('https://cdn.jsdelivr.net/npm/@tensorflow/tflite/dist/tflite.min.js');
       if (!window.tflite) return false;
-      const modelUrl = './models/grocery-categorizer.tflite';
+      const modelUrl = './data/grocery-category-model.tflite';
       const resp = await fetch(modelUrl, { method: 'HEAD' });
       if (!resp.ok) return false;
       const model = await window.tflite.loadTFLiteModel(modelUrl);
